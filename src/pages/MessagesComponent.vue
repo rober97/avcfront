@@ -49,7 +49,6 @@
               "
             >
               <span>{{ message.text }}</span>
-              <small>{{ formatDate(message.timestamp) }}</small>
             </div>
           </div>
 
