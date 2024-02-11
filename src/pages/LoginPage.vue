@@ -2,39 +2,39 @@
   <q-page class="login-page q-pa-md">
     <!-- Parte superior -->
     <div class="top-section row justify-center q-mb-md">
-      <!-- Columna: Copiar IP -->
       <div class="col-auto text-center q-px-lg">
         <q-card
           class="my-card"
           style="width: 200px; height: 150px; border-radius: 50px"
           horinzontal
         >
-          <q-card-section class="bg-grey-8 text-white">
-            <div class="text-h6">Copiar IP</div>
+          <q-card-section class="card-ip text-white">
+            <div class="text-h6">IP</div>
             <div class="text-subtitle2">play.avclatin.com</div>
           </q-card-section>
 
           <q-card-actions vertical align="center">
-            <q-btn flat><i class="fas fa-copy"></i></q-btn>
+            <q-btn flat @click="copyIP"
+              ><i class="fas fa-copy" title="Copiar"></i
+            ></q-btn>
           </q-card-actions>
         </q-card>
       </div>
-      <!-- Columna: Nombre -->
-      <div class="col-auto text-center q-px-lg"></div>
-
       <!-- Columna: Discord -->
       <div class="col-auto text-center q-px-lg">
         <q-card
           class="my-card"
           style="width: 200px; height: 150px; border-radius: 50px"
         >
-          <q-card-section class="bg-grey-8 text-white">
+          <q-card-section class="card-ip text-white">
             <div class="text-h6">Discord</div>
-            <div class="text-subtitle2">avclatin</div>
+            <div class="text-subtitle2">AvCLatin</div>
           </q-card-section>
 
           <q-card-actions vertical align="center">
-            <q-btn flat><i class="fas fa-link"></i></q-btn>
+            <q-btn flat @click="openDiscord"
+              ><i class="fas fa-link" title="Click"></i
+            ></q-btn>
           </q-card-actions>
         </q-card>
       </div>
@@ -50,10 +50,11 @@
             filled
             class="inputCustom"
             v-model="email"
-            label="Correo electrónico o Usuario"
+            label="Nombre de usuario"
             lazy-rules
             :rules="[
-              (val) => (val && val.length > 0) || 'Ingresa un correo o usuario',
+              (val) =>
+                (val && val.length > 0) || 'Ingresa un nombre de usuario',
             ]"
           />
 
@@ -146,6 +147,63 @@ export default {
         }
       },
 
+      copyIP() {
+        let ipServer = "play.avclatin.com";
+
+        // Usar la API del Portapapeles para copiar el texto
+        if (navigator.clipboard && window.isSecureContext) {
+          // Navegador soporta la API del portapapeles y está en un contexto seguro (HTTPS)
+          navigator.clipboard
+            .writeText(ipServer)
+            .then(() => {
+              // Notificación de éxito
+              $q.notify({
+                progress: true,
+                message: "IP Copiada con éxito!",
+                color: "primary",
+                multiLine: true,
+              });
+            })
+            .catch((err) => {
+              // Manejar errores (por ejemplo, si el usuario no da permiso para acceder al portapapeles)
+              console.error("No se pudo copiar la IP: ", err);
+            });
+        } else {
+          // Método alternativo para navegadores que no soportan navigator.clipboard.writeText
+          // Crear un elemento de texto temporal
+          let textArea = document.createElement("textarea");
+          textArea.value = ipServer;
+          document.body.appendChild(textArea);
+          textArea.focus();
+          textArea.select();
+
+          try {
+            // Intentar copiar el contenido del textarea al portapapeles
+            let successful = document.execCommand("copy");
+            if (successful) {
+              // Notificación de éxito
+              $q.notify({
+                progress: true,
+                message: "IP Copiada con éxito!",
+                color: "primary",
+                multiLine: true,
+              });
+            } else {
+              console.error("No se pudo copiar la IP usando execCommand.");
+            }
+          } catch (err) {
+            console.error("Error al copiar la IP: ", err);
+          }
+
+          // Limpiar al finalizar
+          document.body.removeChild(textArea);
+        }
+      },
+
+      openDiscord() {
+        window.open("https://discord.gg/sBRVvZ4r2d", "_blank");
+      },
+
       onReset() {
         email.value = null;
         password.value = null;
@@ -173,10 +231,14 @@ export default {
 }
 
 .bottom-section {
-  width: 20%;
+  min-width: 50%;
   margin-top: 50px;
   background-color: white;
   border-radius: 40px;
   padding: 20px;
+}
+
+.card-ip {
+  background-color: #03a70e;
 }
 </style>

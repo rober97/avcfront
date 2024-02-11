@@ -251,6 +251,10 @@ export default {
       try {
         const res = await axios(config);
         debugger;
+        res.data.posts.sort(
+          (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
+        );
+        debugger;
         this.posts = [...this.posts, ...res.data.posts];
         if (res.data.posts.length < this.pageSize) {
           this.hasMore = res.data.hasMore;
