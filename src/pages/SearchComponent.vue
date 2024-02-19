@@ -21,7 +21,12 @@
       >
         <q-item-section avatar>
           <q-avatar>
-            <img :src="user.imgUrl" alt="User avatar" />
+            <!-- Añadimos el evento onerror para cambiar la imagen en caso de error -->
+            <img
+              :src="getMinecraftSkinUrl(user.username)"
+              @error="onImageError($event)"
+              alt="User Avatar"
+            />
           </q-avatar>
         </q-item-section>
         <q-item-section @click="toProfile(user)">
@@ -32,6 +37,7 @@
     </q-list>
   </q-page>
 </template>
+
 <script>
 import { ref } from "vue";
 import { useUserStore } from "../stores/userStore";
@@ -60,7 +66,6 @@ export default {
       // Lógica cuando un usuario es seleccionado
     };
 
-    // Carga inicial de usuarios
     const loadUsers = async () => {
       // Lógica para cargar usuarios, por ejemplo:
       users.value = await userStore.getListUsers();
@@ -70,10 +75,28 @@ export default {
       router.push("/profile/" + user._id);
     };
 
+    // Función para obtener la URL del skin de Minecraft
+    const getMinecraftSkinUrl = (username) => {
+      return `https://minotar.net/avatar/${username}`;
+    };
+
+    // Función para manejar el error al cargar la imagen
+    const onImageError = (event) => {
+      event.target.src = require("../resources/steve.png");
+    };
+
     // Llama a loadUsers en la carga del componente
     loadUsers();
 
-    return { searchQuery, users, searchUsers, selectUser, toProfile };
+    return {
+      searchQuery,
+      users,
+      searchUsers,
+      selectUser,
+      toProfile,
+      getMinecraftSkinUrl,
+      onImageError,
+    };
   },
 };
 </script>

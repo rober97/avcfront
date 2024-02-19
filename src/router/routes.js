@@ -17,6 +17,7 @@ const routes = [
       },
 
       { path: 'explorer', component: () => import('src/pages/ExploreComponent.vue'), meta: { requiresAuth: true } },
+      { path: 'shorts', component: () => import('src/pages/ShortsComponent.vue') },
       { path: 'messages/:id', component: () => import('src/pages/MessagesComponent.vue'), meta: { requiresAuth: true } },
       { path: 'messages-list', component: () => import('src/pages/MessagesComponent.vue'), meta: { requiresAuth: true } },
       { path: 'search', component: () => import('src/pages/SearchComponent.vue'), meta: { requiresAuth: true } }

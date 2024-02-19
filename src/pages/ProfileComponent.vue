@@ -4,23 +4,18 @@
     <div class="profile-section q-ma-md" style="margin-top: 20px">
       <div class="q-gutter-md row items-center">
         <div class="col">
-          <q-avatar size="150px" @click="showEditDialog = true">
-            <img
-              v-if="user.imageUrl != ''"
-              :src="user.imageUrl"
-              alt="User Avatar"
-            />
-
-            <img v-else src="../resources/steve.png" />
+          <q-avatar size="150px">
+            <!-- Utilizamos la función getMinecraftSkinUrl para obtener la URL del skin -->
+            <img :src="getMinecraftSkinUrl(user.username)" alt="User Avatar" />
           </q-avatar>
         </div>
         <div class="col">
           <!-- Botones agregados aquí -->
           <div class="q-gutter-md row items-center justify-center">
-            <div class="col-auto">
+            <div class="col-auto" v-show="showPerfil()">
               <q-btn label="Seguir" color="secondary" class="q-mr-md" />
             </div>
-            <div class="col-auto">
+            <div class="col-auto" v-show="showPerfil()">
               <q-btn
                 label="Mensaje"
                 color="secondary"
@@ -28,7 +23,7 @@
                 @click="sendMessage"
               />
             </div>
-            <div class="col-auto">
+            <div class="col-auto" v-show="checkProfile()">
               <q-btn
                 label="Editar perfil"
                 color="primary"
@@ -119,7 +114,7 @@
         <div>{{ user.bio }}</div>
       </div>
       <q-infinite-scroll
-        @load="(index, done) => loadMorePosts(index, done)"
+        @load="(index, done) => loadMorePosts(done)"
         :offset="200"
       >
         <div class="q-gutter-md row custom-grid" style="margin-top: 40px">
@@ -162,7 +157,7 @@
               <!-- Desplegable para eliminar publicación -->
               <q-menu v-model="showActions">
                 <q-list>
-                  <q-item clickable @click="deletePost(selectedPost.id)">
+                  <q-item clickable @click="deletePost(selectedPost)">
                     <q-item-section>Eliminar publicación</q-item-section>
                   </q-item>
                 </q-list>
@@ -203,10 +198,12 @@
 <script>
 import AsideLayout from "layouts/AsideLayout.vue";
 import { useGlobal } from "../stores/global";
+import { watch } from "vue";
 import { useUserStore } from "../stores/userStore";
 import { usePostStore } from "../stores/postStore";
 import { ref, onMounted, nextTick } from "vue";
 import "font-awesome/css/font-awesome.css";
+import { useQuasar } from "quasar";
 import axios from "axios";
 import { useRouter, useRoute } from "vue-router";
 const global = useGlobal();
@@ -219,11 +216,29 @@ export default {
     const router = useRouter();
     const route = useRoute();
     const userStore = useUserStore();
+
     onMounted(async () => {
       const id = route.params.id;
       const user_ = await userStore.getUserById({ id });
       user.value = user_;
     });
+
+    const loadUserData = async (userId) => {
+      try {
+        const userData = await userStore.getUserById({ id: userId });
+        user.value = userData;
+      } catch (error) {
+        console.error("Error al cargar los datos del usuario:", error);
+      }
+    };
+    watch(
+      () => route.params.id,
+      (newId) => {
+        if (newId) {
+          loadUserData(newId);
+        }
+      }
+    );
     return {
       showEditDialog: false,
       showPostDialog: false,
@@ -253,8 +268,11 @@ export default {
     const showEditProfile = ref(false);
     const editProfile = () => {
       showEditProfile.value = !showEditProfile.value;
-      debugger;
     };
+    const getMinecraftSkinUrl = (username) => {
+      return `https://minotar.net/avatar/${username}`;
+    };
+
     return {
       userStore,
       postStore,
@@ -263,6 +281,7 @@ export default {
       pageSize: 5, // Paginación: número de publicaciones por página
       showEditProfile,
       editProfile,
+      getMinecraftSkinUrl,
     };
   },
 
@@ -271,9 +290,30 @@ export default {
       // Manejo de rechazo aquí...
     },
 
+    showPerfil() {
+      const idParam = this.$route.params.id;
+      const idUser = JSON.parse(localStorage.getItem("user")).id;
+      let flag = true;
+      if (idParam == idUser) {
+        flag = false;
+      }
+      return flag;
+    },
+
+    checkProfile() {
+      const idParam = this.$route.params.id;
+      const idUser = JSON.parse(localStorage.getItem("user")).id;
+      let flag = false;
+      if (idParam == idUser) {
+        flag = true;
+      }
+      return flag;
+    },
+
     async deletePost(postId) {
       try {
-        const res = await this.postStore.deletePost(postId);
+        debugger;
+        const res = await this.postStore.deletePost(postId._id);
         this.posts = this.posts.filter((post) => post.id !== postId);
         this.showPostDialog = false;
       } catch (error) {
@@ -283,21 +323,6 @@ export default {
     clearImage() {
       this.files = null;
       this.imagePreview = null;
-    },
-    async saveProfilePhoto() {
-      if (this.files) {
-        const urlImage = await this.userStore.uploadImage(this.files);
-        const id = JSON.parse(localStorage.getItem("user")).id;
-        const user = await this.userStore.getUserById(id);
-        user.imageUrl = urlImage;
-        await this.userStore.updateUser(user);
-      }
-    },
-
-    async saveProfile(user) {
-      debugger;
-      await this.userStore.updateUser(user);
-      this.showEditProfile = false;
     },
     showPostDetails(post) {
       debugger;
@@ -310,7 +335,7 @@ export default {
       this.$router.push({ path: `/messages/${id}` });
     },
 
-    async loadMorePosts(index, done) {
+    async loadMorePosts(done) {
       const id = this.$route.params.id;
       if (id) {
         if (!this.hasMore) {

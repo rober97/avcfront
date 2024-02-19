@@ -101,12 +101,9 @@ export default {
     ]);
 
     const uploaderRef = ref(null);
-    watchEffect(() => {
-      console.log("uploaderRef.value:", uploaderRef.value);
-    });
+    watchEffect(() => {});
     onMounted(() => {
       console.log("Componente montado");
-      console.log(uploaderRef.value);
     });
     const closeDialog = () => {
       emit("update:show", false);

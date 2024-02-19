@@ -10,6 +10,7 @@ export const usePostStore = defineStore({
   },
   actions: {
     async deletePost(id) {
+      const global = useGlobal();
       const config = {
         headers: {
           Accept: "application/json",

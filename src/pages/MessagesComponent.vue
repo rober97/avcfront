@@ -19,7 +19,13 @@
             >
               <q-item-section avatar>
                 <q-avatar>
-                  <img :src="chat.avatar" alt="User avatar" />
+                  <img
+                    v-if="chat.imageUrl"
+                    :src="chat.imageUrl"
+                    alt="User Avatar"
+                  />
+
+                  <img v-else src="../resources/steve.png" />
                 </q-avatar>
               </q-item-section>
 
@@ -208,6 +214,7 @@ export default {
       const id = JSON.parse(localStorage.getItem("user")).id;
       if (id) {
         const chats = await userStore.getChatByUser(id);
+        debugger;
         if (chats.data.length > 0) {
           const id_user = route.params.id;
           if (id_user) {

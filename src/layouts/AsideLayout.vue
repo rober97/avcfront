@@ -59,6 +59,11 @@ const linksList = [
     link: "/explorer",
   },
   {
+    title: "Shorts",
+    icon: "school",
+    link: "/shorts",
+  },
+  {
     title: "Perfil",
     caption: "",
     icon: "school",
