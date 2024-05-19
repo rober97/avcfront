@@ -7,8 +7,8 @@ const routes = [
     children: [
       { path: '', component: () => import('src/pages/RegisterPage.vue') },
       { path: 'login', component: () => import('src/pages/LoginPage.vue') },
-      { path: 'list-npc', component: () => import('pages/ListNpc.vue') },
-      { path: 'list-kino', component: () => import('pages/ListKino.vue') },
+      { path: 'list-npc', component: () => import('pages/ListNpc.vue'), meta: { requiresAuth: true } },
+      { path: 'list-kino', component: () => import('pages/ListKino.vue'), meta: { requiresAuth: true } },
       { path: 'main', component: () => import('src/pages/MainComponent.vue'), meta: { requiresAuth: true } },
       {
         path: 'profile/:id',
@@ -20,7 +20,9 @@ const routes = [
       { path: 'shorts', component: () => import('src/pages/ShortsComponent.vue') },
       { path: 'messages/:id', component: () => import('src/pages/MessagesComponent.vue'), meta: { requiresAuth: true } },
       { path: 'messages-list', component: () => import('src/pages/MessagesComponent.vue'), meta: { requiresAuth: true } },
-      { path: 'search', component: () => import('src/pages/SearchComponent.vue'), meta: { requiresAuth: true } }
+      { path: 'search', component: () => import('src/pages/SearchComponent.vue'), meta: { requiresAuth: true } },
+      { path: 'market', component: () => import('src/pages/MarketComponent.vue') },
+      { path: 'market-list', component: () => import('src/pages/ListRecommendComponent.vue') },
     ]
   },
   {

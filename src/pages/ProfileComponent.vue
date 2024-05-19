@@ -6,20 +6,38 @@
         <div class="col">
           <q-avatar size="150px">
             <!-- Utilizamos la función getMinecraftSkinUrl para obtener la URL del skin -->
-            <img :src="getMinecraftSkinUrl(user.username)" alt="User Avatar" />
+            <img
+              :src="getMinecraftSkinUrl(userData.username)"
+              alt="User Avatar"
+            />
           </q-avatar>
         </div>
         <div class="col">
           <!-- Botones agregados aquí -->
           <div class="q-gutter-md row items-center justify-center">
             <div class="col-auto" v-show="showPerfil()">
-              <q-btn label="Seguir" color="secondary" class="q-mr-md" />
+              <q-btn
+                label="Seguir"
+                color="secondary"
+                class="q-mr-md"
+                @click="follow()"
+                v-show="followingBtn"
+              />
+
+              <q-btn
+                label="Siguiendo"
+                color="secondary"
+                class="q-mr-md"
+                @click="unfollow()"
+                v-show="isFollowingBtn"
+              />
             </div>
             <div class="col-auto" v-show="showPerfil()">
               <q-btn
                 label="Mensaje"
                 color="secondary"
                 class="q-mr-md"
+                v-show="messageBtn"
                 @click="sendMessage"
               />
             </div>
@@ -37,7 +55,10 @@
             <div>
               <strong>{{ posts.length }}</strong> publicaciones
             </div>
-            <div><strong>0</strong> seguidores</div>
+            <div>
+              <strong>{{ userData.followers.length }}</strong>
+              seguidores
+            </div>
             <div><strong>0</strong> seguidos</div>
           </div>
         </div>
@@ -96,7 +117,7 @@
             <q-input
               outlined
               type="textarea"
-              v-model="user.bio"
+              v-model="userData.bio"
               label="Biografia"
               class="q-mb-md"
             />
@@ -110,42 +131,45 @@
       </q-dialog>
 
       <div class="q-mt-md">
-        <strong>{{ user.username }}</strong>
-        <div>{{ user.bio }}</div>
+        <strong>{{ userData.username }}</strong>
+        <div>{{ userData.bio }}</div>
       </div>
       <q-infinite-scroll
         @load="(index, done) => loadMorePosts(done)"
         :offset="200"
       >
-        <div class="q-gutter-md row custom-grid" style="margin-top: 40px">
-          <div
+        <q-list class="rounded-borders">
+          <q-item
             v-for="post in posts"
             :key="post.id"
+            clickable
             @click="showPostDetails(post)"
-            class="col-4"
+            class="q-pa-md post-container border-bottom"
           >
-            <template v-if="post.imageUrl && post.imageUrl !== 'S/M'">
-              <q-img
+            <!-- Verifica si hay una imagen para la publicación -->
+            <div
+              v-if="post.imageUrl && post.imageUrl !== 'S/M'"
+              class="post-image-container"
+            >
+              <img
                 :src="post.imageUrl"
                 :alt="post.description"
                 class="post-image"
-              >
-                <div class="post-overlay">
-                  <i class="fas fa-heart"></i>&nbsp;
-                  <span>{{ post.likes.length }}</span
-                  >&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                  <i class="fas fa-comment"></i>&nbsp;
-                  <span>{{ post.comments.length }}</span>
-                </div>
-              </q-img>
-            </template>
-            <template v-else>
-              <div class="post-placeholder q-pa-md">
-                {{ post.description }}
-              </div>
-            </template>
-          </div>
-        </div>
+              />
+            </div>
+            <!-- Contenedor de la descripción y los íconos -->
+            <div class="post-content">
+              <div class="text-body1 q-my-md">{{ post.description }}</div>
+              <q-item-section side top class="q-pt-none custom-icons">
+                <q-icon name="favorite_border" />
+                <span class="q-ml-xs">{{ post.likes.length }}</span>
+                <q-icon name="chat_bubble_outline" class="q-ml-md" />
+                <span class="q-ml-xs">{{ post.comments.length }}</span>
+              </q-item-section>
+            </div>
+          </q-item>
+        </q-list>
+        <q-spinner-dots v-if="loading" class="q-mt-md" />
       </q-infinite-scroll>
     </div>
     <!-- Nuevo diálogo para mostrar detalles de una publicación -->
@@ -203,7 +227,7 @@ import { useUserStore } from "../stores/userStore";
 import { usePostStore } from "../stores/postStore";
 import { ref, onMounted, nextTick } from "vue";
 import "font-awesome/css/font-awesome.css";
-import { useQuasar } from "quasar";
+import { debounce, useQuasar } from "quasar";
 import axios from "axios";
 import { useRouter, useRoute } from "vue-router";
 const global = useGlobal();
@@ -211,60 +235,25 @@ export default {
   components: {
     AsideLayout,
   },
-  data() {
-    const user = ref("");
-    const router = useRouter();
-    const route = useRoute();
-    const userStore = useUserStore();
-
-    onMounted(async () => {
-      const id = route.params.id;
-      const user_ = await userStore.getUserById({ id });
-      user.value = user_;
-    });
-
-    const loadUserData = async (userId) => {
-      try {
-        const userData = await userStore.getUserById({ id: userId });
-        user.value = userData;
-      } catch (error) {
-        console.error("Error al cargar los datos del usuario:", error);
-      }
-    };
-    watch(
-      () => route.params.id,
-      (newId) => {
-        if (newId) {
-          loadUserData(newId);
-        }
-      }
-    );
-    return {
-      showEditDialog: false,
-      showPostDialog: false,
-      userProfileImage: "",
-      files: null,
-      imagePreview: null,
-      selectedPost: null,
-      posts: [],
-      user,
-    };
-  },
-  watch: {
-    files(newFiles) {
-      debugger;
-      if (newFiles) {
-        const reader = new FileReader();
-        reader.readAsDataURL(newFiles);
-        reader.onload = (e) => {
-          this.imagePreview = e.target.result;
-        };
-      }
-    },
-  },
   setup() {
     const userStore = useUserStore();
     const postStore = usePostStore();
+    const posts = ref([]);
+    const isFollowingBtn = ref(false);
+    const messageBtn = ref(false);
+    const followingBtn = ref(false);
+    const currentPage = ref(0);
+    const pageSize = ref(10);
+    const hasMore = ref(true);
+    const route = useRoute();
+    const router = useRouter(); // Obtener el objeto router
+    const userData = ref({
+      username: "",
+      bio: "",
+      image: "",
+      followers: false,
+      following: false,
+    });
     const showEditProfile = ref(false);
     const editProfile = () => {
       showEditProfile.value = !showEditProfile.value;
@@ -273,72 +262,122 @@ export default {
       return `https://minotar.net/avatar/${username}`;
     };
 
-    return {
-      userStore,
-      postStore,
-      hasMore: true, // Variable para rastrear si aún hay más publicaciones por cargar
-      currentPage: 1, // Paginación: número de página actual
-      pageSize: 5, // Paginación: número de publicaciones por página
-      showEditProfile,
-      editProfile,
-      getMinecraftSkinUrl,
+    const checkFollow = async () => {
+      const id_user = JSON.parse(localStorage.getItem("user")).id;
+      const id_user_target = route.params.id;
+      if (id_user === id_user_target) {
+        isFollowingBtn.value = false;
+        messageBtn.value = false;
+        followingBtn.value = false;
+        return;
+      }
+
+      // Supongamos que obtienes los datos del usuario y su lista de seguidores
+      const res = await userStore.getUserById({ id: id_user_target });
+      debugger;
+      messageBtn.value = true;
+      if (res.followers.includes(id_user)) {
+        isFollowingBtn.value = true;
+      } else if (!res.followers.includes(id_user)) {
+        followingBtn.value = true;
+      }
     };
-  },
 
-  methods: {
-    onRejected() {
-      // Manejo de rechazo aquí...
-    },
+    const follow = async () => {
+      try {
+        const targetUserId = route.params.id;
+        const id_user = JSON.parse(localStorage.getItem("user")).id;
+        // Aquí enviarías el ID del usuario a seguir al backend
+        const response = await userStore.follow({
+          userId: id_user,
+          targetUserId,
+        });
 
-    showPerfil() {
-      const idParam = this.$route.params.id;
+        if (response.data.success) {
+          followingBtn.value = false; // Actualiza el estado de seguimiento
+          isFollowingBtn.value = true;
+          userData.value.followers.push(targetUserId);
+          // Actualizar la UI, mostrar mensaje, etc.
+        }
+      } catch (error) {
+        console.error(error);
+        // Manejar errores (mostrar mensaje, etc.)
+      }
+    };
+
+    const unfollow = async () => {
+      try {
+        const targetUserId = route.params.id;
+        const id_user = JSON.parse(localStorage.getItem("user")).id;
+        // Aquí enviarías el ID del usuario a seguir al backend
+        const response = await userStore.unfollow({
+          userId: id_user,
+          targetUserId,
+        });
+        debugger;
+        if (response.data.success) {
+          isFollowingBtn.value = false; // Actualiza el estado de seguimiento
+          followingBtn.value = true;
+          userData.value.followers = userData.value.followers.filter(
+            (item) => item !== targetUserId
+          );
+        }
+      } catch (error) {
+        console.error(error);
+        // Manejar errores (mostrar mensaje, etc.)
+      }
+    };
+
+    const showPerfil = async () => {
+      const idParam = route.params.id;
       const idUser = JSON.parse(localStorage.getItem("user")).id;
       let flag = true;
       if (idParam == idUser) {
         flag = false;
       }
       return flag;
-    },
+    };
 
-    checkProfile() {
-      const idParam = this.$route.params.id;
+    const checkProfile = () => {
+      const idParam = route.params.id;
       const idUser = JSON.parse(localStorage.getItem("user")).id;
       let flag = false;
       if (idParam == idUser) {
         flag = true;
       }
       return flag;
-    },
+    };
 
-    async deletePost(postId) {
+    const deletePost = async (postId) => {
       try {
-        debugger;
         const res = await this.postStore.deletePost(postId._id);
-        this.posts = this.posts.filter((post) => post.id !== postId);
+        posts = posts.filter((post) => post.id !== postId);
         this.showPostDialog = false;
       } catch (error) {
         console.error("Error al eliminar la publicación:", error);
       }
-    },
-    clearImage() {
+    };
+    const clearImage = () => {
       this.files = null;
       this.imagePreview = null;
-    },
-    showPostDetails(post) {
-      debugger;
-      this.selectedPost = post;
-      this.showPostDialog = true;
-    },
+    };
+    const showPostDetails = (post) => {
+      if (post.imageUrl != "S/M") {
+        this.selectedPost = post;
+        this.showPostDialog = true;
+      }
+    };
 
-    sendMessage() {
-      const id = this.$route.params.id;
-      this.$router.push({ path: `/messages/${id}` });
-    },
+    const sendMessage = () => {
+      const id = route.params.id;
+      router.push({ path: `/messages/${id}` });
+    };
 
-    async loadMorePosts(done) {
-      const id = this.$route.params.id;
+    const loadMorePosts = async (done) => {
+      const id = route.params.id;
+
       if (id) {
-        if (!this.hasMore) {
+        if (!hasMore.value) {
           done(true); // Si no hay más publicaciones por cargar, detiene el Infinite Scroll
           return;
         }
@@ -351,20 +390,26 @@ export default {
           method: "GET",
           url: `${global.url_api}/list-post-by-user`,
           params: {
-            page: this.currentPage,
-            size: this.pageSize,
+            page: currentPage.value,
+            size: pageSize.value,
             id,
           },
         };
 
         try {
           const res = await axios(config);
-          this.posts = [...this.posts, ...res.data.posts];
-          if (res.data.posts.length < this.pageSize) {
-            this.hasMore = res.data.hasMore;
+
+          if (res.data.posts.length > 0) {
+            res.data.posts.forEach((element) => {
+              posts.value.push(element);
+            });
+          }
+
+          if (res.data.posts.length < pageSize.value) {
+            hasMore.value = res.data.hasMore;
             // Si se devolvieron menos publicaciones de las solicitadas, asume que no hay más publicaciones por cargar
           } else {
-            this.currentPage++; // Incrementa el número de página para la siguiente carga
+            currentPage.value++; // Incrementa el número de página para la siguiente carga
           }
 
           done(); // Finaliza el proceso del Infinite Scroll
@@ -374,33 +419,74 @@ export default {
           done(true); // Si hay un error, detiene el Infinite Scroll
         }
       }
-    },
-  },
+    };
 
-  mounted() {},
+    onMounted(async () => {
+      const id = route.params.id;
+      userData.value = await userStore.getUserById({ id });
+      await checkFollow();
+    });
+
+    return {
+      userData,
+      showPostDetails,
+      checkFollow,
+      messageBtn,
+      follow,
+      posts,
+      sendMessage,
+      deletePost,
+      showPerfil,
+      isFollowingBtn,
+      followingBtn,
+      unfollow,
+      clearImage,
+      loadMorePosts,
+      userStore,
+      checkProfile,
+      postStore,
+      hasMore,
+      currentPage: 1, // Paginación: número de página actual
+      pageSize: 5, // Paginación: número de publicaciones por página
+      showEditProfile,
+      editProfile,
+      getMinecraftSkinUrl,
+    };
+  },
 };
 </script>
     
 <style scoped>
+.post-image-container {
+  width: 40%;
+  margin-bottom: 8px; /* Espacio entre la imagen y la descripción */
+}
+.post-container {
+  display: grid;
+}
+.custom-img {
+  height: 100px;
+}
+.custom-icons {
+  display: inline-block;
+}
 .post-placeholder {
-  background-color: #f2f2f2; /* color de fondo del placeholder */
-  border: 1px dashed #ccc; /* borde punteado */
-  text-align: center; /* centrar el texto */
-  border-radius: 5px; /* bordes redondeados */
-  height: 150px; /* puedes ajustar según prefieras */
   display: flex;
   align-items: center;
   justify-content: center;
+  min-height: 200px;
+  background-color: #f5f5f5;
 }
+
 .profile-section {
   max-width: 600px;
   margin: 0 auto;
 }
 
 .post-image {
-  width: 100%;
-  height: 200px;
-  object-fit: cover;
+  width: 100%; /* Las imágenes deben ocupar el ancho completo */
+  /* Altura eliminada para permitir la relación de aspecto */
+  /* object-fit eliminado ya que ya no tenemos una altura fija */
   position: relative;
 }
 
@@ -414,30 +500,34 @@ export default {
   color: white;
   display: flex;
   align-items: center;
-}
-
-.custom-grid {
-  display: flex;
-  flex-wrap: wrap;
-}
-
-.custom-column {
-  flex: 1 1 calc(33.33% - 16px); /* Asume un margen de 16px */
-  max-width: calc(33.33% - 16px);
+  justify-content: space-between; /* Esto ayuda a separar elementos de la izquierda y la derecha */
 }
 
 .action-buttons {
   position: absolute;
   top: 10px;
-  left: 10px;
-  z-index: 1; /* para asegurarnos de que se muestre por encima del contenido */
+  right: 10px; /* Posicionado a la derecha para evitar solapamiento con los contadores */
+  z-index: 1;
 }
 
 .post-image-users {
-  width: 600px;
-  height: auto;
+  width: 100%; /* Haciéndolo responsivo */
+  max-width: 600px; /* Limitando el ancho máximo */
+  margin: auto; /* Centrado si es más pequeño que el máximo */
+  height: auto; /* La altura es automática para mantener la relación de aspecto de la imagen */
 }
 
-/* Asegurándose de que la imagen ocupe todo el espacio disponible */
+/* Adaptaciones responsivas, por ejemplo: */
+@media (max-width: 599px) {
+  .profile-section,
+  .post-image-users {
+    max-width: 100%; /* Ocupa todo el ancho disponible en pantallas pequeñas */
+  }
+}
+
+.border-bottom {
+  border-bottom: 1px solid #d5d2d2;
+}
 </style>
+
     

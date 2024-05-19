@@ -1,113 +1,77 @@
 <template>
-  <q-page>
+  <q-page class="main-layout">
     <AsideLayout />
-    <div class="feed-section q-ma-md">
-      <q-infinite-scroll
-        @load="(index, done) => loadMorePosts(index, done)"
-        :offset="200"
-      >
-        <q-list v-for="post in posts" :key="post.id" bordered separator>
-          <!-- User section -->
-
-          <q-item>
-            <q-item-section side top avatar>
-              <q-avatar>
+    <div class="feed-section">
+      <q-infinite-scroll @load="loadMorePosts" :offset="200">
+        <div class="posts-list">
+          <div v-for="post in posts" :key="post.id" class="post-card">
+            <!-- User Info -->
+            <div class="user-section">
+              <q-avatar class="user-avatar">
                 <img
-                  v-if="post.user.imageUrl != ''"
-                  :src="post.user.imageUrl"
-                  alt="User Avatar"
+                  :src="post.user.imageUrl || '../assets/steve-avatar.png'"
                 />
-
-                <img v-else src="../resources/steve.png" />
               </q-avatar>
-            </q-item-section>
-            <q-item-section>
-              <span
-                style="cursor: pointer"
-                @click="toProfile(post.user._id)"
-                class="q-ml-sm text-weight-bold"
-                >{{ post.user.username }}</span
-              >
-            </q-item-section>
-            <q-item-section side>
-              <span class="text-caption">{{
-                getDatePost(post.createdAt)
-              }}</span>
-            </q-item-section>
-          </q-item>
-
-          <!-- Image or Description based on imageUrl -->
-          <q-item v-if="post.imageUrl !== 'S/M'" clickable>
-            <q-item-section>
-              <q-img
-                :src="post.imageUrl"
-                :alt="post.description"
-                class="post-image"
-              />
-            </q-item-section>
-          </q-item>
-          <q-item v-else>
-            <q-item-section>
-              <span class="text-weight-bold">{{ post.description }}</span>
-            </q-item-section>
-          </q-item>
-
-          <!-- Post Description (only when there's an image) -->
-          <q-item v-if="post.imageUrl !== 'S/M'">
-            <q-item-section>
-              <span class="text-weight-bold">{{ post.user.username }}: </span>
-              {{ post.description }}
-            </q-item-section>
-          </q-item>
-
-          <!-- Likes section -->
-          <q-item>
-            <q-item-section>
-              <div class="row items-center">
-                <q-icon
-                  name="favorite"
-                  color="red"
-                  size="2em"
-                  style="cursor: pointer"
-                  @click="likePost(post)"
-                ></q-icon>
-
-                <span class="col">{{ post.likes.length }} Me gusta</span>
+              <div class="user-info">
+                <div class="username">{{ post.user.username }}</div>
+                <div class="post-date">{{ getDatePost(post.createdAt) }}</div>
               </div>
-            </q-item-section>
-          </q-item>
+            </div>
 
-          <!-- Comments -->
-          <q-item v-for="comment in post.comments" :key="comment.id">
-            <q-item-section>
-              <span class="text-weight-bold"
-                >{{ comment.user.username }}:
-              </span>
-              <span>{{ comment.text }}</span>
-            </q-item-section>
-          </q-item>
+            <!-- Post Image -->
+            <div class="post-image-container" v-if="post.imageUrl">
+              <q-img :src="post.imageUrl" class="post-image" />
+            </div>
 
-          <!-- Add comment -->
-          <q-item>
-            <q-item-section>
-              <q-input
-                v-model="post.newComment"
-                dense
-                placeholder="Agregar un comentario..."
-                @keyup.enter="addComment(post)"
+            <!-- Post Description -->
+            <div class="post-description">
+              {{ post.description }}
+            </div>
+
+            <!-- Post Actions -->
+            <div class="post-actions">
+              <q-icon
+                name="thumb_up"
+                class="action-icon"
+                @click="likePost(post)"
               />
-            </q-item-section>
-            <q-item-section side>
-              <q-btn flat @click="addComment(post)" icon="send" />
-            </q-item-section>
-          </q-item>
-        </q-list>
+              <div class="likes">{{ post.likes.length }} likes</div>
+            </div>
 
-        <template v-slot:loading>
-          <div class="row justify-center q-my-md">
-            <q-spinner-dots color="primary" size="40px" />
+            <!-- Comments Section -->
+            <div class="comments-section">
+              <div
+                class="comment"
+                v-for="comment in post.comments"
+                :key="comment.id"
+              >
+                <strong>{{ comment.user.username }}</strong> {{ comment.text }}
+              </div>
+
+              <div class="comments">
+                <q-input
+                  filled
+                  v-model="post.newComment"
+                  placeholder="Agregar comentario"
+                  class="comment-input"
+                  style="flex-grow: 1; margin-right: 8px"
+                  @keyup.enter="addComment(post)"
+                />
+                <q-icon
+                  name="send"
+                  class="send-icon"
+                  style="flex-shrink: 0"
+                  @click="addComment(post)"
+                />
+              </div>
+            </div>
           </div>
-        </template>
+        </div>
+
+        <!-- Loader -->
+        <div class="row justify-center q-my-md">
+          <q-spinner-dots color="primary" />
+        </div>
       </q-infinite-scroll>
     </div>
   </q-page>
@@ -147,10 +111,14 @@ export default {
   setup() {
     const postStore = usePostStore();
     const userStore = useUserStore();
+    const getMinecraftSkinUrl = (username) => {
+      return `https://minotar.net/avatar/${username}`;
+    };
     const $q = useQuasar();
     return {
       postStore,
       userStore,
+      getMinecraftSkinUrl,
       showNotifs(msg) {
         $q.notify({
           progress: true,
@@ -315,19 +283,94 @@ export default {
 </script>
 
 <style scoped>
+.main-layout {
+  display: flex;
+  flex-direction: row;
+}
+
 .feed-section {
-  max-width: 600px;
-  margin: 0 auto;
+  width: 100%;
+  padding: 16px;
+  overflow: auto;
+}
+
+.posts-list {
+  display: flex;
+  flex-direction: column;
+  padding-left: 35%;
+  padding-right: 20%;
+}
+
+.post-card {
+  background: #fff;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  margin-bottom: 16px;
+  padding: 16px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  max-width: 500px;
+}
+
+.user-section {
+  display: flex;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.user-avatar img {
+  width: 40px;
+  height: 40px;
+}
+
+.user-info .username {
+  margin-left: 8px;
+  font-weight: bold;
+}
+
+.post-image-container {
+  position: relative;
 }
 
 .post-image {
   width: 100%;
-  height: auto;
-  max-height: 500px;
-  object-fit: cover;
+  border-radius: 4px;
 }
 
-.align-start {
-  align-items: flex-start;
+.post-description {
+  margin-top: 8px;
+}
+
+.post-actions {
+  display: flex;
+  align-items: center;
+  margin-top: 8px;
+}
+
+.action-icon {
+  cursor: pointer;
+  margin-right: 8px;
+}
+
+.comments-section {
+  margin-top: 12px;
+}
+
+.comment {
+  margin-bottom: 4px;
+}
+
+.comment-input {
+  margin-top: 8px;
+  margin-bottom: 8px;
+}
+
+.send-icon {
+  cursor: pointer;
+}
+
+.comments {
+  display: flex;
+  width: 100%;
+  align-items: center;
 }
 </style>

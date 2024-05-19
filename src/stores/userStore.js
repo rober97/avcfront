@@ -6,7 +6,8 @@ import { useGlobal } from "../stores/global";
 export const useUserStore = defineStore({
   id: 'user',
   state: () => ({
-    user: JSON.parse(localStorage.getItem('user')) || {}
+    user: JSON.parse(localStorage.getItem('user')) || {},
+    userData: null,
   }),
   getters: {
     isLoggedIn(state) {
@@ -47,19 +48,39 @@ export const useUserStore = defineStore({
           `${global.url_api}/getUserById`,
           id
         );
-        if (res.data.success) {
-
-          return res.data.user;  // Asumo que en tu respuesta viene un objeto 'user' cuando es exitosa.
-        } else {
-          // Lanzar error si el servidor devuelve una respuesta no exitosa.
-          throw new Error(res.data.message || "Error al obtener el usuario.");
-        }
+        return res.data.user;  // Asumo que en tu respuesta viene un objeto 'user' cuando es exitosa.
       } catch (error) {
         console.error("Error al obtener el usuario por ID:", error);
         throw error; // Lanzar error para que pueda ser manejado por quien llame a esta función.
       }
     },
 
+    async unfollow(data) {
+      const global = useGlobal();
+      try {
+        const res = await axios.post(
+          `${global.url_api}/unfollow`,
+          data
+        );
+        return res
+      } catch (error) {
+        console.error("Error al obtener el usuario por ID:", error);
+        throw error; // Lanzar error para que pueda ser manejado por quien llame a esta función.
+      }
+    },
+    async follow(data) {
+      const global = useGlobal();
+      try {
+        const res = await axios.post(
+          `${global.url_api}/follow`,
+          data
+        );
+        return res
+      } catch (error) {
+        console.error("Error al obtener el usuario por ID:", error);
+        throw error; // Lanzar error para que pueda ser manejado por quien llame a esta función.
+      }
+    },
 
     async newMessage(message) {
       const global = useGlobal();
@@ -79,6 +100,25 @@ export const useUserStore = defineStore({
         throw error; // Lanzar error para que pueda ser manejado por quien llame a esta función.
       }
     },
+
+    async deleteChat(chatId) {
+      const global = useGlobal();
+      try {
+        const res = await axios.delete(
+          `${global.url_api}/deleteChat/${chatId}`
+        );
+        if (res.data.success) {
+          return res.data;  // Asumo que en tu respuesta viene un objeto 'user' cuando es exitosa.
+        } else {
+          // Lanzar error si el servidor devuelve una respuesta no exitosa.
+          throw new Error(res.data.message || "Error al eliminar el chat.");
+        }
+      } catch (error) {
+        console.error("Error al eliminar el chat:", error);
+        throw error; // Lanzar error para que pueda ser manejado por quien llame a esta función.
+      }
+    },
+
 
 
 

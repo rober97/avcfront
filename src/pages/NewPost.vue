@@ -1,7 +1,7 @@
 <template>
   <q-dialog v-model="show">
     <q-card style="width: 500px" class="q-pa-md">
-      <q-card-section class="bg-primary text-white text-center rounded-t">
+      <q-card-section class="dialog-header">
         <div class="text-h6 q-my-sm">Crear nueva publicación</div>
       </q-card-section>
 
@@ -203,4 +203,47 @@ export default {
   },
 };
 </script>
-  
+<style scoped>
+.minecraft-dialog .q-card {
+  width: 500px;
+  border: 2px solid #4caf50; /* Color verde de Minecraft */
+}
+
+.dialog-header {
+  background-color: #4caf50; /* Color verde de Minecraft */
+  color: white;
+  text-align: center;
+  border-top-left-radius: 8px;
+  border-top-right-radius: 8px;
+}
+
+.q-card-section {
+  background: #fff; /* Fondo blanco para el contenido */
+}
+
+.q-file .q-field__control {
+  background: #f2f2f2; /* Un fondo más claro para el input de archivo */
+}
+
+.q-input textarea {
+  background: #f2f2f2; /* Un fondo más claro para el textarea */
+}
+
+.custom-icons {
+  font-size: 1.2em; /* Aumenta el tamaño para mayor legibilidad */
+}
+
+.q-btn {
+  border: none; /* Botones sin bordes para un look más limpio */
+}
+
+.q-btn-primary {
+  background-color: #4caf50; /* Usa el verde de Minecraft para el botón principal */
+  color: white;
+}
+
+.q-btn-negative {
+  background-color: #ff5252; /* Un rojo para el botón de cancelar */
+  color: white;
+}
+</style>
