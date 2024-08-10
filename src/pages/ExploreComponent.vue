@@ -8,9 +8,7 @@
             <!-- User Info -->
             <div class="user-section">
               <q-avatar class="user-avatar">
-                <img
-                  :src="post.user.imageUrl || '../assets/steve-avatar.png'"
-                />
+                <img :src="getMinecraftSkinUrl(post.user.username)" />
               </q-avatar>
               <div class="user-info">
                 <div class="username">{{ post.user.username }}</div>
@@ -19,7 +17,10 @@
             </div>
 
             <!-- Post Image -->
-            <div class="post-image-container" v-if="post.imageUrl">
+            <div
+              class="post-image-container"
+              v-if="post.imageUrl && post.imageUrl != 'S/M'"
+            >
               <q-img :src="post.imageUrl" class="post-image" />
             </div>
 
@@ -31,11 +32,12 @@
             <!-- Post Actions -->
             <div class="post-actions">
               <q-icon
-                name="thumb_up"
-                class="action-icon"
+                :name="isLikedByUser(post) ? 'favorite' : 'favorite_border'"
+                class="action-icon heart-icon"
+                :data-post-id="post._id"
                 @click="likePost(post)"
               />
-              <div class="likes">{{ post.likes.length }} likes</div>
+              <div class="likes">{{ post.likes.length }}</div>
             </div>
 
             <!-- Comments Section -->
@@ -77,8 +79,8 @@
   </q-page>
 </template>
 
-
 <script>
+import { ref, onMounted, computed } from "vue";
 import AsideLayout from "layouts/AsideLayout.vue";
 import { useUserStore } from "../stores/userStore";
 import { useGlobal } from "../stores/global";
@@ -112,12 +114,20 @@ export default {
     const postStore = usePostStore();
     const userStore = useUserStore();
     const getMinecraftSkinUrl = (username) => {
+      // || '../assets/steve-avatar.png
       return `https://minotar.net/avatar/${username}`;
     };
+    
+    const isLikedByUser = (post) => {
+      const userId = JSON.parse(localStorage.getItem("user")).id;
+      return post.likes.includes(userId);
+    };
+
     const $q = useQuasar();
     return {
       postStore,
       userStore,
+      isLikedByUser,
       getMinecraftSkinUrl,
       showNotifs(msg) {
         $q.notify({
@@ -130,42 +140,43 @@ export default {
     };
   },
   methods: {
-    // addComment(post) {
-    //   if (post.newComment.trim() !== "") {
-    //     // Aquí puedes añadir lógica para guardar el comentario en una base de datos si es necesario.
-    //     // Por ahora, solo agregamos el comentario al array local.
-    //     const newCommentId = post.comments.length + 1;
-    //     post.comments.push({
-    //       id: newCommentId,
-    //       username: "usuario_actual", // Aquí deberías poner el nombre del usuario actual
-    //       text: post.newComment,
-    //     });
-    //     post.newComment = ""; // Limpiar el campo de entrada
-    //   }
-    // },
 
     async likePost(post) {
       const userId = JSON.parse(localStorage.getItem("user")).id;
       let action = "";
+      debugger;
       if (!post.likes.includes(userId)) {
         action = "add";
         post.likes.push(userId);
+
+        // Activar la animación de "like"
+        post.isLiked = true;
       } else {
         action = "remove";
         const index = post.likes.indexOf(userId);
         if (index > -1) {
           post.likes.splice(index, 1);
         }
+
+        // Remover el "like"
+        post.isLiked = false;
+      }
+
+      // Selecciona el ícono correspondiente al post actual
+      const icon = document.querySelector(
+        `.heart-icon[data-post-id="${post._id}"]`
+      );
+      if (icon) {
+        icon.classList.add("liked");
+        setTimeout(() => {
+          icon.classList.remove("liked");
+          icon.classList.add("liked-reverse");
+        }, 200);
       }
 
       const objPost = { postId: post._id, userId, action };
-      const res = await this.postStore.updateLike(objPost);
-
-      if (res) {
-        debugger;
-      }
+      await this.postStore.updateLike(objPost);
     },
-
     async addComment(post) {
       const userObject = JSON.parse(localStorage.getItem("user"));
       const commentText = post.newComment.trim(); // Asumo que tienes un campo newComment en el objeto post para recoger el texto del comentario. Si no es así, ajusta según tu estructura.
@@ -189,7 +200,7 @@ export default {
         comment: newComment,
         username: userObject.username,
       };
-      debugger;
+
       const res = await this.postStore.addComment(objPost);
       if (res) {
         this.showNotifs("Comentario enviado correctamente!");
@@ -218,11 +229,11 @@ export default {
 
       try {
         const res = await axios(config);
-        debugger;
+
         res.data.posts.sort(
           (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
         );
-        debugger;
+
         this.posts = [...this.posts, ...res.data.posts];
         if (res.data.posts.length < this.pageSize) {
           this.hasMore = res.data.hasMore;
@@ -270,7 +281,7 @@ export default {
 
     async toProfile(id) {
       const user = await this.userStore.getUserById({ id });
-      debugger;
+
       this.userStore.setUser(user);
       this.$router.push({ path: `/profile/${id}` });
     },
@@ -322,8 +333,11 @@ export default {
   height: 40px;
 }
 
+.user-section .user-avatar {
+  margin-right: 8px;
+}
+
 .user-info .username {
-  margin-left: 8px;
   font-weight: bold;
 }
 
@@ -372,5 +386,29 @@ export default {
   display: flex;
   width: 100%;
   align-items: center;
+}
+
+.main-layout {
+  display: flex;
+  height: 100vh;
+}
+
+.feed-section {
+  flex-grow: 1;
+  overflow-y: auto; /* Habilita el scroll solo en el contenido de esta sección */
+  padding-right: 10px; /* Opcional, para evitar el desplazamiento horizontal */
+}
+
+.heart-icon {
+  transition: transform 0.2s ease-in-out;
+  color: red; /* Cambia el color a rojo cuando está activo */
+}
+
+.heart-icon.liked {
+  transform: scale(1.3); /* Efecto de agrandar el corazón */
+}
+
+.heart-icon.liked-reverse {
+  transform: scale(1); /* Volver al tamaño original */
 }
 </style>

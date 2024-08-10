@@ -9,10 +9,14 @@ export const useMarketStore = defineStore({
     recommendations: [],
     selectedSupermercado: "", // Nuevo estado para el supermercado seleccionado
     searchResults: [],
+    cities: [],
+    selectedCity: ''
   }),
   getters: {
     allItems: (state) => state.items,
     searchItems: (state) => state.searchResults,
+    allCities: (state) => state.cities,
+    selectCity: (state) => state.selectedCity,
   },
   actions: {
     async listItems(supermercado) {
@@ -29,6 +33,65 @@ export const useMarketStore = defineStore({
       try {
         const res = await axios.get(config.url, config);
         this.items = res.data;
+      } catch (error) {
+        console.log(error);
+      }
+    },
+
+    async getCities() {
+      const global = useGlobal();
+      const config = {
+        headers: {
+          Accept: "application/json",
+          "Content-Type": "application/json",
+        },
+        url: `${global.url_api}/all-cities`,
+      };
+
+      try {
+        const res = await axios.get(config.url, config);
+        this.cities = res.data;
+      } catch (error) {
+        console.log(error);
+      }
+    },
+
+    async listMarketByCity(supermercado) {
+      const global = useGlobal();
+      const config = {
+        headers: {
+          Accept: "application/json",
+          "Content-Type": "application/json",
+        },
+        params: { supermercado },
+        url: `${global.url_api}/list-market-by-city`,
+      };
+
+      try {
+        const res = await axios.get(config.url, config);
+        this.items = res.data;
+      } catch (error) {
+        console.log(error);
+      }
+    },
+
+    async addCity(nombre) {
+      const global = useGlobal();
+      const config = {
+        headers: {
+          Accept: "application/json",
+          "Content-Type": "application/json",
+        },
+        url: `${global.url_api}/create-city`,
+      };
+
+      try {
+        const res = await axios.post(config.url, { nombre }, config);
+        if (res.data) {
+          this.cities.push(res.data);
+        } else {
+          throw new Error("Error al agregar la ciudad");
+        }
       } catch (error) {
         console.log(error);
       }
@@ -106,6 +169,10 @@ export const useMarketStore = defineStore({
 
     setSelectedSupermercado(supermercado) {
       this.selectedSupermercado = supermercado;
+    },
+
+    setSelectCity(city) {
+      this.selectedCity = city;
     },
     recomendarArticulo(nombreArticulo) {
       const articulos = this.items.filter(

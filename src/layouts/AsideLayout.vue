@@ -179,12 +179,25 @@ export default {
 
 .q-drawer--left.q-drawer--bordered {
   border: none;
+  background-color: #2c3e50; /* Fondo del drawer, utilizando el color principal de la paleta */
 }
 
 .menu-list {
-  background-color: #eeebeb;
+  background-color: #34495e; /* Fondo de la lista de menú dentro del drawer, más oscuro para dar contraste */
   border-radius: 20px;
   margin-left: 10px;
   margin-right: 10px;
+}
+
+.q-item {
+  color: #ecf0f1; /* Color de texto claro para que sea legible sobre el fondo oscuro */
+}
+
+.q-item__label {
+  color: #ecf0f1; /* Color de texto claro para que sea legible sobre el fondo oscuro */
+}
+
+.logout-button q-btn {
+  color: #ecf0f1;
 }
 </style>

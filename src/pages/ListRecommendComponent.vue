@@ -17,6 +17,17 @@
           color="secondary"
           class="q-ml-sm"
         />
+
+      </q-card-section>
+
+      <q-card-section>
+        <q-select
+          filled
+          v-model="citySelected"
+          :options="citiesOptions"
+          label="Seleccionar Ciudad"
+          clearable
+        />
       </q-card-section>
 
       <q-card-section>
@@ -28,7 +39,7 @@
 
 
 <script>
-import { ref, onMounted } from "vue";
+import { ref, onMounted, computed } from "vue";
 import { useRouter } from "vue-router";
 import { useMarketStore } from "../stores/marketStore";
 
@@ -37,6 +48,10 @@ export default {
     const marketStore = useMarketStore();
     const router = useRouter();
     const recomendaciones = ref([]);
+    const citySelected = computed({
+      get: () => marketStore.selectedCity,
+      set: (val) => marketStore.setSelectCity(val),
+    });
     const columnas = [
       {
         name: "nombre",
@@ -65,6 +80,8 @@ export default {
       },
     ];
 
+    const citiesOptions = computed(() => marketStore.allCities.map(city => city.nombre));
+
     const obtenerRecomendaciones = async () => {
       await marketStore.getRecommendations();
       recomendaciones.value = marketStore.recommendations;
@@ -74,7 +91,14 @@ export default {
       router.push("/market");
     };
 
+    const agregarCiudadesPrueba = async () => {
+      await marketStore.addCity("Calama");
+      await marketStore.addCity("La Serena");
+      await marketStore.getCities();
+    };
+
     onMounted(async () => {
+      await marketStore.getCities();
       await obtenerRecomendaciones();
     });
 
@@ -83,6 +107,9 @@ export default {
       columnas,
       obtenerRecomendaciones,
       irAIngresarCompras,
+      citiesOptions,
+      citySelected,
+      agregarCiudadesPrueba
     };
   },
 };

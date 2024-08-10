@@ -204,46 +204,65 @@ export default {
 };
 </script>
 <style scoped>
-.minecraft-dialog .q-card {
-  width: 500px;
-  border: 2px solid #4caf50; /* Color verde de Minecraft */
+/* Estilo para el cuadro de diálogo */
+.dialog-header {
+  background-color: #34495e; /* Fondo del encabezado del diálogo */
+  color: #ecf0f1; /* Color del texto del encabezado */
+  border-radius: 4px 4px 0 0; /* Bordes superiores redondeados */
 }
 
-.dialog-header {
-  background-color: #4caf50; /* Color verde de Minecraft */
-  color: white;
-  text-align: center;
-  border-top-left-radius: 8px;
-  border-top-right-radius: 8px;
+.q-card {
+  background-color: #ecf0f1; /* Fondo claro para el contenido del diálogo */
+  border: 1px solid #bdc3c7; /* Borde gris claro para definir el contorno */
+  border-radius: 4px; /* Bordes suavizados */
+  box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.2); /* Sombra suave para dar profundidad */
 }
 
 .q-card-section {
-  background: #fff; /* Fondo blanco para el contenido */
+  color: #2c3e50; /* Texto en gris azulado oscuro */
 }
 
 .q-file .q-field__control {
-  background: #f2f2f2; /* Un fondo más claro para el input de archivo */
+  background-color: #f7f9f9; /* Fondo ligeramente más claro para el campo de archivo */
+  border: 1px solid #bdc3c7; /* Borde gris claro */
+  color: #2c3e50; /* Color del texto */
+  border-radius: 4px; /* Bordes suavizados */
 }
 
-.q-input textarea {
-  background: #f2f2f2; /* Un fondo más claro para el textarea */
+.q-file .q-icon {
+  color: #2c3e50; /* Color del icono en gris azulado oscuro */
 }
 
-.custom-icons {
-  font-size: 1.2em; /* Aumenta el tamaño para mayor legibilidad */
+.q-input {
+  background-color: #f7f9f9; /* Fondo ligeramente más claro para el campo de texto */
+  border: 1px solid #bdc3c7; /* Borde gris claro */
+  color: #2c3e50; /* Texto en gris azulado oscuro */
+  border-radius: 4px; /* Bordes suavizados */
+}
+
+.q-btn.flat {
+  color: #e74c3c; /* Botón de cancelar en rojo (color negativo) */
 }
 
 .q-btn {
-  border: none; /* Botones sin bordes para un look más limpio */
+  background-color: #34495e; /* Fondo del botón de publicar */
+  color: #ecf0f1; /* Texto en blanco suave */
+  border-radius: 4px; /* Bordes suavizados */
+  transition: background-color 0.3s ease, box-shadow 0.3s ease;
 }
 
-.q-btn-primary {
-  background-color: #4caf50; /* Usa el verde de Minecraft para el botón principal */
-  color: white;
+.q-btn:hover {
+  background-color: #2c3e50; /* Fondo más oscuro al hacer hover */
+  box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1); /* Sombra ligera al hacer hover */
 }
 
-.q-btn-negative {
-  background-color: #ff5252; /* Un rojo para el botón de cancelar */
-  color: white;
+.text-primary {
+  color: #3498db !important; /* Texto de indicación en azul suave */
+}
+
+.q-card-actions {
+  background-color: #ecf0f1; /* Fondo claro para la sección de acciones */
+  border-top: 1px solid #bdc3c7; /* Borde superior para separar */
+  border-radius: 0 0 4px 4px; /* Bordes inferiores redondeados */
 }
 </style>

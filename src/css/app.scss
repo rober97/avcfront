@@ -1,1 +1,91 @@
 // app global css in SCSS form
+/* Estilo personalizado para todos los q-btn */
+.q-btn {
+    background-color: #2c3e50; /* Fondo en un gris azulado oscuro */
+    color: #ecf0f1; /* Texto en un blanco suave */
+    border: none; /* Sin borde para un aspecto más limpio */
+    border-radius: 5px; /* Bordes suavizados pero menos redondeados para un look más moderno */
+    padding: 12px 24px; /* Espaciado interno más amplio para una mejor proporción */
+    font-weight: 600; /* Texto en semi-negrita para mayor claridad */
+    text-transform: uppercase; /* Texto en mayúsculas */
+    letter-spacing: 1px; /* Espaciado entre letras para un toque elegante */
+    transition: background-color 0.3s ease, color 0.3s ease, transform 0.2s ease, box-shadow 0.3s ease;
+  }
+  
+  /* Hover y enfoque (focus) */
+  .q-btn:hover,
+  .q-btn:focus {
+    background-color: #34495e; /* Fondo ligeramente más claro al hacer hover */
+    color: #ffffff; /* Texto completamente blanco al hacer hover */
+    transform: translateY(-2px); /* Efecto de elevación suave al hacer hover */
+    box-shadow: 0px 8px 15px rgba(0, 0, 0, 0.2); /* Sombra más definida para efecto de elevación */
+  }
+  
+  /* Activo (al hacer clic) */
+  .q-btn:active {
+    background-color: #1c2833; /* Fondo aún más oscuro al hacer clic */
+    transform: translateY(0); /* El botón vuelve a su posición original */
+    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.15); /* Sombra más sutil al hacer clic */
+  }
+  
+  /* Variación secundaria para botones alternativos */
+  .q-btn.q-btn--secondary {
+    background-color: transparent; /* Fondo transparente */
+    color: #ecf0f1; /* Texto en un blanco suave */
+    border: 2px solid #34495e; /* Borde con el gris azulado de la paleta */
+    border-radius: 5px; /* Bordes suavizados */
+  }
+  
+  .q-btn.q-btn--secondary:hover,
+  .q-btn.q-btn--secondary:focus {
+    background-color: #34495e; /* Fondo gris azulado al hacer hover */
+    color: #ffffff; /* Texto blanco */
+    transform: translateY(-2px); /* Efecto de elevación suave */
+    box-shadow: 0px 8px 15px rgba(0, 0, 0, 0.2); /* Sombra definida */
+  }
+
+
+  // Para qinput
+  /* Estilo personalizado para todos los q-input */
+  .q-custom-input .q-field__control {
+    background-color: #ecf0f1; /* Fondo claro para el input */
+    color: #2c3e50; /* Texto en gris azulado oscuro */
+    border: 1px solid #bdc3c7; /* Borde en gris claro */
+    border-radius: 4px; /* Bordes suavizados pero discretos */
+    font-weight: 500; /* Peso del texto medio */
+    transition: border-color 0.3s ease, box-shadow 0.3s ease;
+  }
+  
+  /* Placeholder */
+  .q-custom-input .q-field__control input::placeholder {
+    color: #7f8c8d; /* Placeholder en un gris medio */
+    opacity: 0.7; /* Ajuste de opacidad del placeholder */
+  }
+  
+  /* Efecto hover y enfoque */
+  .q-custom-input .q-field__control:hover,
+  .q-custom-input .q-field__control:focus-within {
+    border-color: #34495e; /* Borde más definido al hacer hover o enfocar */
+    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1); /* Sombra sutil para un efecto ligero */
+  }
+  
+  /* Estilo del label */
+  .q-custom-input .q-field__label {
+    color: #2c3e50; /* Label en gris azulado oscuro */
+    font-weight: 600; /* Texto del label en semi-negrita */
+    text-transform: uppercase; /* Label en mayúsculas para un look más profesional */
+  }
+  
+  /* Estilo del label flotante (cuando el input está enfocado) */
+  .q-custom-input .q-field--float .q-field__label {
+    color: #7f8c8d; /* Color del label flotante en gris medio */
+  }
+  
+  .q-custom-input .q-field--float.q-field--focused .q-field__label {
+    color: #2c3e50; /* Mantener el label flotante en gris oscuro cuando está enfocado */
+  }
+  
+
+  div:not(.comment) strong {
+    color: #949596; /* Color de texto claro para que sea legible sobre el fondo oscuro */
+  }

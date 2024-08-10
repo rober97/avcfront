@@ -528,6 +528,10 @@ export default {
 .border-bottom {
   border-bottom: 1px solid #d5d2d2;
 }
+
+div strong {
+  color: #ecf0f1; /* Color de texto claro para que sea legible sobre el fondo oscuro */
+}
 </style>
 
     

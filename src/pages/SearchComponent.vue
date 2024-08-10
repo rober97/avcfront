@@ -101,7 +101,7 @@ export default {
   },
 };
 </script>
-<style scoped>
+<style>
 .search-input {
   max-width: 600px;
   margin: 0 auto 20px;
@@ -170,4 +170,49 @@ export default {
   border-top-right-radius: 20px;
   background-image: linear-gradient(to bottom, #4a8b96, #bcd4d6);
 }
+
+/* Estilo personalizado para el q-input con clase search-input */
+.search-input .q-field__control {
+  background-color: #ecf0f1; /* Fondo claro para el input */
+  color: #2c3e50; /* Texto en gris azulado oscuro */
+  border: 1px solid #bdc3c7; /* Borde en gris claro */
+  border-radius: 4px; /* Bordes suavizados pero discretos */
+  font-weight: 500; /* Peso del texto medio */
+  transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+/* Placeholder */
+.search-input .q-field__control input::placeholder {
+  color: #7f8c8d; /* Placeholder en un gris medio */
+  opacity: 0.7; /* Ajuste de opacidad del placeholder */
+}
+
+/* Efecto hover y enfoque */
+.search-input .q-field__control:hover,
+.search-input .q-field__control:focus-within {
+  border-color: #34495e; /* Borde más definido al hacer hover o enfocar */
+  box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1); /* Sombra sutil para un efecto ligero */
+}
+
+/* Estilo del label (si se usa) */
+.search-input .q-field__label {
+  color: #2c3e50; /* Label en gris azulado oscuro */
+  font-weight: 600; /* Texto del label en semi-negrita */
+  text-transform: uppercase; /* Label en mayúsculas para un look más profesional */
+}
+
+/* Estilo del icono */
+.search-input .q-icon {
+  color: #2c3e50; /* Color del icono en gris azulado oscuro */
+}
+
+/* Estilo del label flotante (si se usa) */
+.search-input .q-field--float .q-field__label {
+  color: #7f8c8d; /* Color del label flotante en gris medio */
+}
+
+.search-input .q-field--float.q-field--focused .q-field__label {
+  color: #2c3e50; /* Mantener el label flotante en gris oscuro cuando está enfocado */
+}
+
 </style>

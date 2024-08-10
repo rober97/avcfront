@@ -79,7 +79,7 @@
           <div class="send-message">
             <q-input
               v-model="newMessage"
-              label="Enviar mensaje"
+              class="q-custom-input"
               @keyup.enter="sendMessage"
             />
             <q-btn @click="sendMessage" label="Enviar" />
@@ -381,4 +381,6 @@ export default {
   margin: 5px 20% 5px 5px;
   text-align: left;
 }
+
+
 </style>
