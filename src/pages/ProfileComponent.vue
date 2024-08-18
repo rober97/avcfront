@@ -1,71 +1,69 @@
 <template>
   <q-page>
     <AsideLayout />
-    <div class="profile-section q-ma-md" style="margin-top: 20px">
-      <div class="q-gutter-md row items-center">
-        <div class="col">
-          <q-avatar size="150px">
-            <!-- Utilizamos la función getMinecraftSkinUrl para obtener la URL del skin -->
-            <img
-              :src="getMinecraftSkinUrl(userData.username)"
-              alt="User Avatar"
-            />
-          </q-avatar>
+    <div class="profile-section-container">
+      <!-- Perfil fijo en la parte superior -->
+      <div class="profile-section q-pa-md q-mb-md">
+        <div class="q-gutter-md row items-center profile-header">
+          <div class="col-auto">
+            <q-avatar size="150px" class="profile-avatar">
+              <img :src="getMinecraftSkinUrl(userData.username)" alt="User Avatar" />
+            </q-avatar>
+          </div>
+          <div class="col">
+            <div class="q-gutter-md row items-center justify-start">
+              <div class="col-auto" v-show="showPerfil()">
+                <q-btn label="Seguir" color="primary" @click="follow()" v-show="followingBtn" />
+                <q-btn label="Siguiendo" color="primary" flat @click="unfollow()" v-show="isFollowingBtn" />
+              </div>
+              <div class="col-auto" v-show="showPerfil()">
+                <q-btn label="Mensaje" color="primary" flat @click="sendMessage" />
+              </div>
+              <div class="col-auto" v-show="checkProfile()">
+                <q-btn label="Editar perfil" color="primary" outline @click="editProfile" />
+              </div>
+            </div>
+            <div class="profile-stats q-mt-md">
+              <span><strong>{{ posts.length }}</strong> publicaciones</span>
+              <span><strong>{{ userData.followers.length }}</strong> seguidores</span>
+              <span><strong>0</strong> seguidos</span>
+            </div>
+          </div>
         </div>
-        <div class="col">
-          <!-- Botones agregados aquí -->
-          <div class="q-gutter-md row items-center justify-center">
-            <div class="col-auto" v-show="showPerfil()">
-              <q-btn
-                label="Seguir"
-                color="secondary"
-                class="q-mr-md"
-                @click="follow()"
-                v-show="followingBtn"
-              />
 
-              <q-btn
-                label="Siguiendo"
-                color="secondary"
-                class="q-mr-md"
-                @click="unfollow()"
-                v-show="isFollowingBtn"
-              />
-            </div>
-            <div class="col-auto" v-show="showPerfil()">
-              <q-btn
-                label="Mensaje"
-                color="secondary"
-                class="q-mr-md"
-                v-show="messageBtn"
-                @click="sendMessage"
-              />
-            </div>
-            <div class="col-auto" v-show="checkProfile()">
-              <q-btn
-                label="Editar perfil"
-                color="primary"
-                flat
-                @click="editProfile"
-              />
-            </div>
-          </div>
-
-          <div class="q-mt-md">
-            <div>
-              <strong>{{ posts.length }}</strong> publicaciones
-            </div>
-            <div>
-              <strong>{{ userData.followers.length }}</strong>
-              seguidores
-            </div>
-            <div><strong>0</strong> seguidos</div>
-          </div>
+        <!-- Bio y Username -->
+        <div class="profile-info q-mt-md">
+          <strong>{{ userData.username }}</strong>
+          <div>{{ userData.bio }}</div>
         </div>
       </div>
 
-      <!-- Diálogo para editar la foto de perfil -->
-      <q-dialog v-model="showEditDialog">
+      <!-- Contenido desplazable -->
+      <div class="profile-content-scroll">
+        <q-infinite-scroll @load="(index, done) => loadMorePosts(done)" :offset="200">
+          <q-list class="rounded-borders">
+            <q-item v-for="post in posts" :key="post.id" clickable @click="showPostDetails(post)" class="q-pa-md post-container border-bottom">
+              <div v-if="post.imageUrl && post.imageUrl !== 'S/M'" class="post-image-container">
+                <img :src="post.imageUrl" :alt="post.description" class="post-image" />
+              </div>
+              <div class="post-content">
+                <div class="text-body1 q-my-md">{{ post.description }}</div>
+                <q-item-section side top class="q-pt-none custom-icons">
+                  <q-icon name="favorite_border" />
+                  <span class="q-ml-xs">{{ post.likes.length }}</span>
+                  <q-icon name="chat_bubble_outline" class="q-ml-md" />
+                  <span class="q-ml-xs">{{ post.comments.length }}</span>
+                </q-item-section>
+              </div>
+            </q-item>
+          </q-list>
+          <q-spinner-dots v-if="loading" class="q-mt-md" />
+        </q-infinite-scroll>
+      </div>
+    </div>
+
+    <!-- Diálogo para editar la foto de perfil -->
+    <q-dialog v-model="showEditDialog">
         <q-card>
           <q-card-section>
             <div class="text-h6">Editar foto de perfil</div>
@@ -106,8 +104,8 @@
         </q-card>
       </q-dialog>
 
-      <!-- Diálogo para editar perfil -->
-      <q-dialog v-model="showEditProfile">
+       <!-- Diálogo para editar perfil -->
+       <q-dialog v-model="showEditProfile">
         <q-card>
           <q-card-section>
             <div class="text-h6">Editar perfil</div>
@@ -129,50 +127,7 @@
           </q-card-actions>
         </q-card>
       </q-dialog>
-
-      <div class="q-mt-md">
-        <strong>{{ userData.username }}</strong>
-        <div>{{ userData.bio }}</div>
-      </div>
-      <q-infinite-scroll
-        @load="(index, done) => loadMorePosts(done)"
-        :offset="200"
-      >
-        <q-list class="rounded-borders">
-          <q-item
-            v-for="post in posts"
-            :key="post.id"
-            clickable
-            @click="showPostDetails(post)"
-            class="q-pa-md post-container border-bottom"
-          >
-            <!-- Verifica si hay una imagen para la publicación -->
-            <div
-              v-if="post.imageUrl && post.imageUrl !== 'S/M'"
-              class="post-image-container"
-            >
-              <img
-                :src="post.imageUrl"
-                :alt="post.description"
-                class="post-image"
-              />
-            </div>
-            <!-- Contenedor de la descripción y los íconos -->
-            <div class="post-content">
-              <div class="text-body1 q-my-md">{{ post.description }}</div>
-              <q-item-section side top class="q-pt-none custom-icons">
-                <q-icon name="favorite_border" />
-                <span class="q-ml-xs">{{ post.likes.length }}</span>
-                <q-icon name="chat_bubble_outline" class="q-ml-md" />
-                <span class="q-ml-xs">{{ post.comments.length }}</span>
-              </q-item-section>
-            </div>
-          </q-item>
-        </q-list>
-        <q-spinner-dots v-if="loading" class="q-mt-md" />
-      </q-infinite-scroll>
-    </div>
-    <!-- Nuevo diálogo para mostrar detalles de una publicación -->
+      <!-- Nuevo diálogo para mostrar detalles de una publicación -->
     <q-dialog v-model="showPostDialog">
       <q-card class="post-image-users">
         <q-card-section>
@@ -218,6 +173,7 @@
     </q-dialog>
   </q-page>
 </template>
+
     
 <script>
 import AsideLayout from "layouts/AsideLayout.vue";
@@ -457,81 +413,100 @@ export default {
 </script>
     
 <style scoped>
-.post-image-container {
-  width: 40%;
-  margin-bottom: 8px; /* Espacio entre la imagen y la descripción */
+.profile-stats span {
+  color: #fff;
 }
-.post-container {
+
+.profile-stats  {
   display: grid;
 }
-.custom-img {
-  height: 100px;
-}
-.custom-icons {
-  display: inline-block;
-}
-.post-placeholder {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  min-height: 200px;
-  background-color: #f5f5f5;
-}
 
-.profile-section {
-  max-width: 600px;
+.profile-info{
+  color: #fff;
+}
+/* Contenedor general */
+.profile-section-container {
+  max-width: 800px;
   margin: 0 auto;
+  overflow-y: auto;
+  height: 100vh;
+  padding-top: 20px;
 }
 
-.post-image {
-  width: 100%; /* Las imágenes deben ocupar el ancho completo */
-  /* Altura eliminada para permitir la relación de aspecto */
-  /* object-fit eliminado ya que ya no tenemos una altura fija */
-  position: relative;
+/* Perfil fijo en la parte superior */
+.profile-section {
+  background-color: #2c3e50;
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.2);
+  position: sticky;
+  top: 0;
+  z-index: 10;
 }
 
-.post-overlay {
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  width: 100%;
-  padding: 0.5rem;
-  background-color: rgba(0, 0, 0, 0.5);
-  color: white;
+/* Sección de publicaciones con desplazamiento */
+.profile-content-scroll {
+  max-height: calc(100vh - 300px); /* Ajusta según la altura del perfil */
+  overflow-y: auto;
+  padding-top: 20px;
+}
+
+/* Contenedor de publicaciones */
+.post-container {
+  background-color: #ecf0f1;
+  border-radius: 10px;
+  margin-bottom: 20px;
+  box-shadow: 0px 2px 8px rgba(0, 0, 0, 0.1);
   display: flex;
-  align-items: center;
-  justify-content: space-between; /* Esto ayuda a separar elementos de la izquierda y la derecha */
+  flex-direction: column;
 }
 
-.action-buttons {
-  position: absolute;
-  top: 10px;
-  right: 10px; /* Posicionado a la derecha para evitar solapamiento con los contadores */
-  z-index: 1;
+/* Imagen de la publicación */
+.post-image {
+  width: 300px;
+  border-radius: 10px 10px 0 0;
 }
 
-.post-image-users {
-  width: 100%; /* Haciéndolo responsivo */
-  max-width: 600px; /* Limitando el ancho máximo */
-  margin: auto; /* Centrado si es más pequeño que el máximo */
-  height: auto; /* La altura es automática para mantener la relación de aspecto de la imagen */
+/* Contenido de la publicación */
+.post-content {
+  padding: 10px;
 }
 
-/* Adaptaciones responsivas, por ejemplo: */
-@media (max-width: 599px) {
-  .profile-section,
-  .post-image-users {
-    max-width: 100%; /* Ocupa todo el ancho disponible en pantallas pequeñas */
-  }
+.post-content .text-body1 {
+  color: #2c3e50;
+}
+
+/* Iconos personalizados */
+.custom-icons q-icon {
+  color: #2c3e50;
+}
+
+.custom-icons {
+  flex-direction: row !important;
 }
 
 .border-bottom {
   border-bottom: 1px solid #d5d2d2;
 }
 
-div strong {
-  color: #ecf0f1; /* Color de texto claro para que sea legible sobre el fondo oscuro */
+/* Adaptaciones responsivas */
+@media (max-width: 599px) {
+  .profile-section-container {
+    max-width: 100%;
+    padding: 10px;
+  }
+
+  .profile-stats span {
+    margin-right: 10px;
+  }
+
+  .post-container {
+    margin-bottom: 15px;
+  }
 }
+
 </style>
+
+
 
     
