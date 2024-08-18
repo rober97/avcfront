@@ -111,7 +111,7 @@ export default {
     const selectedChatUser = ref("");
     const chatId = ref("");
     const chatsData = ref([]); // Se convierte en una ref() porque ahora estamos en setup
-    const socket = io("http://localhost:3000");
+    const socket = io("https://avc-1dbca99a8369.herokuapp.com");
     socket.on("receive_message", (msg) => {
       // Crea el objeto mensaje
       debugger;
