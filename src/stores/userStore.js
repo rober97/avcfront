@@ -55,6 +55,35 @@ export const useUserStore = defineStore({
       }
     },
 
+    async getUUIDUser(id) {
+      const global = useGlobal();
+      try {
+        const res = await axios.post(
+          `${global.url_api}/getUUIDUser`,
+          id
+        );
+        return res.data;
+      } catch (error) {
+        console.error("Error al obtener el usuario por ID:", error);
+        throw error; // Lanzar error para que pueda ser manejado por quien llame a esta función.
+      }
+    },
+
+    async getUserByUUID(uuid) {
+      const global = useGlobal();
+      try {
+        debugger
+        const res = await axios.post(
+          `${global.url_api}/getUserByUUID`,
+          uuid
+        );
+        return res.data;
+      } catch (error) {
+        console.error("Error al obtener el usuario por ID:", error);
+        throw error; // Lanzar error para que pueda ser manejado por quien llame a esta función.
+      }
+    },
+
     async unfollow(data) {
       const global = useGlobal();
       try {

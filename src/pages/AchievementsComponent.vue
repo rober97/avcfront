@@ -97,26 +97,32 @@
 
         <q-card-section>
           <div v-if="vinculationStatus">
-            Usa el comando "/vincular" en el servidor de Minecraft con el siguiente token:
+            Usa el comando "/vincular" en el servidor de Minecraft con el
+            siguiente token:
           </div>
 
-          <div v-else>
-            La cuenta ya está vinculada.
-          </div>
-          <q-input v-model="vinculationToken" outlined label="Token" v-if="vinculationStatus"/>
+          <div v-else>La cuenta ya está vinculada. {{ vinculationStatus }}</div>
+          <q-input
+            v-model="vinculationToken"
+            outlined
+            label="Token"
+            v-if="vinculationStatus"
+          />
         </q-card-section>
 
         <q-card-actions align="right">
           <q-btn flat label="Cancelar" @click="showLinkDialog = false" />
-          <q-btn label="Vincular" color="primary" @click="confirmVinculation" v-if="vinculationStatus"/>
+          <q-btn
+            label="Vincular"
+            color="primary"
+            @click="confirmVinculation"
+            v-if="vinculationStatus"
+          />
         </q-card-actions>
       </q-card>
     </q-dialog>
   </q-page>
 </template>
-
-
-
 
 <script>
 import AsideLayout from "layouts/AsideLayout.vue";
@@ -150,7 +156,8 @@ export default {
       const user = JSON.parse(localStorage.getItem("user"));
       const response = await userStore.generarToken(user.id);
       vinculationToken.value = response.token;
-      if(!response.success) {
+      if (!response.success) {
+        debugger;
         vinculationStatus.value = false;
       }
     };
@@ -158,6 +165,7 @@ export default {
     const confirmVinculation = async () => {
       try {
         const response = await userStore.vincularCuenta(vinculationToken.value);
+        debugger;
         if (response.data.success) {
           isLinked.value = true;
           showLinkDialog.value = false;
@@ -193,7 +201,9 @@ export default {
     const combineAchievements = (available, player) => {
       const combined = [];
 
-      const availableAchievementsArray = Object.keys(available.achievements).map((key) => {
+      const availableAchievementsArray = Object.keys(
+        available.achievements
+      ).map((key) => {
         return {
           title: key,
           ...available.achievements[key],
@@ -244,7 +254,10 @@ export default {
 
       try {
         const res = await userStore.getAchievements(uuid); // Logros específicos del jugador
-        achievements.value = combineAchievements(availableAchievements.value, res.playerAchievements); // Combinamos logros
+        achievements.value = combineAchievements(
+          availableAchievements.value,
+          res.playerAchievements
+        ); // Combinamos logros
         filterAchievements(); // Aplicamos el filtro si es necesario
       } catch (error) {
         console.error("Error al cargar logros del jugador:", error);
@@ -253,11 +266,22 @@ export default {
 
     onMounted(async () => {
       const id = JSON.parse(localStorage.getItem("user")).id;
-      userData.value = await userStore.getUserById({ id });
-
-      // Cargar logros disponibles y logros del jugador
-      await loadAvailableAchievements();
-      await loadPlayerAchievements(); // Cargar los logros del jugador al montar
+      const uuidUser = await userStore.getUUIDUser({ id });
+      if (uuidUser.success) {
+        debugger
+        const user = await userStore.getUserByUUID({ uuid: uuidUser.uuid });
+        userData.value = user.user;
+        // Cargar logros disponibles y logros del jugador
+        await loadAvailableAchievements();
+        await loadPlayerAchievements(); // Cargar los logros del jugador al montar
+      } else {
+        userData.value = {
+          username: "",
+          bio: "",
+          followers: false,
+          following: false,
+        };
+      }
     });
 
     return {
@@ -273,14 +297,11 @@ export default {
       getAchievementProgress,
       vincularCuentaMinecraft,
       confirmVinculation,
+      vinculationStatus
     };
   },
 };
 </script>
-
-
-
-
 
 <style scoped>
 h2 {
