@@ -208,7 +208,90 @@ export const useUserStore = defineStore({
       } catch (error) {
         console.log(error)
       }
+    },
+
+    async vincularCuenta(token) {
+      const global = useGlobal();
+      const config = {
+        headers: {
+          Accept: "application/json",
+          "Content-Type": "application/json",
+        },
+        method: "POST",
+        url: `${global.url_api}/vincular-cuenta`,
+        data: {
+          token
+        },
+      };
+
+      debugger
+
+      try {
+        const res = await axios(config);
+        debugger
+        return res.data
+      } catch (error) {
+        console.log(error)
+      }
+    },
+
+    async generarToken(idUser) {
+      const global = useGlobal();
+      const config = {
+        headers: {
+          Accept: "application/json",
+          "Content-Type": "application/json",
+        },
+        method: "POST",
+        url: `${global.url_api}/generate-token`,
+        data: {
+          userId: idUser
+        },
+      };
+
+      try {
+        const res = await axios(config);
+        debugger
+        return res.data
+      } catch (error) {
+        console.log(error)
+      }
+    },
+
+    async getAchievements(uuid, page = 1, size = 10) {
+      const global = useGlobal();
+      const config = {
+        headers: {
+          Accept: "application/json",
+          "Content-Type": "application/json",
+        },
+        method: "GET",
+        url: `${global.url_api}/logros/${uuid}`, // Cambia la ruta a la correcta para obtener los logros
+        params: {
+          page,  // Página actual
+          size   // Tamaño de la página (número de logros por solicitud)
+        }
+      };
+    
+      try {
+        const res = await axios(config);
+        return res.data; // Retorna solo los logros del usuario
+      } catch (error) {
+        console.log("Error al obtener logros:", error);
+        return null; // Puedes retornar null o manejar el error de otra forma
+      }
+    },
+    async getAllAchievements() {
+      try {
+        const global = useGlobal();
+        const response = await axios.get(`${global.url_api}/allAchievements`);
+        return response.data.achievements;
+      } catch (error) {
+        console.error('Error al cargar logros:', error);
+      }
     }
+    
+    
 
   }
 });
