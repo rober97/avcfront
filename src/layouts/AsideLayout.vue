@@ -49,6 +49,7 @@
       v-model="isDialogVisible"
       :show="isDialogVisible"
       @update:show="isDialogVisible = $event"
+      @post-created="handlePostCreated"
     />
   </q-drawer>
 </template>
@@ -102,7 +103,7 @@ export default {
     EssentialLink,
     CreatePostDialog, // Añade el diálogo a los componentes
   },
-  setup() {
+  setup(props, { emit }) {
     const userStore = useUserStore();
     const leftDrawerOpen = ref(false);
     const isDialogVisible = ref(false); // Propiedad para controlar la visibilidad del diálogo
@@ -119,6 +120,11 @@ export default {
       const id = JSON.parse(localStorage.getItem("user")).id;
       userData.value = await userStore.getUserById({ id });
     });
+
+    const handlePostCreated = () => {
+      // Emitir un evento para notificar que se ha creado una nueva publicación
+      emit('update:show', true);
+    };
     const getMinecraftSkinUrl = (username) => {
       return `https://minotar.net/avatar/${username}`;
     };
@@ -149,6 +155,7 @@ export default {
       toProfile,
       getMinecraftSkinUrl,
       logout,
+      handlePostCreated,
       toggleLeftDrawer() {
         leftDrawerOpen.value = !leftDrawerOpen.value;
       },

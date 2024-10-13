@@ -7,25 +7,54 @@
         <div class="q-gutter-md row items-center profile-header">
           <div class="col-auto">
             <q-avatar size="150px" class="profile-avatar">
-              <img :src="getMinecraftSkinUrl(userData.username)" alt="User Avatar" />
+              <img
+                :src="getMinecraftSkinUrl(userData.username)"
+                alt="User Avatar"
+              />
             </q-avatar>
           </div>
           <div class="col">
             <div class="q-gutter-md row items-center justify-start">
               <div class="col-auto" v-show="showPerfil()">
-                <q-btn label="Seguir" color="primary" @click="follow()" v-show="followingBtn" />
-                <q-btn label="Siguiendo" color="primary" flat @click="unfollow()" v-show="isFollowingBtn" />
+                <q-btn
+                  label="Seguir"
+                  color="primary"
+                  @click="follow()"
+                  v-show="followingBtn"
+                />
+                <q-btn
+                  label="Siguiendo"
+                  color="primary"
+                  flat
+                  @click="unfollow()"
+                  v-show="isFollowingBtn"
+                />
               </div>
               <div class="col-auto" v-show="showPerfil()">
-                <q-btn label="Mensaje" color="primary" flat @click="sendMessage" />
+                <q-btn
+                  label="Mensaje"
+                  color="primary"
+                  flat
+                  @click="sendMessage"
+                />
               </div>
               <div class="col-auto" v-show="checkProfile()">
-                <q-btn label="Editar perfil" color="primary" outline @click="editProfile" />
+                <q-btn
+                  label="Editar perfil"
+                  color="primary"
+                  outline
+                  @click="editProfile"
+                />
               </div>
             </div>
             <div class="profile-stats q-mt-md">
-              <span><strong>{{ posts.length }}</strong> publicaciones</span>
-              <span><strong>{{ userData.followers.length }}</strong> seguidores</span>
+              <span
+                ><strong>{{ posts.length }}</strong> publicaciones</span
+              >
+              <span
+                ><strong>{{ userData.followers.length }}</strong>
+                seguidores</span
+              >
               <span><strong>0</strong> seguidos</span>
             </div>
           </div>
@@ -40,100 +69,136 @@
 
       <!-- Contenido desplazable -->
       <div class="profile-content-scroll">
-        <q-infinite-scroll @load="(index, done) => loadMorePosts(done)" :offset="200">
-          <q-list class="rounded-borders">
-            <q-item v-for="post in posts" :key="post.id" clickable @click="showPostDetails(post)" class="q-pa-md post-container border-bottom">
-              <div v-if="post.imageUrl && post.imageUrl !== 'S/M'" class="post-image-container">
-                <img :src="post.imageUrl" :alt="post.description" class="post-image" />
+        <q-list class="rounded-borders">
+          <q-item
+            v-for="post in posts"
+            :key="post.id"
+            class="q-pa-md post-container border-bottom"
+          >
+            <!-- Botón de tres puntos en la esquina superior derecha -->
+
+            <!-- Opciones visibles si es el post seleccionado -->
+            <div class="q-pa-md">
+              <div class="q-gutter-md">
+                <q-btn
+                  color="secondary"
+                  icon="more_vert"
+                  class="post-options-btn"
+                >
+                  <q-menu auto-close>
+                    <q-list style="min-width: 100px">
+                      <q-item clickable @click="deletePost(post._id)">
+                        <q-item-section class="text-delete"
+                          >Eliminar</q-item-section
+                        >
+                      </q-item>
+                    </q-list>
+                  </q-menu>
+                </q-btn>
               </div>
-              <div class="post-content">
-                <div class="text-body1 q-my-md">{{ post.description }}</div>
-                <q-item-section side top class="q-pt-none custom-icons">
-                  <q-icon name="favorite_border" />
-                  <span class="q-ml-xs">{{ post.likes.length }}</span>
-                  <q-icon name="chat_bubble_outline" class="q-ml-md" />
-                  <span class="q-ml-xs">{{ post.comments.length }}</span>
-                </q-item-section>
+            </div>
+
+            <div
+              v-if="post.imageUrl && post.imageUrl !== 'S/M'"
+              class="post-image-container"
+            >
+              <img
+                :src="post.imageUrl"
+                :alt="post.description"
+                class="post-image"
+              />
+            </div>
+            <div class="post-content">
+              <div class="text-body1 q-my-md">
+                {{ post.description }}
               </div>
-            </q-item>
-          </q-list>
-          <q-spinner-dots v-if="loading" class="q-mt-md" />
-        </q-infinite-scroll>
+              <q-item-section side top class="q-pt-none custom-icons">
+                <q-icon name="favorite_border" />
+                <span class="q-ml-xs">{{ post.likes.length }}</span>
+                <q-icon name="chat_bubble_outline" class="q-ml-md" />
+                <span class="q-ml-xs">{{ post.comments.length }}</span>
+              </q-item-section>
+            </div>
+          </q-item>
+        </q-list>
+        <!-- Loader Trigger -->
+        <div ref="loadMoreTrigger" class="row justify-center q-my-md">
+          <q-spinner-dots color="primary" v-if="loading" />
+        </div>
       </div>
     </div>
 
     <!-- Diálogo para editar la foto de perfil -->
     <q-dialog v-model="showEditDialog">
-        <q-card>
-          <q-card-section>
-            <div class="text-h6">Editar foto de perfil</div>
-          </q-card-section>
+      <q-card>
+        <q-card-section>
+          <div class="text-h6">Editar foto de perfil</div>
+        </q-card-section>
 
-          <q-card-section>
-            <q-file
-              v-model="files"
-              label="Buscar imagen"
-              square
-              flat
-              counter
-              outlined
-              clearable
-              max-files="1"
-              max-file-size="5120000"
-              @rejected="onRejected"
-            >
-              <template v-slot:prepend>
-                <q-icon name="attach_file" />
-              </template>
-            </q-file>
+        <q-card-section>
+          <q-file
+            v-model="files"
+            label="Buscar imagen"
+            square
+            flat
+            counter
+            outlined
+            clearable
+            max-files="1"
+            max-file-size="5120000"
+            @rejected="onRejected"
+          >
+            <template v-slot:prepend>
+              <q-icon name="attach_file" />
+            </template>
+          </q-file>
 
-            <!-- Previsualización de la imagen -->
-            <div v-if="imagePreview" class="q-mt-md">
-              <q-img :src="imagePreview" style="max-width: 300px">
-                <div class="absolute-bottom right q-pa-md">
-                  <q-btn round icon="clear" color="white" @click="clearImage" />
-                </div>
-              </q-img>
-            </div>
-          </q-card-section>
+          <!-- Previsualización de la imagen -->
+          <div v-if="imagePreview" class="q-mt-md">
+            <q-img :src="imagePreview" style="max-width: 300px">
+              <div class="absolute-bottom right q-pa-md">
+                <q-btn round icon="clear" color="white" @click="clearImage" />
+              </div>
+            </q-img>
+          </div>
+        </q-card-section>
 
-          <q-card-actions align="right">
-            <q-btn flat label="Cancelar" @click="showEditDialog = false" />
-            <q-btn label="Guardar" color="primary" @click="saveProfilePhoto" />
-          </q-card-actions>
-        </q-card>
-      </q-dialog>
+        <q-card-actions align="right">
+          <q-btn flat label="Cancelar" @click="showEditDialog = false" />
+          <q-btn label="Guardar" color="primary" @click="saveProfilePhoto" />
+        </q-card-actions>
+      </q-card>
+    </q-dialog>
 
-       <!-- Diálogo para editar perfil -->
-       <q-dialog v-model="showEditProfile">
-        <q-card>
-          <q-card-section>
-            <div class="text-h6">Editar perfil</div>
-          </q-card-section>
-          <q-card-section>
-            <!-- Formulario de edición de perfil -->
-            <q-input
-              outlined
-              type="textarea"
-              v-model="userData.bio"
-              label="Biografia"
-              class="q-mb-md"
-            />
-            <!-- ... otros campos ... -->
-          </q-card-section>
-          <q-card-actions align="right">
-            <q-btn flat label="Cancelar" @click="showEditProfile = false" />
-            <q-btn label="Guardar" color="primary" @click="saveProfile(user)" />
-          </q-card-actions>
-        </q-card>
-      </q-dialog>
-      <!-- Nuevo diálogo para mostrar detalles de una publicación -->
+    <!-- Diálogo para editar perfil -->
+    <q-dialog v-model="showEditProfile">
+      <q-card>
+        <q-card-section>
+          <div class="text-h6">Editar perfil</div>
+        </q-card-section>
+        <q-card-section>
+          <!-- Formulario de edición de perfil -->
+          <q-input
+            outlined
+            type="textarea"
+            v-model="userData.bio"
+            label="Biografia"
+            class="q-mb-md"
+          />
+        </q-card-section>
+        <q-card-actions align="right">
+          <q-btn flat label="Cancelar" @click="showEditProfile = false" />
+          <q-btn label="Guardar" color="primary" @click="saveProfile(user)" />
+        </q-card-actions>
+      </q-card>
+    </q-dialog>
+
+    <!-- Diálogo para mostrar detalles de una publicación -->
     <q-dialog v-model="showPostDialog">
       <q-card class="post-image-users">
         <q-card-section>
           <div class="action-buttons">
             <q-btn flat icon="more_vert" @click="showActions = !showActions">
-              <!-- Desplegable para eliminar publicación -->
               <q-menu v-model="showActions">
                 <q-list>
                   <q-item clickable @click="deletePost(selectedPost)">
@@ -160,9 +225,7 @@
         </q-card-section>
         <q-item v-for="comment in selectedPost.comments" :key="comment.id">
           <q-item-section>
-            <span
-              ><strong>{{ comment.user.username }}:</strong></span
-            >
+            <strong>{{ comment.user.username }}:</strong>
             <span>{{ comment.text }}</span>
           </q-item-section>
         </q-item>
@@ -174,11 +237,11 @@
   </q-page>
 </template>
 
-    
 <script>
 import AsideLayout from "layouts/AsideLayout.vue";
 import { useGlobal } from "../stores/global";
 import { watch } from "vue";
+import { useIntersectionObserver } from "@vueuse/core";
 import { useUserStore } from "../stores/userStore";
 import { usePostStore } from "../stores/postStore";
 import { ref, onMounted, nextTick } from "vue";
@@ -196,11 +259,18 @@ export default {
     const postStore = usePostStore();
     const posts = ref([]);
     const isFollowingBtn = ref(false);
+    const postMenuVisible = ref({}); // Controla la visibilidad de los menús de cada post
     const messageBtn = ref(false);
+    const showEditDialog = ref(false);
     const followingBtn = ref(false);
+    const loadMoreTrigger = ref(null);
     const currentPage = ref(0);
+    const selectedPostId = ref(null); // Almacena el ID de la publicación seleccionada
     const pageSize = ref(10);
+    const loading = ref(false);
+    const showPostDialog = ref(false);
     const hasMore = ref(true);
+    const showNotifs = ref(() => {});
     const route = useRoute();
     const router = useRouter(); // Obtener el objeto router
     const userData = ref({
@@ -294,25 +364,50 @@ export default {
       return flag;
     };
 
-    const checkProfile = () => {
-      const idParam = route.params.id;
-      const idUser = JSON.parse(localStorage.getItem("user")).id;
-      let flag = false;
-      if (idParam == idUser) {
-        flag = true;
+    const checkProfile = (post) => {
+      if (post) {
+        const storedUser = localStorage.getItem("user");
+
+        if (!storedUser) {
+          console.error("No se pudo obtener el usuario del localStorage.");
+          return false;
+        }
+
+        const idUser = JSON.parse(storedUser).id;
+        const postOwnerId = post.user.id;
+
+        return idUser === postOwnerId;
       }
-      return flag;
+    };
+
+    const showPostMenu = (post) => {
+      console.log("POST ID:", post._id);
+
+      selectedPostId.value = post._id; // Actualizamos el ID de la publicación seleccionada
     };
 
     const deletePost = async (postId) => {
       try {
-        const res = await this.postStore.deletePost(postId._id);
-        posts = posts.filter((post) => post.id !== postId);
-        this.showPostDialog = false;
+        // Llama a la función del store para eliminar la publicación
+        await postStore.deletePost(postId);
+
+        // Filtra la lista de publicaciones para excluir la eliminada
+        debugger
+        posts.value = posts.value.filter(
+          (post) => post._id.toString() !== postId.toString()
+        );
+        debugger
+        $q.notify({
+          progress: true,
+          message: "Publicación eliminada correctamente!",
+          color: "primary",
+          multiLine: true,
+        });
       } catch (error) {
         console.error("Error al eliminar la publicación:", error);
       }
     };
+
     const clearImage = () => {
       this.files = null;
       this.imagePreview = null;
@@ -329,15 +424,15 @@ export default {
       router.push({ path: `/messages/${id}` });
     };
 
-    const loadMorePosts = async (done) => {
+    const loadMorePosts = async () => {
+      if (!hasMore.value || loading.value) {
+        return;
+      }
+
+      loading.value = true;
       const id = route.params.id;
 
-      if (id) {
-        if (!hasMore.value) {
-          done(true); // Si no hay más publicaciones por cargar, detiene el Infinite Scroll
-          return;
-        }
-
+      try {
         const config = {
           headers: {
             Accept: "application/json",
@@ -352,30 +447,26 @@ export default {
           },
         };
 
-        try {
-          const res = await axios(config);
+        const res = await axios(config);
+        posts.value = [...posts.value, ...res.data.posts];
 
-          if (res.data.posts.length > 0) {
-            res.data.posts.forEach((element) => {
-              posts.value.push(element);
-            });
-          }
-
-          if (res.data.posts.length < pageSize.value) {
-            hasMore.value = res.data.hasMore;
-            // Si se devolvieron menos publicaciones de las solicitadas, asume que no hay más publicaciones por cargar
-          } else {
-            currentPage.value++; // Incrementa el número de página para la siguiente carga
-          }
-
-          done(); // Finaliza el proceso del Infinite Scroll
-        } catch (error) {
-          // Maneja errores como prefieras
-          console.error("Error al cargar más publicaciones:", error);
-          done(true); // Si hay un error, detiene el Infinite Scroll
+        if (res.data.posts.length < pageSize.value) {
+          hasMore.value = false;
+        } else {
+          currentPage.value++;
         }
+      } catch (error) {
+        console.error("Error al cargar más publicaciones:", error);
+      } finally {
+        loading.value = false;
       }
     };
+
+    useIntersectionObserver(loadMoreTrigger, ([{ isIntersecting }]) => {
+      if (isIntersecting && hasMore.value) {
+        loadMorePosts();
+      }
+    });
 
     onMounted(async () => {
       const id = route.params.id;
@@ -383,17 +474,24 @@ export default {
       await checkFollow();
     });
 
+    const $q = useQuasar();
+
     return {
       userData,
+      showPostDialog,
+      showPostMenu,
       showPostDetails,
       checkFollow,
       messageBtn,
       follow,
       posts,
+      showEditDialog,
       sendMessage,
+      loadMoreTrigger,
       deletePost,
       showPerfil,
       isFollowingBtn,
+      loading,
       followingBtn,
       unfollow,
       clearImage,
@@ -402,28 +500,39 @@ export default {
       checkProfile,
       postStore,
       hasMore,
+      selectedPostId,
       currentPage: 1, // Paginación: número de página actual
       pageSize: 5, // Paginación: número de publicaciones por página
       showEditProfile,
       editProfile,
+      postMenuVisible,
       getMinecraftSkinUrl,
+      showNotifs(msg) {
+        $q.notify({
+          progress: true,
+          message: msg,
+          color: "primary",
+          multiLine: true,
+        });
+      },
     };
   },
 };
 </script>
-    
+
 <style scoped>
 .profile-stats span {
   color: #fff;
 }
 
-.profile-stats  {
+.profile-stats {
   display: grid;
 }
 
-.profile-info{
+.profile-info {
   color: #fff;
 }
+
 /* Contenedor general */
 .profile-section-container {
   max-width: 800px;
@@ -446,7 +555,7 @@ export default {
 
 /* Sección de publicaciones con desplazamiento */
 .profile-content-scroll {
-  max-height: calc(100vh - 300px); /* Ajusta según la altura del perfil */
+  max-height: calc(100vh - 300px);
   overflow-y: auto;
   padding-top: 20px;
 }
@@ -457,13 +566,21 @@ export default {
   border-radius: 10px;
   margin-bottom: 20px;
   box-shadow: 0px 2px 8px rgba(0, 0, 0, 0.1);
-  display: flex;
-  flex-direction: column;
+  position: relative;
+  padding: 10px;
+}
+
+/* Botón de tres puntos para opciones en la esquina superior derecha */
+.post-options-btn {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  z-index: 2;
 }
 
 /* Imagen de la publicación */
 .post-image {
-  width: 300px;
+  width: 100%;
   border-radius: 10px 10px 0 0;
 }
 
@@ -472,7 +589,7 @@ export default {
   padding: 10px;
 }
 
-.post-content .text-body1 {
+.text-body1 {
   color: #2c3e50;
 }
 
@@ -505,8 +622,7 @@ export default {
   }
 }
 
+.text-delete {
+  color: black;
+}
 </style>
-
-
-
-    

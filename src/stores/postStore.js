@@ -11,28 +11,34 @@ export const usePostStore = defineStore({
   actions: {
     async deletePost(id) {
       const global = useGlobal();
+    
       const config = {
         headers: {
           Accept: "application/json",
           "Content-Type": "application/json",
         },
+        method: 'DELETE', // Usar DELETE en la solicitud
         url: `${global.url_api}/delete-post`,
         data: {
-          id,
+          postId: id, // Enviar el ID en el cuerpo
         },
       };
-
+    
       try {
-        const res = await axios.delete(config);
-        debugger
+        const res = await axios.request(config); // Usar axios.request para enviar cuerpo en DELETE
+    
         if (res.data.success) {
+          console.log("Post eliminado exitosamente.");
+          // Realiza cualquier acción necesaria después de eliminar, como actualizar la lista
         } else {
-
+          console.log("No se pudo eliminar el post:", res.data.message);
         }
       } catch (error) {
-        console.log(error)
+        console.error("Error al eliminar el post:", error);
       }
-    },
+    }
+    
+    ,
     async updatePost(post) {
       const config = {
         headers: {
