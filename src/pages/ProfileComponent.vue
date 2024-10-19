@@ -85,7 +85,7 @@
                   <q-list style="min-width: 100px">
                     <q-item clickable @click="deletePost(post._id)">
                       <q-item-section class="text-delete"
-                        >Eliminar</q-item-section
+                      v-show="showButton()">Eliminar</q-item-section
                       >
                     </q-item>
                   </q-list>
@@ -200,7 +200,7 @@
             <q-btn flat icon="more_vert" @click="showActions = !showActions">
               <q-menu v-model="showActions">
                 <q-list>
-                  <q-item clickable @click="deletePost(selectedPost)">
+                  <q-item clickable @click="deletePost(selectedPost)" >
                     <q-item-section>Eliminar publicación</q-item-section>
                   </q-item>
                 </q-list>
@@ -370,6 +370,17 @@ export default {
       return flag;
     };
 
+    const showButton = () => {
+      const idParam = route.params.id;
+      const idUser = JSON.parse(localStorage.getItem("user")).id;
+      let flag = true;
+      debugger
+      if (idParam != idUser) {
+        flag = false;
+      }
+      return flag;
+    };
+
     const checkProfile = (post) => {
       if (post) {
         const storedUser = localStorage.getItem("user");
@@ -482,6 +493,7 @@ export default {
       userData,
       showPostDialog,
       showPostMenu,
+      showButton,
       showPostDetails,
       checkFollow,
       messageBtn,
