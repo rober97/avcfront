@@ -128,6 +128,12 @@ export default {
             localStorage.setItem("user", JSON.stringify(res.data.user));
             userStore.setUser(res.data.user);
             router.push("/explorer");
+            $q.notify({
+              color: "green-5",
+              textColor: "white",
+              icon: "home",
+              message: 'Bienvenido a AvCLatin!',
+            });
           } else {
             $q.notify({
               color: "red-5",

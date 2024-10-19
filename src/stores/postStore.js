@@ -50,7 +50,6 @@ export const usePostStore = defineStore({
 
       try {
         const res = await axios.post(config, post);
-        debugger
         if (res.data.success) {
         } else {
 

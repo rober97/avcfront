@@ -6,7 +6,7 @@
         v-model="searchQuery"
         filled
         placeholder="Buscar usuario"
-        @input="searchUsers"
+        @update:model-value="searchUsers"
         class="search-input"
       >
         <template v-slot:append>
@@ -37,7 +37,6 @@
   </q-page>
 </template>
 
-
 <script>
 import { ref } from "vue";
 import { useUserStore } from "../stores/userStore";
@@ -56,9 +55,19 @@ export default {
     const userStore = useUserStore();
 
     const searchUsers = async () => {
+      if (searchQuery.value.trim() === "") {
+        // Si el campo de búsqueda está vacío, cargamos el listado completo de usuarios
+        loadUsers();
+        return;
+      }
+
+      // Si la búsqueda tiene al menos 3 caracteres, hacemos la búsqueda
       if (searchQuery.value.length >= 3) {
-        // Realiza tu lógica de búsqueda, por ejemplo:
-        // users.value = await api.searchUsers(searchQuery.value);
+        try {
+          users.value = await userStore.searchUsers(searchQuery.value);
+        } catch (error) {
+          console.error("Error al buscar usuarios:", error);
+        }
       }
     };
 
@@ -214,5 +223,4 @@ export default {
 .search-input .q-field--float.q-field--focused .q-field__label {
   color: #2c3e50; /* Mantener el label flotante en gris oscuro cuando está enfocado */
 }
-
 </style>

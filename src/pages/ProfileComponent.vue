@@ -30,7 +30,7 @@
                   v-show="isFollowingBtn"
                 />
               </div>
-              <div class="col-auto" v-show="showPerfil()">
+              <div class="col-auto" v-show="showMessage()">
                 <q-btn
                   label="Mensaje"
                   color="primary"
@@ -48,14 +48,13 @@
               </div>
             </div>
             <div class="profile-stats q-mt-md">
-              <span
-                ><strong>{{ posts.length }}</strong> publicaciones</span
-              >
-              <span
-                ><strong>{{ userData.followers.length }}</strong>
-                seguidores</span
-              >
-              <span><strong>0</strong> seguidos</span>
+              <span>
+                <strong>{{ posts.length }}</strong> publicaciones
+              </span>
+              <span>
+                <strong>{{ userData.followers.length }}</strong> seguidores
+              </span>
+              <span> <strong>0</strong> seguidos </span>
             </div>
           </div>
         </div>
@@ -76,28 +75,25 @@
             class="q-pa-md post-container border-bottom"
           >
             <!-- Botón de tres puntos en la esquina superior derecha -->
-
-            <!-- Opciones visibles si es el post seleccionado -->
-            <div class="q-pa-md">
-              <div class="q-gutter-md">
-                <q-btn
-                  color="secondary"
-                  icon="more_vert"
-                  class="post-options-btn"
-                >
-                  <q-menu auto-close>
-                    <q-list style="min-width: 100px">
-                      <q-item clickable @click="deletePost(post._id)">
-                        <q-item-section class="text-delete"
-                          >Eliminar</q-item-section
-                        >
-                      </q-item>
-                    </q-list>
-                  </q-menu>
-                </q-btn>
-              </div>
+            <div class="post-options-btn">
+              <q-btn
+                color="secondary"
+                icon="more_vert"
+                class="post-options-btn"
+              >
+                <q-menu auto-close>
+                  <q-list style="min-width: 100px">
+                    <q-item clickable @click="deletePost(post._id)">
+                      <q-item-section class="text-delete"
+                        >Eliminar</q-item-section
+                      >
+                    </q-item>
+                  </q-list>
+                </q-menu>
+              </q-btn>
             </div>
 
+            <!-- Imagen de la publicación -->
             <div
               v-if="post.imageUrl && post.imageUrl !== 'S/M'"
               class="post-image-container"
@@ -108,19 +104,22 @@
                 class="post-image"
               />
             </div>
+
+            <!-- Contenido de la publicación -->
             <div class="post-content">
-              <div class="text-body1 q-my-md">
-                {{ post.description }}
-              </div>
               <q-item-section side top class="q-pt-none custom-icons">
                 <q-icon name="favorite_border" />
                 <span class="q-ml-xs">{{ post.likes.length }}</span>
                 <q-icon name="chat_bubble_outline" class="q-ml-md" />
                 <span class="q-ml-xs">{{ post.comments.length }}</span>
               </q-item-section>
+              <div class="text-body1 q-my-md">
+                {{ post.description }}
+              </div>
             </div>
           </q-item>
         </q-list>
+
         <!-- Loader Trigger -->
         <div ref="loadMoreTrigger" class="row justify-center q-my-md">
           <q-spinner-dots color="primary" v-if="loading" />
@@ -213,8 +212,7 @@
             :src="selectedPost.imageUrl"
             :alt="selectedPost.description"
             style="max-width: 100%"
-          >
-          </q-img>
+          />
           <div class="q-mt-md">{{ selectedPost.description }}</div>
           <div class="q-mt-md">
             <i class="fas fa-heart"></i>&nbsp;
@@ -300,7 +298,6 @@ export default {
 
       // Supongamos que obtienes los datos del usuario y su lista de seguidores
       const res = await userStore.getUserById({ id: id_user_target });
-      debugger;
       messageBtn.value = true;
       if (res.followers.includes(id_user)) {
         isFollowingBtn.value = true;
@@ -340,7 +337,6 @@ export default {
           userId: id_user,
           targetUserId,
         });
-        debugger;
         if (response.data.success) {
           isFollowingBtn.value = false; // Actualiza el estado de seguimiento
           followingBtn.value = true;
@@ -354,7 +350,17 @@ export default {
       }
     };
 
-    const showPerfil = async () => {
+    const showPerfil = () => {
+      const idParam = route.params.id;
+      const idUser = JSON.parse(localStorage.getItem("user")).id;
+      let flag = true;
+      if (idParam == idUser) {
+        flag = false;
+      }
+      return flag;
+    };
+
+    const showMessage = () => {
       const idParam = route.params.id;
       const idUser = JSON.parse(localStorage.getItem("user")).id;
       let flag = true;
@@ -381,8 +387,6 @@ export default {
     };
 
     const showPostMenu = (post) => {
-      console.log("POST ID:", post._id);
-
       selectedPostId.value = post._id; // Actualizamos el ID de la publicación seleccionada
     };
 
@@ -392,11 +396,9 @@ export default {
         await postStore.deletePost(postId);
 
         // Filtra la lista de publicaciones para excluir la eliminada
-        debugger
         posts.value = posts.value.filter(
           (post) => post._id.toString() !== postId.toString()
         );
-        debugger
         $q.notify({
           progress: true,
           message: "Publicación eliminada correctamente!",
@@ -498,6 +500,7 @@ export default {
       loadMorePosts,
       userStore,
       checkProfile,
+      showMessage,
       postStore,
       hasMore,
       selectedPostId,
@@ -521,18 +524,6 @@ export default {
 </script>
 
 <style scoped>
-.profile-stats span {
-  color: #fff;
-}
-
-.profile-stats {
-  display: grid;
-}
-
-.profile-info {
-  color: #fff;
-}
-
 /* Contenedor general */
 .profile-section-container {
   max-width: 800px;
@@ -540,6 +531,13 @@ export default {
   overflow-y: auto;
   height: 100vh;
   padding-top: 20px;
+}
+
+.post-image {
+  width: 80%; /* Reducimos el ancho al 80% del contenedor */
+  max-width: 400px; /* Definimos un tamaño máximo */
+  height: auto; /* Mantenemos la relación de aspecto */
+  border-radius: 10px;
 }
 
 /* Perfil fijo en la parte superior */
@@ -568,6 +566,21 @@ export default {
   box-shadow: 0px 2px 8px rgba(0, 0, 0, 0.1);
   position: relative;
   padding: 10px;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+}
+
+/* Imagen de la publicación */
+.post-image-container {
+  margin-bottom: 10px;
+  text-align: center;
+}
+
+.post-image {
+  width: 100%;
+  height: auto;
+  border-radius: 10px;
 }
 
 /* Botón de tres puntos para opciones en la esquina superior derecha */
@@ -576,15 +589,11 @@ export default {
   top: 10px;
   right: 10px;
   z-index: 2;
+  background-color: #ecf0f1; /* Mismo color que el contenedor */
+  border-radius: 50%;
 }
 
-/* Imagen de la publicación */
-.post-image {
-  width: 100%;
-  border-radius: 10px 10px 0 0;
-}
-
-/* Contenido de la publicación */
+/* Contenido de la publicación (likes, comentarios y descripción) */
 .post-content {
   padding: 10px;
 }
@@ -602,6 +611,7 @@ export default {
   flex-direction: row !important;
 }
 
+/* Espaciado entre los íconos y el borde */
 .border-bottom {
   border-bottom: 1px solid #d5d2d2;
 }
@@ -624,5 +634,96 @@ export default {
 
 .text-delete {
   color: black;
+}
+
+.profile-stats {
+  display: flex; /* Flexbox para alinear los elementos horizontalmente */
+  justify-content: space-around; /* Espaciado igual entre los elementos */
+  text-align: center; /* Centra el texto dentro de cada span */
+  margin-top: 20px;
+  padding: 10px 0;
+  background-color: #ecf0f1; /* Fondo claro */
+  border-radius: 8px; /* Bordes redondeados */
+  box-shadow: 0px 2px 8px rgba(0, 0, 0, 0.1); /* Sombra para un efecto más limpio */
+}
+
+.profile-stats span {
+  flex: 1; /* Cada span ocupa el mismo espacio */
+  color: #2c3e50; /* Color del texto */
+}
+
+.profile-stats strong {
+  font-size: 1.2em; /* Aumentamos el tamaño de los números */
+  display: block;
+  margin-bottom: 5px;
+  color: #000; /* Texto más oscuro para destacar */
+}
+
+.profile-header {
+  display: flex; /* Flexbox para alinear el avatar y el contenido */
+  align-items: center; /* Alinear verticalmente los elementos al centro */
+  margin-bottom: 20px; /* Espacio debajo del header */
+}
+
+.profile-avatar {
+  border-radius: 50%;
+  box-shadow: 0px 2px 8px rgba(0, 0, 0, 0.1); /* Sombra para destacar el avatar */
+}
+
+.profile-header .col {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.q-gutter-md.row.items-center.justify-start {
+  display: flex;
+  gap: 10px; /* Espacio entre los botones */
+  margin-bottom: 10px;
+}
+
+.profile-stats {
+  display: flex;
+  justify-content: space-around; /* Espaciado igual entre las estadísticas */
+  text-align: center;
+  margin-top: 10px;
+}
+
+.profile-stats span {
+  flex: 1;
+  font-size: 1em;
+  color: #2c3e50;
+}
+
+.profile-stats strong {
+  font-size: 1.2em;
+  color: #000;
+}
+
+.q-btn {
+  margin-right: 10px; /* Espacio entre los botones */
+}
+
+@media (max-width: 768px) {
+  .profile-header {
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+  }
+
+  .profile-avatar {
+    margin-bottom: 20px;
+  }
+
+  .profile-stats {
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .q-gutter-md.row.items-center.justify-start {
+    flex-direction: column;
+    gap: 15px;
+    align-items: center;
+  }
 }
 </style>

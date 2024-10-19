@@ -1,62 +1,63 @@
 
 
 <template>
-  <q-drawer v-model="leftDrawerOpen" show-if-above bordered>
-    <div class="drawer-header">
-      <div class="image-container">
-        <img
-          :src="getMinecraftSkinUrl(userData.username)"
-          class="user-avatar"
-        />
-      </div>
-      <q-item-label header style="font-size: 25px; text-align: center">
-        AvC Latin
-      </q-item-label>
-    </div>
-
-    <q-list
-      style="
-        flex: 1;
-        display: flex;
-        flex-direction: column;
-        justify-content: space-between;
-      "
-      class="menu-list"
-    >
-      <div>
-        <EssentialLink
-          v-for="link in essentialLinks"
-          :key="link.title"
-          :onClick="
-            link.title === 'Crear'
-              ? showCreatePostDialog
-              : link.title === 'Perfil'
-              ? toProfile
-              : null
-          "
-          v-bind="link"
-        />
+  <q-page class="register-page flex flex-center q-pa-md">
+    <q-drawer v-model="leftDrawerOpen" show-if-above bordered>
+      <div class="drawer-header">
+        <div class="image-container">
+          <img :src="getMinecraftSkinUrl(userData.username)" class="user-avatar" />
+        </div>
+        <q-item-label header style="font-size: 25px; text-align: center">AvC Latin</q-item-label>
       </div>
 
-      <!-- Este div se asegura que el botón quede al final del todo en el drawer -->
-      <div class="logout-button">
-        <q-btn icon="exit_to_app" color="negative" @click="logout" />
-      </div>
-    </q-list>
+      <q-list class="menu-list" style="flex: 1; display: flex; flex-direction: column; justify-content: space-between;">
+        <div>
+          <EssentialLink
+            v-for="link in essentialLinks"
+            :key="link.title"
+            :onClick="
+              link.title === 'Crear'
+                ? showCreatePostDialog
+                : link.title === 'Perfil'
+                ? toProfile
+                : null
+            "
+            v-bind="link"
+          />
+        </div>
 
-    <!-- Incluye el diálogo en tu template -->
-    <CreatePostDialog
-      v-model="isDialogVisible"
-      :show="isDialogVisible"
-      @update:show="isDialogVisible = $event"
-      @post-created="handlePostCreated"
-    />
-  </q-drawer>
+        <!-- Este div se asegura que el botón quede al final del todo en el drawer -->
+        <div class="logout-button">
+          <q-btn icon="exit_to_app" color="negative" @click="confirmLogout" />
+        </div>
+      </q-list>
+
+      <!-- Incluye el diálogo en tu template -->
+      <CreatePostDialog v-model="isDialogVisible" :show="isDialogVisible" @update:show="handlePostCreated" />
+
+      <!-- Diálogo de confirmación para cerrar sesión -->
+      <q-dialog v-model="confirmLogoutDialog">
+        <q-card>
+          <q-card-section class="row items-center q-pb-none">
+            <q-icon name="warning" color="negative" size="40px" />
+            <div class="q-ml-sm">¿Estás seguro de que quieres cerrar sesión?</div>
+          </q-card-section>
+
+          <q-card-actions align="right">
+            <q-btn flat label="Cancelar" color="primary" v-close-popup />
+            <q-btn flat label="Cerrar sesión" color="negative" @click="logout" />
+          </q-card-actions>
+        </q-card>
+      </q-dialog>
+    </q-drawer>
+  </q-page>
 </template>
+
 
 <script>
 import { ref, onMounted, nextTick } from "vue";
 import { useUserStore } from "../stores/userStore";
+import { useQuasar } from "quasar";
 import EssentialLink from "components/EssentialLink.vue";
 import CreatePostDialog from "pages/NewPost.vue"; // Importa el diálogo
 import { useRouter } from "vue-router";
@@ -108,6 +109,8 @@ export default {
     const leftDrawerOpen = ref(false);
     const isDialogVisible = ref(false); // Propiedad para controlar la visibilidad del diálogo
     const router = useRouter();
+    const $q = useQuasar();
+    const confirmLogoutDialog = ref(false); // Controla el diálogo de confirmación
     const userData = ref({
       username: "",
       bio: "",
@@ -121,8 +124,8 @@ export default {
       userData.value = await userStore.getUserById({ id });
     });
 
-    const handlePostCreated = () => {
-      // Emitir un evento para notificar que se ha creado una nueva publicación
+    const handlePostCreated = ($event) => {
+      isDialogVisible.value = $event
       emit('update:show', true);
     };
     const getMinecraftSkinUrl = (username) => {
@@ -134,16 +137,44 @@ export default {
       isDialogVisible.value = true;
     };
 
+    // Mostrar el diálogo de confirmación
+    const confirmLogout = () => {
+      confirmLogoutDialog.value = true;
+    };
+
     const toProfile = () => {
       const userId = JSON.parse(localStorage.getItem("user")).id;
       router.push("/profile/" + userId);
     };
 
-    const logout = () => {
-      localStorage.removeItem("isAuthenticated");
-      localStorage.removeItem("user");
-      console.log("Usuario ha cerrado sesión");
-      router.push("/login");
+    const logout = async () => {
+      try {
+        // Llama a un endpoint de backend para invalidar el token si es necesario
+        await userStore.logout(); // Puedes implementar este método en el store
+
+        // Limpia el almacenamiento local
+        localStorage.removeItem("isAuthenticated");
+        localStorage.removeItem("user");
+
+        // Redirige al usuario a la página de login
+        router.push("/login");
+
+        // Notificación de éxito
+        $q.notify({
+          color: "green-5",
+          textColor: "white",
+          icon: "logout",
+          message: "Has cerrado sesión correctamente.",
+        });
+      } catch (error) {
+        console.error("Error al cerrar sesión:", error);
+        $q.notify({
+          color: "red-5",
+          textColor: "white",
+          icon: "error",
+          message: "Error al cerrar sesión.",
+        });
+      }
     };
 
     return {
@@ -153,7 +184,9 @@ export default {
       isDialogVisible, // Devuelve la propiedad del diálogo
       showCreatePostDialog, // Devuelve el método del diálogo
       toProfile,
+      confirmLogoutDialog, // Controla el diálogo de confirmación
       getMinecraftSkinUrl,
+      confirmLogout, // Método para mostrar el diálogo
       logout,
       handlePostCreated,
       toggleLeftDrawer() {

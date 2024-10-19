@@ -22,7 +22,6 @@ const routes = [
       { path: 'messages-list', component: () => import('src/pages/MessagesComponent.vue'), meta: { requiresAuth: true } },
       { path: 'search', component: () => import('src/pages/SearchComponent.vue'), meta: { requiresAuth: true } },
       { path: 'market', component: () => import('src/pages/MarketComponent.vue') },
-      { path: 'market-list', component: () => import('src/pages/ListRecommendComponent.vue') },
       { path: 'achievements', component: () => import('src/pages/AchievementsComponent.vue') },
     ]
   },

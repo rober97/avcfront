@@ -112,7 +112,6 @@ export default {
     };
 
     const updatePosts = async () => {
-      debugger
       currentPage.value = 1;
       posts.value = [];
       hasMore.value = true;
@@ -127,7 +126,6 @@ export default {
       loading.value = true;
 
       try {
-        debugger;
         const config = {
           headers: {
             Accept: "application/json",

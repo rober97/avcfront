@@ -9,7 +9,7 @@
           v-model="email"
           label="Correo electrónico"
           lazy-rules
-          :rules="[(val) => (val && val.length > 0) || 'Ingresa un correo']"
+          :rules="[emailRules]"
         />
 
         <q-input
@@ -17,7 +17,7 @@
           v-model="username"
           label="Usuario"
           lazy-rules
-          :rules="[(val) => (val && val.length > 0) || 'Ingresa un usuario']"
+          :rules="[usernameRules]"
         />
 
         <q-input
@@ -26,9 +26,7 @@
           v-model="password"
           label="Contraseña"
           lazy-rules
-          :rules="[
-            (val) => (val !== null && val !== '') || 'Ingresa una contraseña',
-          ]"
+          :rules="[passwordRules]"
         />
 
         <div class="text-center q-mt-md">
@@ -61,10 +59,42 @@ export default {
     const password = ref(null);
     const $q = useQuasar();
 
+    // Reglas de validación para el correo electrónico
+    const emailRules = (val) =>
+      val && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(val) || "Correo no válido";
+
+    // Reglas de validación para el nombre de usuario
+    const usernameRules = (val) =>
+      (val && val.length >= 3) || "El usuario debe tener al menos 3 caracteres";
+
+    // Reglas de validación para la contraseña
+    const passwordRules = (val) => {
+      if (!val) {
+        return "Ingresa una contraseña";
+      }
+      if (val.length < 8) {
+        return "La contraseña debe tener al menos 8 caracteres";
+      }
+      if (!/[A-Z]/.test(val)) {
+        return "La contraseña debe tener al menos una letra mayúscula";
+      }
+      if (!/\d/.test(val)) {
+        return "La contraseña debe tener al menos un número";
+      }
+      if (!/[!@#$%^&*]/.test(val)) {
+        return "La contraseña debe tener al menos un carácter especial (!@#$%^&*)";
+      }
+      return true;
+    };
+
     return {
       email,
       username,
       password,
+      emailRules,
+      usernameRules,
+      passwordRules,
+
       async onSubmit() {
         const config = {
           headers: {
@@ -83,7 +113,6 @@ export default {
         try {
           const res = await axios(config);
           if (res.data.success) {
-            // Guarda 'obj' donde lo necesites o haz algo con él.
             router.push("/login");
           } else {
             $q.notify({
@@ -94,7 +123,6 @@ export default {
             });
           }
         } catch (error) {
-          // Aquí manejas errores de red o si el servidor retorna un error 500, por ejemplo.
           $q.notify({
             color: "red-5",
             textColor: "white",
@@ -118,8 +146,8 @@ export default {
 .register-page {
   background-color: #fafafa;
   background-image: url("../assets/newfondo.jpg") !important;
-  background-size: cover; /* Esto asegura que la imagen cubra todo el espacio disponible */
-  background-repeat: no-repeat; /* Esto evita que la imagen se repita */
+  background-size: cover;
+  background-repeat: no-repeat;
 }
 
 .register-box {

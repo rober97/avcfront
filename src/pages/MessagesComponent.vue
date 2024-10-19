@@ -114,7 +114,6 @@ export default {
     const socket = io("https://avc-1dbca99a8369.herokuapp.com");
     socket.on("receive_message", (msg) => {
       // Crea el objeto mensaje
-      debugger;
       const message = {
         text: msg.text,
         sender: msg.sender, // puedes utilizar el ID del usuario en lugar de un string como 'sent'

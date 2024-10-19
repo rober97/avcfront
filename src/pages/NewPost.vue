@@ -45,8 +45,7 @@
   </q-dialog>
 </template>
 
-  
-  <script>
+<script>
 import { ref, onMounted } from "vue";
 import axios from "axios";
 import { useUserStore } from "../stores/userStore";
@@ -92,7 +91,7 @@ export default {
   setup(props, { emit }) {
     const description = ref("");
     const cropper = ref("");
-    const files = ref("");
+    const files = ref([]);
     const selectedFile = ref(null);
     const userStore = useUserStore();
     const $q = useQuasar();
@@ -130,7 +129,6 @@ export default {
   methods: {
     file_selected(file) {
       console.log(file);
-      debugger;
       this.selected_file = file[0];
       this.check_if_document_upload = true;
     },
@@ -147,7 +145,6 @@ export default {
       //const { userId, description, imageUrl } = req.body;
       const file = this.files;
       let imageUrl = "";
-      debugger;
       const croppedImageDataURL = this.$refs.cropper
         ? this.$refs.cropper.getCroppedCanvas().toDataURL()
         : "";

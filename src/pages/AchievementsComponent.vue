@@ -438,7 +438,6 @@ export default {
     onMounted(async () => {
       const id = JSON.parse(localStorage.getItem("user")).id;
       const uuidUser = await userStore.getUUIDUser({ id });
-      debugger;
       if (uuidUser.success) {
         const user = await userStore.getUserByUUID({ uuid: uuidUser.uuid });
         userData.value = user.user;

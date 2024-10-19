@@ -8,6 +8,7 @@ export const useUserStore = defineStore({
   state: () => ({
     user: JSON.parse(localStorage.getItem('user')) || {},
     userData: null,
+    isAuthenticated: false,
   }),
   getters: {
     isLoggedIn(state) {
@@ -17,9 +18,6 @@ export const useUserStore = defineStore({
   actions: {
     setUser(userInfo) {
       this.user = userInfo;
-    },
-    logout() {
-      this.user = null;
     },
     async uploadImage(file) {
       let imageUrl = ''
@@ -72,7 +70,6 @@ export const useUserStore = defineStore({
     async getUserByUUID(uuid) {
       const global = useGlobal();
       try {
-        debugger
         const res = await axios.post(
           `${global.url_api}/getUserByUUID`,
           uuid
@@ -167,7 +164,6 @@ export const useUserStore = defineStore({
         },
       };
 
-      debugger
 
       try {
         const res = await axios(config);
@@ -220,6 +216,34 @@ export const useUserStore = defineStore({
       }
     },
 
+    async logout() {
+      try {
+        const global = useGlobal(); // Asegúrate de tener la configuración de tu URL base
+        const config = {
+          headers: {
+            Accept: "application/json",
+            "Content-Type": "application/json",
+          },
+          method: "POST",
+          url: `${global.url_api}/logout`, // Endpoint del backend para manejar el logout
+        };
+
+        // Llama al backend para invalidar el token de sesión o destruir la sesión
+        await axios(config);
+
+        // Limpiar el estado local del usuario y la autenticación
+        this.user = null;
+        this.isAuthenticated = false;
+
+        // Limpia cualquier dato del localStorage que esté relacionado con la sesión
+        localStorage.removeItem("isAuthenticated");
+        localStorage.removeItem("user");
+      } catch (error) {
+        console.error("Error al cerrar sesión:", error);
+        throw error; // Manejo de errores
+      }
+    },
+
     async getListUsers() {
       const global = useGlobal();
       const config = {
@@ -239,6 +263,26 @@ export const useUserStore = defineStore({
       }
     },
 
+    async searchUsers(query) {
+      const global = useGlobal();
+      const config = {
+        headers: {
+          Accept: "application/json",
+          "Content-Type": "application/json",
+        },
+        method: "GET",
+        url: `${global.url_api}/search-users?query=${query}&limit=100&page=1`, // Usamos el parámetro de búsqueda en la URL
+      };
+    
+      try {
+        const res = await axios(config);
+        return res.data; // Devolvemos los usuarios encontrados
+      } catch (error) {
+        console.log(error);
+      }
+    },
+        
+
     async vincularCuenta(token) {
       const global = useGlobal();
       const config = {
@@ -253,11 +297,8 @@ export const useUserStore = defineStore({
         },
       };
 
-      debugger
-
       try {
         const res = await axios(config);
-        debugger
         return res.data
       } catch (error) {
         console.log(error)
@@ -280,7 +321,6 @@ export const useUserStore = defineStore({
 
       try {
         const res = await axios(config);
-        debugger
         return res.data
       } catch (error) {
         console.log(error)
