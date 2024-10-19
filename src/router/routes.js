@@ -8,7 +8,6 @@ const routes = [
       { path: '', component: () => import('src/pages/RegisterPage.vue') },
       { path: 'login', component: () => import('src/pages/LoginPage.vue') },
       { path: 'list-npc', component: () => import('pages/ListNpc.vue'), meta: { requiresAuth: true } },
-      { path: 'list-kino', component: () => import('pages/ListKino.vue'), meta: { requiresAuth: true } },
       { path: 'main', component: () => import('src/pages/MainComponent.vue'), meta: { requiresAuth: true } },
       {
         path: 'profile/:id',
