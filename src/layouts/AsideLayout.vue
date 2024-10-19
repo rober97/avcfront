@@ -1,8 +1,7 @@
 
 
 <template>
-  <q-page class="register-page flex flex-center q-pa-md">
-    <q-drawer v-model="leftDrawerOpen" show-if-above bordered>
+    <q-drawer  v-model="leftDrawerOpen" show-if-above bordered>
       <div class="drawer-header">
         <div class="image-container">
           <img :src="getMinecraftSkinUrl(userData.username)" class="user-avatar" />
@@ -50,7 +49,6 @@
         </q-card>
       </q-dialog>
     </q-drawer>
-  </q-page>
 </template>
 
 
