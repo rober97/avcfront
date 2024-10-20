@@ -335,8 +335,7 @@ export default {
           userId: userData.value._id,
         });
 
-
-        debugger
+        debugger;
 
         // Verificar si la respuesta del servidor fue exitosa
         if (response.success) {
@@ -413,14 +412,14 @@ export default {
       }
     };
 
-
     const loadRewards = async () => {
       try {
-        const res = await userStore.getAllRewards();
-        rewards.value = res.aventura_rewards
-        premiumRewards.value = res.premium_rewards
+        const userId = userStore.userData.id; // Asegúrate de que userData esté disponible en tu store
+        const res = await userStore.getAllRewards(userId);
+        rewards.value = res.aventura_rewards;
+        premiumRewards.value = res.premium_rewards;
       } catch (error) {
-        console.error("Error al cargar los logros disponibles:", error);
+        console.error("Error al cargar las recompensas disponibles:", error);
       }
     };
 
@@ -535,7 +534,7 @@ export default {
         // Cargar logros disponibles y logros del jugador
         await loadAvailableAchievements();
         await loadPlayerAchievements();
-        await loadRewards()
+        await loadRewards();
       } else {
         userData.value = {
           username: "",
@@ -572,7 +571,7 @@ export default {
       totalPoints,
       maxPoints,
       verified,
-      claimReward
+      claimReward,
     };
   },
 };

@@ -405,15 +405,16 @@ export const useUserStore = defineStore({
     },
 
 
-    async getAllRewards() {
+    async getAllRewards(userId) {
       try {
         const global = useGlobal();
-        const response = await axios.get(`${global.url_api}/rewards`);
-        return response.data
+        const response = await axios.post(`${global.url_api}/rewards`, { userId }); // Enviar el userId en el cuerpo
+        return response.data;
       } catch (error) {
-        console.error('Error al cargar logros:', error);
+        console.error('Error al cargar recompensas:', error);
       }
     }
+    
 
 
 
