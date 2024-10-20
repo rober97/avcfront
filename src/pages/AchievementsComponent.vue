@@ -270,13 +270,13 @@
 </template>
 
 <script>
+import { io } from "socket.io-client";
 import AsideLayout from "layouts/AsideLayout.vue";
 import { ref, onMounted, watch } from "vue";
 import { useUserStore } from "../stores/userStore";
 import rewardsJson from "../resources/rewards.json";
 
-import defaultAvatar from '../resources/steve.png'; // Ruta a la imagen local
-
+import defaultAvatar from "../resources/steve.png"; // Ruta a la imagen local
 
 export default {
   components: {
@@ -311,6 +311,15 @@ export default {
     const activeTab = ref("logros"); // Controla el tab activo (logros o recompensas)
     const totalPoints = ref(0); // Puntos acumulados para las recompensas
     const maxPoints = ref(1000000); // Máximo de puntos posibles para la barra general
+
+    const socket = io("https://avc-1dbca99a8369.herokuapp.com");
+    socket.on("update_page", (msg) => {
+      try {
+        loadPlayerAchievements();
+      } catch (error) {
+        console.error("Error al actualizar los logros:", error);
+      }
+    });
 
     // Función para vincular la cuenta de Minecraft
     const vincularCuentaMinecraft = async () => {
