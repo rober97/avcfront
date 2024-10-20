@@ -4,51 +4,77 @@
     <div class="achievement-section-container">
       <!-- Sección del perfil con opción de vinculación -->
       <div class="profile-section q-pa-md q-mb-md">
-        <div class="q-gutter-md row items-center profile-header">
+        <div class="q-gutter-md row items-start profile-header">
+          <!-- Columna de Avatar y Botón/Botonera -->
           <div class="col-auto">
-            <q-avatar size="150px" class="profile-avatar">
+            <q-avatar
+              :size="$q.screen.lt.md ? '100px' : '150px'"
+              class="profile-avatar"
+            >
               <img
                 :src="getMinecraftSkinUrl(userData.username)"
                 alt="User Avatar"
               />
             </q-avatar>
-          </div>
-          <div class="col">
-            <div class="q-gutter-md row items-center justify-start">
+
+            <!-- Botón o badge debajo del avatar -->
+            <div class="q-gutter-md row items-center justify-center q-mt-sm">
               <div class="col-auto">
                 <q-btn
                   label="Vincular Cuenta Minecraft"
                   color="primary"
                   @click="vincularCuentaMinecraft"
-                  v-if="!isLinked"
+                  v-if="!userData.verified"
                 />
                 <q-badge v-else color="green" label="Cuenta vinculada" />
               </div>
             </div>
           </div>
-        </div>
 
-        <!-- Bio y Username -->
-        <div class="profile-info q-mt-md">
-          <strong>{{ userData.username }}</strong>
-          <div class="profile-message">
-            Bienvenido a la Sección de Logros de AvC Latin. Aquí podrás rastrear
-            y comparar tus logros del Pase de Aventura y Premium. Completa
-            desafíos, acumula puntos y desbloquea recompensas exclusivas como
-            equipos y permisos especiales en el servidor.
-            <br /><br />
-            Para comenzar, vincula tu cuenta de Minecraft:
-            <br /><br />
-            1. Inicia sesión en la web.
-            <br />
-            2. Haz clic en "Vincular Cuenta Minecraft".
-            <br />
-            3. Obtén tu token.
-            <br />
-            4. Usa el comando <code>/vincular &lt;token&gt;</code> en el
-            servidor. <br /><br />
-            ¡Listo! Ahora podrás seguir tu progreso y obtener recompensas en
-            tiempo real.
+          <!-- Columna de Bio y Mensaje -->
+          <div class="col profile-info q-ml-md">
+            <!-- Si no está verificado -->
+            <div v-if="!userData.verified">
+              <strong>{{ userData.username }}</strong>
+              <div class="profile-message">
+                Bienvenido a la Sección de Logros de AvC Latin. Aquí podrás
+                rastrear y comparar tus logros del Pase de Aventura y Premium.
+                Completa desafíos, acumula puntos y desbloquea recompensas
+                exclusivas como equipos y permisos especiales en el servidor.
+                <br /><br />
+                Para comenzar, vincula tu cuenta de Minecraft:
+                <br /><br />
+                1. Inicia sesión en la web.
+                <br />
+                2. Haz clic en "Vincular Cuenta Minecraft".
+                <br />
+                3. Obtén tu token.
+                <br />
+                4. Usa el comando <code>/vincular &lt;token&gt;</code> en el
+                servidor. <br /><br />
+                ¡Listo! Ahora podrás seguir tu progreso y obtener recompensas en
+                tiempo real.
+              </div>
+            </div>
+
+            <!-- Si está verificado -->
+            <div v-else>
+              <strong>{{ userData.username }}</strong>
+              <div class="profile-message">
+                ¡Tu cuenta de Minecraft ya está vinculada exitosamente! Ahora
+                puedes rastrear y comparar tus logros tanto del Pase de Aventura
+                como del Pase Premium. Completa desafíos, acumula puntos y
+                desbloquea increíbles recompensas exclusivas.
+                <br /><br />
+                Revisa tus logros, sigue tu progreso en tiempo real y no olvides
+                canjear tus puntos por recompensas especiales dentro del
+                servidor. Cada logro que completes te acercará más a obtener
+                equipo épico y permisos exclusivos.
+                <br /><br />
+                ¡Sigue jugando y desbloquea todo lo que AvC Latin tiene para
+                ofrecerte!
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -113,24 +139,6 @@
                     {{ getAchievementProgress(achievement).toFixed(2) }}%
                     completado
                   </div>
-                  <!-- Botón de reclamar recompensa (solo visible cuando el progreso es 100%) -->
-                  <q-btn
-                    v-if="
-                      getAchievementProgress(achievement) === 100 &&
-                      !achievement.rewardClaimed
-                    "
-                    label="Reclamar Recompensa"
-                    color="orange"
-                    class="q-mt-md claim-button"
-                    @click="claimReward(achievement)"
-                  />
-                  <!-- Mensaje de recompensa reclamada -->
-                  <div
-                    v-else-if="achievement.rewardClaimed"
-                    class="reward-claimed-message q-mt-md"
-                  >
-                    🎉 Recompensa reclamada
-                  </div>
                 </div>
               </div>
             </div>
@@ -159,8 +167,9 @@
             >
               <div class="q-gutter-md row items-center">
                 <div class="col-auto">
+                  <!-- Cambiar icono por uno más temático -->
                   <q-icon
-                    :name="reward.icon || 'fas fa-gift'"
+                    :name="getMinecraftIcon(reward)"
                     size="md"
                     color="blue"
                     class="achievement-icon"
@@ -174,12 +183,12 @@
                   <div class="reward-label">
                     Puntos necesarios: {{ reward.points_required }}
                   </div>
-                  <!-- Botón para canjear recompensa si se tienen los puntos suficientes -->
+                  <!-- Botón animado para canjear recompensa si se tienen los puntos suficientes -->
                   <q-btn
-                    v-if="totalPoints >= reward.points && !reward.claimed"
-                    label="Canjear Recompensa"
+                    v-if="checkPremio(reward)"
+                    label="Reclamar"
                     color="orange"
-                    class="q-mt-md claim-button"
+                    class="claim-button pulsating"
                     @click="claimReward(reward)"
                   />
                   <!-- Mensaje de recompensa canjeada -->
@@ -193,8 +202,7 @@
               </div>
             </div>
           </div>
-
-          <!-- Listado de recompensas del Pase Premium -->
+          <!-- Recompensas del Pase Premium -->
           <h3 class="q-mt-md">Pase Premium</h3>
           <div class="achievement-row horizontal-list">
             <div
@@ -205,7 +213,7 @@
               <div class="q-gutter-md row items-center">
                 <div class="col-auto">
                   <q-icon
-                    :name="reward.icon || 'fas fa-gift'"
+                    :name="getMinecraftIcon(reward)"
                     size="md"
                     color="gold"
                     class="achievement-icon"
@@ -219,15 +227,13 @@
                   <div class="reward-label">
                     Puntos necesarios: {{ reward.points_required }}
                   </div>
-                  <!-- Botón para canjear recompensa si se tienen los puntos suficientes -->
                   <q-btn
                     v-if="totalPoints >= reward.points && !reward.claimed"
-                    label="Canjear Recompensa"
+                    label="Reclamar Recompensa"
                     color="orange"
-                    class="q-mt-md claim-button"
+                    class="claim-button pulsating"
                     @click="claimReward(reward)"
                   />
-                  <!-- Mensaje de recompensa canjeada -->
                   <div
                     v-else-if="reward.claimed"
                     class="reward-claimed-message q-mt-md"
@@ -274,8 +280,7 @@ import { io } from "socket.io-client";
 import AsideLayout from "layouts/AsideLayout.vue";
 import { ref, onMounted, watch } from "vue";
 import { useUserStore } from "../stores/userStore";
-import rewardsJson from "../resources/rewards.json";
-
+import { useQuasar } from "quasar";
 import defaultAvatar from "../resources/steve.png"; // Ruta a la imagen local
 
 export default {
@@ -292,6 +297,7 @@ export default {
     });
     const isLinked = ref(false);
     const vinculationToken = ref("");
+    const $q = useQuasar();
     const vinculationStatus = ref(true);
     const showLinkDialog = ref(false);
     const achievements = ref([]); // Logros combinados (disponibles + progreso)
@@ -300,10 +306,10 @@ export default {
     const filteredAventuraAchievements = ref([]); // Logros para pase aventura
     const filteredPremiumAchievements = ref([]); // Logros para pase premium
     // Datos falsos para las recompensas generales
-    const rewards = ref(rewardsJson.aventura_rewards);
+    const rewards = ref([]);
 
     // Datos falsos para las recompensas del pase premium
-    const premiumRewards = ref(rewardsJson.premium_rewards);
+    const premiumRewards = ref([]);
     const verified = ref(false);
 
     const searchTerm = ref(""); // Término de búsqueda
@@ -321,6 +327,43 @@ export default {
       }
     });
 
+    const claimReward = async (reward) => {
+      try {
+        debugger
+        // Llamada directa a userStore para reclamar la recompensa
+        const response = await userStore.claimReward({
+          rewardId: reward._id,
+          userId: userData.value._id,
+        });
+
+        // Verificar si la respuesta del servidor fue exitosa
+        if (response.success) {
+          // Actualizar el estado de la recompensa a "reclamada"
+          reward.claimed = true;
+
+          // Mostrar una notificación positiva al jugador
+          $q.notify({
+            type: "positive",
+            message: `Has reclamado la recompensa: ${reward.name}. ¡Felicidades!`,
+          });
+        } else {
+          // Mostrar un mensaje de error si la respuesta fue negativa
+          $q.notify({
+            type: "negative",
+            message: `No se pudo reclamar la recompensa: ${reward.name}. Inténtalo de nuevo.`,
+          });
+        }
+      } catch (error) {
+        // Manejo de errores en la solicitud de recompensa
+        console.error("Error al reclamar la recompensa:", error);
+        $q.notify({
+          type: "negative",
+          message:
+            "Hubo un problema al reclamar la recompensa. Por favor, inténtalo más tarde.",
+        });
+      }
+    };
+
     // Función para vincular la cuenta de Minecraft
     const vincularCuentaMinecraft = async () => {
       showLinkDialog.value = true;
@@ -329,6 +372,19 @@ export default {
       vinculationToken.value = response.token;
       if (!response.success) {
         vinculationStatus.value = false;
+      }
+    };
+
+    const getMinecraftIcon = (reward) => {
+      switch (reward.type) {
+        case "diamond":
+          return "fas fa-gem"; // Ícono de diamante
+        case "sword":
+          return "fas fa-sword"; // Ícono de espada
+        case "chest":
+          return "fas fa-box"; // Ícono de cofre
+        default:
+          return "fas fa-trophy"; // Por defecto, si no está asignado
       }
     };
 
@@ -353,6 +409,27 @@ export default {
       } catch (error) {
         console.error("Error al cargar los logros disponibles:", error);
       }
+    };
+
+
+    const loadRewards = async () => {
+      try {
+        const res = await userStore.getAllRewards();
+        rewards.value = res.aventura_rewards
+        premiumRewards.value = res.premium_rewards
+      } catch (error) {
+        console.error("Error al cargar los logros disponibles:", error);
+      }
+    };
+
+    const checkPremio = (premio) => {
+      if (premio.claimed) {
+        return false;
+      }
+      if (totalPoints.value >= premio.points_required) {
+        return true;
+      }
+      return false;
     };
 
     // Combinar logros disponibles y logros del jugador
@@ -447,12 +524,16 @@ export default {
     onMounted(async () => {
       const id = JSON.parse(localStorage.getItem("user")).id;
       const uuidUser = await userStore.getUUIDUser({ id });
+
       if (uuidUser.success) {
         const user = await userStore.getUserByUUID({ uuid: uuidUser.uuid });
+
         userData.value = user.user;
+        userData.value.verified = true;
         // Cargar logros disponibles y logros del jugador
         await loadAvailableAchievements();
         await loadPlayerAchievements();
+        await loadRewards()
       } else {
         userData.value = {
           username: "",
@@ -465,10 +546,13 @@ export default {
     });
 
     return {
+      loadRewards,
       userData,
+      checkPremio,
       isLinked,
       vinculationToken,
       showLinkDialog,
+      getMinecraftIcon,
       achievements,
       availableAchievements,
       filteredAchievements,
@@ -486,6 +570,7 @@ export default {
       totalPoints,
       maxPoints,
       verified,
+      claimReward
     };
   },
 };
@@ -512,12 +597,14 @@ h3 {
 }
 
 .achievement-section-container {
-  max-width: 1200px;
+  max-width: 100%;
   margin: 0 auto;
   padding: 20px;
   background-color: #f8f9fa;
   border-radius: 8px;
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  overflow-y: auto; /* Habilitar el scroll vertical si es necesario */
+  overflow-x: hidden; /* Evitar scroll horizontal */
 }
 
 .points-bar {
@@ -533,7 +620,7 @@ h3 {
 
 .achievement-content-scroll {
   max-height: calc(100vh - 300px);
-  overflow-y: auto;
+  overflow-y: auto; /* Habilitar scroll vertical para esta sección */
   padding: 20px;
 }
 
@@ -559,10 +646,17 @@ h3 {
   border-radius: 8px;
   padding: 15px;
   box-shadow: 0px 2px 8px rgba(0, 0, 0, 0.1);
-  width: 250px;
+  width: 100%; /* Ocupa todo el ancho en pantallas pequeñas */
   display: inline-block;
   text-align: center;
   overflow: hidden; /* Evita que el contenido salga del contenedor */
+  margin-bottom: 20px;
+}
+
+@media (min-width: 600px) {
+  .achievement-container {
+    width: 250px; /* En pantallas más grandes, ajusta el tamaño */
+  }
 }
 
 .achievement-container:hover {
@@ -644,8 +738,9 @@ h3 {
   color: #2c3e50;
   font-size: 14px;
   line-height: 1.5;
-  max-width: 600px;
+  max-width: 100%; /* Ajusta el mensaje al ancho disponible */
   margin: 0 auto;
+  word-wrap: break-word; /* Asegura que las palabras largas no se corten */
 }
 
 .profile-message code {
@@ -653,5 +748,99 @@ h3 {
   padding: 2px 4px;
   border-radius: 4px;
   font-family: monospace;
+}
+
+.profile-section {
+  display: flex;
+  flex-direction: column; /* Asegura que el contenido se apile verticalmente en pantallas pequeñas */
+  margin-bottom: 20px;
+}
+
+@media (min-width: 768px) {
+  .profile-section {
+    flex-direction: row; /* En pantallas grandes, el contenido vuelve a estar en filas */
+  }
+}
+
+.profile-avatar {
+  width: 100px;
+  height: 100px;
+  margin: 0 auto; /* Centra el avatar */
+}
+
+@media (min-width: 768px) {
+  .profile-avatar {
+    width: 150px;
+    height: 150px;
+  }
+}
+
+@media (max-width: 600px) {
+  .points-bar {
+    margin: 10px 0;
+  }
+  .q-linear-progress {
+    height: 6px; /* Reducir el tamaño de la barra en móviles */
+  }
+}
+
+@media (max-width: 600px) {
+  h2 {
+    font-size: 20px; /* Reducir tamaño del título en pantallas pequeñas */
+  }
+  .profile-message {
+    font-size: 12px; /* Texto más pequeño en móviles */
+  }
+}
+
+@media (min-width: 600px) {
+  .achievement-container {
+    width: 250px; /* Retorna al tamaño original en pantallas medianas y grandes */
+  }
+}
+
+.q-page {
+  height: 100vh; /* Asegura que la página ocupe toda la altura */
+  overflow-y: auto; /* Habilita el scroll para toda la página */
+}
+
+.claim-button {
+  background-color: #f39c12;
+  color: white;
+  margin-top: 10px;
+  transition: transform 0.3s ease; /* Añade una transición suave */
+}
+
+.claim-button.pulsating {
+  animation: pulsate 1.5s infinite; /* Añade una animación de pulsación */
+}
+
+.claim-button:hover {
+  background-color: #e67e22;
+  transform: scale(1.1); /* Efecto hover para hacer más atractivo el botón */
+}
+
+@keyframes pulsate {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.05);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+.achievement-icon {
+  font-size: 32px; /* Asegúrate de que los íconos se vean grandes y atractivos */
+}
+
+.claim-button {
+  justify-content: center;
+  align-items: center;
+  max-width: 100%; /* Asegura que no exceda el contenedor */
+  padding: 10px; /* Ajusta el tamaño del padding */
+  font-size: 12px; /* Ajusta el tamaño del texto */
 }
 </style>

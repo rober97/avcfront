@@ -273,7 +273,7 @@ export const useUserStore = defineStore({
         method: "GET",
         url: `${global.url_api}/search-users?query=${query}&limit=100&page=1`, // Usamos el parámetro de búsqueda en la URL
       };
-    
+
       try {
         const res = await axios(config);
         return res.data; // Devolvemos los usuarios encontrados
@@ -281,7 +281,50 @@ export const useUserStore = defineStore({
         console.log(error);
       }
     },
-        
+
+    async claimReward({ rewardId, userId }) {
+      const global = useGlobal();
+      debugger
+      const config = {
+        headers: {
+          Accept: "application/json",
+          "Content-Type": "application/json",
+        },
+        method: "POST",
+        url: `${global.url_api}/rewards/claim`, // URL del endpoint
+        data: {
+          rewardId,
+          userId
+        }
+      };
+    
+      try {
+        const response = await axios(config);
+    
+        if (response.data?.success) {
+          this.rewardsClaimed.push(rewardId);
+          return {
+            success: true,
+            message: `Recompensa ${rewardId} reclamada con éxito`,
+          };
+        } else {
+          // En caso de respuesta no exitosa
+          return {
+            success: false,
+            message: response.data?.message || 'No se pudo reclamar la recompensa',
+          };
+        }
+      } catch (error) {
+        console.error('Error en claimReward:', error);
+        // Manejo de errores con mensaje apropiado
+        return {
+          success: false,
+          message: 'Error al procesar la recompensa. Inténtalo más tarde.',
+        };
+      }
+    }
+    ,
+
 
     async vincularCuenta(token) {
       const global = useGlobal();
@@ -341,7 +384,7 @@ export const useUserStore = defineStore({
           size   // Tamaño de la página (número de logros por solicitud)
         }
       };
-    
+
       try {
         const res = await axios(config);
         return res.data; // Retorna solo los logros del usuario
@@ -358,9 +401,20 @@ export const useUserStore = defineStore({
       } catch (error) {
         console.error('Error al cargar logros:', error);
       }
+    },
+
+
+    async getAllRewards() {
+      try {
+        const global = useGlobal();
+        const response = await axios.get(`${global.url_api}/rewards`);
+        return response.data
+      } catch (error) {
+        console.error('Error al cargar logros:', error);
+      }
     }
-    
-    
+
+
 
   }
 });

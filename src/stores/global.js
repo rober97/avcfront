@@ -4,7 +4,7 @@ import { defineStore } from 'pinia';
 //31b1570b
 export const useGlobal = defineStore('counter', {
   state: () => ({
-    url_api: "https://avc-1dbca99a8369.herokuapp.com",
+    url_api: "http://localhost:3000",
   }),
   getters: {
     doubleCount: (state) => state.counter * 2,
