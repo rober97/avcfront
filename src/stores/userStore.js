@@ -407,6 +407,7 @@ export const useUserStore = defineStore({
 
     async getAllRewards(userId) {
       try {
+        debugger
         const global = useGlobal();
         const response = await axios.post(`${global.url_api}/rewards`, { userId }); // Enviar el userId en el cuerpo
         return response.data;

@@ -414,7 +414,8 @@ export default {
 
     const loadRewards = async () => {
       try {
-        const userId = userStore.userData.id; // Asegúrate de que userData esté disponible en tu store
+        const user = JSON.parse(localStorage.getItem("user"));
+        const userId = user.id;
         const res = await userStore.getAllRewards(userId);
         rewards.value = res.aventura_rewards;
         premiumRewards.value = res.premium_rewards;
