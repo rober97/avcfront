@@ -350,7 +350,7 @@ export default {
           // Mostrar un mensaje de error si la respuesta fue negativa
           $q.notify({
             type: "negative",
-            message: `No se pudo reclamar la recompensa: ${reward.name}. Inténtalo de nuevo.`,
+            message: `${response.message} : ${reward.name}.`,
           });
         }
       } catch (error) {

@@ -300,7 +300,7 @@ export const useUserStore = defineStore({
     
       try {
         const response = await axios(config);
-    
+        debugger
         if (response.data?.success) {
           this.rewardsClaimed.push(rewardId);
           return {
