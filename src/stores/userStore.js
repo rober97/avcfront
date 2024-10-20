@@ -9,6 +9,7 @@ export const useUserStore = defineStore({
     user: JSON.parse(localStorage.getItem('user')) || {},
     userData: null,
     isAuthenticated: false,
+    rewardsClaimed: [],
   }),
   getters: {
     isLoggedIn(state) {

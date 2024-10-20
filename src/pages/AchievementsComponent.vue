@@ -329,12 +329,14 @@ export default {
 
     const claimReward = async (reward) => {
       try {
-        debugger
         // Llamada directa a userStore para reclamar la recompensa
         const response = await userStore.claimReward({
           rewardId: reward._id,
           userId: userData.value._id,
         });
+
+
+        debugger
 
         // Verificar si la respuesta del servidor fue exitosa
         if (response.success) {
