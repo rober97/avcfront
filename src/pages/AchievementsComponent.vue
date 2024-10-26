@@ -256,16 +256,23 @@
         </q-card-section>
         <q-card-section>
           <div v-if="vinculationStatus">
-            Usa el comando "/vincular" en el servidor de Minecraft con el
-            siguiente token:
+            Usa el comando <code>/vincular</code> en el servidor de Minecraft
+            con el siguiente token:
+            <q-input
+              v-model="vinculationToken"
+              outlined
+              label="Token"
+              readonly
+              class="q-mt-md"
+            />
           </div>
           <div v-else>La cuenta ya está vinculada. {{ vinculationStatus }}</div>
-          <q-input
-            v-model="vinculationToken"
-            outlined
-            label="Token"
-            v-if="vinculationStatus"
-          />
+          <div class="confirmation-message q-mt-md">
+            <p>
+              Si ya recibiste el mensaje de confirmación en Minecraft, puedes
+              recargar la página para ver tu progreso y logros actualizados.
+            </p>
+          </div>
         </q-card-section>
         <q-card-actions align="right">
           <q-btn flat label="Cancelar" @click="showLinkDialog = false" />
@@ -321,6 +328,7 @@ export default {
     const socket = io("https://avc-1dbca99a8369.herokuapp.com");
     socket.on("update_page", (msg) => {
       try {
+        debugger;
         loadPlayerAchievements();
       } catch (error) {
         console.error("Error al actualizar los logros:", error);
@@ -334,8 +342,6 @@ export default {
           rewardId: reward._id,
           userId: userData.value._id,
         });
-
-        debugger;
 
         // Verificar si la respuesta del servidor fue exitosa
         if (response.success) {
@@ -385,7 +391,7 @@ export default {
         case "chest":
           return "fas fa-box"; // Ícono de cofre
         default:
-          return "fas fa-trophy"; // Por defecto, si no está asignado
+          return "fas fa-gem"; // Por defecto, si no está asignado
       }
     };
 
@@ -845,4 +851,11 @@ h3 {
   padding: 10px; /* Ajusta el tamaño del padding */
   font-size: 12px; /* Ajusta el tamaño del texto */
 }
+
+.confirmation-message {
+  color: #4caf50; /* Color verde para destacar el mensaje */
+  font-size: 14px;
+  text-align: center;
+}
+
 </style>
