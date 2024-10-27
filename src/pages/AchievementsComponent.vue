@@ -104,7 +104,7 @@
       >
         <!-- Título fijo para logros -->
         <div class="fixed-titles">
-          <h2>Comparación de Logros</h2>
+          <h2>Logros</h2>
         </div>
 
         <!-- Contenedor de logros con scroll horizontal -->
@@ -408,16 +408,6 @@ export default {
       return (achievement.progress / achievement.count) * 100;
     };
 
-    // Cargar logros desde el backend del servidor de Minecraft
-    const loadAvailableAchievements = async () => {
-      try {
-        const res = await userStore.getAllAchievements();
-        availableAchievements.value = res; // Guardamos todos los logros del servidor en el estado
-      } catch (error) {
-        console.error("Error al cargar los logros disponibles:", error);
-      }
-    };
-
     const loadRewards = async () => {
       try {
         const user = JSON.parse(localStorage.getItem("user"));
@@ -441,71 +431,8 @@ export default {
     };
 
     // Combinar logros disponibles y logros del jugador
-    const combineAchievements = (available, player) => {
-      const combined = [];
-      totalPoints.value = 0; // Reiniciar los puntos acumulados antes de combinar
-
-      const availableAchievementsArray = Object.keys(
-        available.achievements
-      ).map((key) => {
-        return {
-          title: key,
-          ...available.achievements[key],
-          progress: 0, // Progreso por defecto si el jugador no ha iniciado el logro
-          aventuraReward: "500 XP",
-          premiumReward: "1000 XP + 1 Diamante",
-          passType: Math.random() > 0.5 ? "aventura" : "premium", // Asignar aleatoriamente el tipo de pase
-        };
-      });
-
-      availableAchievementsArray.forEach((achievement) => {
-        const playerAchievement = player.find(
-          (pa) => pa.title === achievement.title
-        );
-
-        if (playerAchievement) {
-          combined.push({
-            ...achievement,
-            progress: playerAchievement.progress,
-          });
-          // Sumar puntos al total basado en el progreso del jugador
-          totalPoints.value += playerAchievement.progress;
-        } else {
-          combined.push(achievement);
-        }
-      });
-
-      // Ordenar los logros: aquellos con progreso > 0 primero
-      combined.sort((a, b) => b.progress - a.progress);
-
-      return combined;
-    };
 
     // Función para filtrar logros por el término de búsqueda
-    const filterAchievements = () => {
-      const term = searchTerm.value.toLowerCase();
-
-      filteredAventuraAchievements.value = achievements.value.filter(
-        (achievement) =>
-          achievement.passType === "aventura" &&
-          (achievement.title.toLowerCase().includes(term) ||
-            achievement.description?.toLowerCase().includes(term))
-      );
-
-      filteredPremiumAchievements.value = achievements.value.filter(
-        (achievement) =>
-          achievement.passType === "premium" &&
-          (achievement.title.toLowerCase().includes(term) ||
-            achievement.description?.toLowerCase().includes(term))
-      );
-
-      // Filtrar logros generales para la pestaña de "Logros"
-      filteredAchievements.value = achievements.value.filter(
-        (achievement) =>
-          achievement.title.toLowerCase().includes(term) ||
-          achievement.description?.toLowerCase().includes(term)
-      );
-    };
 
     // Watch para detectar cambios en el término de búsqueda
     watch(searchTerm, () => {
@@ -513,20 +440,59 @@ export default {
     });
 
     // Cargar logros del jugador y combinarlos
+    // Función para cargar logros específicos del jugador
     const loadPlayerAchievements = async () => {
-      const uuid = userData.value.minecraftUUID; // UUID del jugador
+      const uuid = userData.value.minecraftUUID;
       if (!uuid) return;
 
       try {
         const res = await userStore.getAchievements(uuid);
-        achievements.value = combineAchievements(
-          availableAchievements.value,
-          res.playerAchievements
-        );
-        filterAchievements(); // Aplicamos el filtro si es necesario
+        achievements.value = res.playerAchievements || [];
+
+        // Aplicar el filtro inicial después de cargar los logros del jugador
+        filterAchievements();
       } catch (error) {
         console.error("Error al cargar logros del jugador:", error);
       }
+    };
+
+    // Función para cargar todos los logros disponibles en el sistema
+    const loadAvailableAchievements = async () => {
+      try {
+        const res = await userStore.getAllAchievements();
+        availableAchievements.value = res || []; // Asignar todos los logros disponibles
+      } catch (error) {
+        console.error("Error al cargar los logros disponibles:", error);
+      }
+    };
+
+    // Función para filtrar logros según el término de búsqueda
+    const filterAchievements = () => {
+      const term = searchTerm.value.toLowerCase();
+
+      // Combinar logros disponibles con los logros del jugador
+      filteredAchievements.value = availableAchievements.value
+        .map((achievement) => {
+          const playerAchievement = achievements.value.find(
+            (pa) => pa.title === achievement.title
+          );
+
+          // Si el jugador tiene progreso en este logro, se agrega el progreso, sino se deja en 0
+          return {
+            ...achievement,
+            progress: playerAchievement ? playerAchievement.progress : 0,
+            completed: playerAchievement ? playerAchievement.completed : false,
+          };
+        })
+        .filter((achievement) => {
+          // Aplicar el término de búsqueda
+          const titleMatch = achievement.title.toLowerCase().includes(term);
+          const descriptionMatch = achievement.description
+            ? achievement.description.toLowerCase().includes(term)
+            : false;
+
+          return titleMatch || descriptionMatch;
+        });
     };
 
     onMounted(async () => {
@@ -857,5 +823,4 @@ h3 {
   font-size: 14px;
   text-align: center;
 }
-
 </style>

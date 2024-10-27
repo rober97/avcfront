@@ -78,7 +78,7 @@ const linksList = [
   {
     title: "Logros",
     icon: "movie",
-    link: "/achievements",
+    link: "/",
   },
   {
     title: "Perfil",

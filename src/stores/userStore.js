@@ -379,30 +379,42 @@ export const useUserStore = defineStore({
           "Content-Type": "application/json",
         },
         method: "GET",
-        url: `${global.url_api}/logros/${uuid}`, // Cambia la ruta a la correcta para obtener los logros
+        url: `${global.url_api}/logros/${uuid}`, // Ruta para obtener logros del usuario
         params: {
           page,  // Página actual
           size   // Tamaño de la página (número de logros por solicitud)
         }
       };
-
+    
       try {
         const res = await axios(config);
-        return res.data; // Retorna solo los logros del usuario
+        return res.data.playerAchievements; // Retorna los logros específicos del usuario
       } catch (error) {
         console.log("Error al obtener logros:", error);
-        return null; // Puedes retornar null o manejar el error de otra forma
+        return null; // Manejo de error
       }
     },
-    async getAllAchievements() {
+    
+    async getAllAchievements() {  // Eliminamos uuid ya que no es necesario para esta ruta
       try {
         const global = useGlobal();
-        const response = await axios.get(`${global.url_api}/allAchievements`);
-        return response.data.achievements;
+        const config = {
+          headers: {
+            Accept: "application/json",
+            "Content-Type": "application/json",
+          },
+          method: "POST",
+          url: `${global.url_api}/allAchievements`, // Ruta para obtener todos los logros del sistema
+        };
+        
+        const response = await axios(config);
+        return response.data.achievements; // Retorna todos los logros del sistema
       } catch (error) {
         console.error('Error al cargar logros:', error);
+        return null;
       }
     },
+    
 
 
     async getAllRewards(userId) {
