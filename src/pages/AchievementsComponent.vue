@@ -1,7 +1,7 @@
 <template>
   <q-page>
     <AsideLayout />
-    <div class="achievement-section-container">
+    <div class="achievement-section-container" style="display: none;">
       <!-- Sección del perfil con opción de vinculación -->
       <div class="profile-section q-pa-md q-mb-md">
         <div class="q-gutter-md row items-start profile-header">
@@ -247,6 +247,7 @@
         </div>
       </div>
     </div>
+    <h1>EN MODO PRUEBA</h1>
 
     <!-- Diálogo para la vinculación -->
     <q-dialog v-model="showLinkDialog">
