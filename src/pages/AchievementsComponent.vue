@@ -247,7 +247,11 @@
         </div>
       </div>
     </div>
-    <h1>EN MODO PRUEBA</h1>
+
+    <div class="achievement-section-container">
+
+      <h1>EN MODO PRUEBA</h1>
+    </div>
 
     <!-- Diálogo para la vinculación -->
     <q-dialog v-model="showLinkDialog">
