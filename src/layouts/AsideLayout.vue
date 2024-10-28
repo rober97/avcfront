@@ -91,6 +91,11 @@ const linksList = [
     link: "/messages-list",
   },
   {
+    title: "Store",
+    icon: "store",
+    link: "/store",
+  },
+  {
     title: "Crear",
     icon: "add_circle_outline",
     link: "/create",

@@ -121,7 +121,10 @@ export default {
   grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
   gap: 20px;
   padding: 20px;
+  max-height: 85vh; /* Define una altura máxima para el contenedor */
+  overflow-y: auto; /* Habilita el desplazamiento vertical */
 }
+
 
 .user-card {
   cursor: pointer;

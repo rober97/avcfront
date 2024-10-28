@@ -5,7 +5,7 @@
       <div class="posts-list">
         <div v-for="post in posts" :key="post.id" class="post-card">
           <!-- User Info -->
-          <div class="user-section">
+          <div class="user-section" @click="toProfile(post.user._id)">
             <q-avatar class="user-avatar">
               <img :src="getMinecraftSkinUrl(post.user.username)" />
             </q-avatar>
@@ -283,7 +283,6 @@ export default {
 
     async toProfile(id) {
       const user = await this.userStore.getUserById({ id });
-
       this.userStore.setUser(user);
       this.$router.push({ path: `/profile/${id}` });
     },
@@ -343,10 +342,12 @@ export default {
 
 .user-section .user-avatar {
   margin-right: 8px;
+  cursor: pointer;
 }
 
 .user-info .username {
   font-weight: bold;
+  cursor: pointer;
 }
 
 .post-image-container {

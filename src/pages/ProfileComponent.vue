@@ -84,8 +84,8 @@
                 <q-menu auto-close>
                   <q-list style="min-width: 100px">
                     <q-item clickable @click="deletePost(post._id)">
-                      <q-item-section class="text-delete"
-                      v-show="showButton()">Eliminar</q-item-section
+                      <q-item-section class="text-delete" v-show="showButton()"
+                        >Eliminar</q-item-section
                       >
                     </q-item>
                   </q-list>
@@ -200,7 +200,7 @@
             <q-btn flat icon="more_vert" @click="showActions = !showActions">
               <q-menu v-model="showActions">
                 <q-list>
-                  <q-item clickable @click="deletePost(selectedPost)" >
+                  <q-item clickable @click="deletePost(selectedPost)">
                     <q-item-section>Eliminar publicación</q-item-section>
                   </q-item>
                 </q-list>
@@ -238,11 +238,10 @@
 <script>
 import AsideLayout from "layouts/AsideLayout.vue";
 import { useGlobal } from "../stores/global";
-import { watch } from "vue";
 import { useIntersectionObserver } from "@vueuse/core";
 import { useUserStore } from "../stores/userStore";
 import { usePostStore } from "../stores/postStore";
-import { ref, onMounted, nextTick } from "vue";
+import { ref, onMounted, nextTick, watch } from "vue";
 import "font-awesome/css/font-awesome.css";
 import { debounce, useQuasar } from "quasar";
 import axios from "axios";
@@ -299,10 +298,13 @@ export default {
       // Supongamos que obtienes los datos del usuario y su lista de seguidores
       const res = await userStore.getUserById({ id: id_user_target });
       messageBtn.value = true;
-      if (res.followers.includes(id_user)) {
-        isFollowingBtn.value = true;
-      } else if (!res.followers.includes(id_user)) {
-        followingBtn.value = true;
+      debugger;
+      if (res.length > 0) {
+        if (res.followers.includes(id_user)) {
+          isFollowingBtn.value = true;
+        } else if (!res.followers.includes(id_user)) {
+          followingBtn.value = true;
+        }
       }
     };
 
@@ -374,7 +376,7 @@ export default {
       const idParam = route.params.id;
       const idUser = JSON.parse(localStorage.getItem("user")).id;
       let flag = true;
-      debugger
+      debugger;
       if (idParam != idUser) {
         flag = false;
       }
@@ -437,6 +439,17 @@ export default {
       router.push({ path: `/messages/${id}` });
     };
 
+    const loadUser = async () => {
+      const id = route.params.id;
+      userData.value = await userStore.getUserById({ id });
+      await checkFollow();
+      posts.value = [];
+      hasMore.value = true;
+      loading.value = false;
+      currentPage.value = 1;
+      await loadMorePosts();
+    };
+
     const loadMorePosts = async () => {
       if (!hasMore.value || loading.value) {
         return;
@@ -481,9 +494,21 @@ export default {
       }
     });
 
+    // Detectar cambios en route.params.id para recargar el usuario
+    watch(
+      () => route.params.id,
+      async (newId, oldId) => {
+        debugger;
+        if (newId !== oldId) {
+          await loadUser();
+        }
+      }
+    );
+
     onMounted(async () => {
       const id = route.params.id;
       userData.value = await userStore.getUserById({ id });
+      debugger;
       await checkFollow();
     });
 
