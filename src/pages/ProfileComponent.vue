@@ -298,8 +298,8 @@ export default {
       // Supongamos que obtienes los datos del usuario y su lista de seguidores
       const res = await userStore.getUserById({ id: id_user_target });
       messageBtn.value = true;
-      debugger;
-      if (res.length > 0) {
+      debugger
+      if (res) {
         if (res.followers.includes(id_user)) {
           isFollowingBtn.value = true;
         } else if (!res.followers.includes(id_user)) {
@@ -356,6 +356,7 @@ export default {
       const idParam = route.params.id;
       const idUser = JSON.parse(localStorage.getItem("user")).id;
       let flag = true;
+      
       if (idParam == idUser) {
         flag = false;
       }
@@ -376,7 +377,7 @@ export default {
       const idParam = route.params.id;
       const idUser = JSON.parse(localStorage.getItem("user")).id;
       let flag = true;
-      debugger;
+      
       if (idParam != idUser) {
         flag = false;
       }
@@ -498,7 +499,7 @@ export default {
     watch(
       () => route.params.id,
       async (newId, oldId) => {
-        debugger;
+        
         if (newId !== oldId) {
           await loadUser();
         }
@@ -508,7 +509,7 @@ export default {
     onMounted(async () => {
       const id = route.params.id;
       userData.value = await userStore.getUserById({ id });
-      debugger;
+      
       await checkFollow();
     });
 
