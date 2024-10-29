@@ -22,6 +22,7 @@
                 : null
             "
             v-bind="link"
+            :active="isActive(link.link)"
           />
         </div>
 
@@ -58,12 +59,12 @@ import { useUserStore } from "../stores/userStore";
 import { useQuasar } from "quasar";
 import EssentialLink from "components/EssentialLink.vue";
 import CreatePostDialog from "pages/NewPost.vue"; // Importa el diálogo
-import { useRouter } from "vue-router";
+import { useRouter, useRoute } from "vue-router";
 const linksList = [
   {
     title: "Inicio",
     icon: "home",
-    link: "/explorer",
+    link: "/home",
   },
   {
     title: "Buscar",
@@ -112,6 +113,7 @@ export default {
     const leftDrawerOpen = ref(false);
     const isDialogVisible = ref(false); // Propiedad para controlar la visibilidad del diálogo
     const router = useRouter();
+    const route = useRoute();
     const $q = useQuasar();
     const confirmLogoutDialog = ref(false); // Controla el diálogo de confirmación
     const userData = ref({
@@ -132,6 +134,7 @@ export default {
       emit('update:show', true);
     };
     const getMinecraftSkinUrl = (username) => {
+      debugger
       return `https://minotar.net/avatar/${username}`;
     };
 
@@ -148,6 +151,11 @@ export default {
     const toProfile = () => {
       const userId = JSON.parse(localStorage.getItem("user")).id;
       router.push("/profile/" + userId);
+    };
+
+    // Computada para verificar si el enlace es activo
+    const isActive = (link) => {
+      return route.path === link;
     };
 
     const logout = async () => {
@@ -192,6 +200,7 @@ export default {
       confirmLogout, // Método para mostrar el diálogo
       logout,
       handlePostCreated,
+      isActive, // Computada para verificar el enlace activo
       toggleLeftDrawer() {
         leftDrawerOpen.value = !leftDrawerOpen.value;
       },
@@ -242,5 +251,9 @@ export default {
 
 .logout-button q-btn {
   color: #ecf0f1;
+}
+
+.q-item--active{
+  background-color: #566573
 }
 </style>
