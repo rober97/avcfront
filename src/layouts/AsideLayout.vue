@@ -134,7 +134,6 @@ export default {
       emit('update:show', true);
     };
     const getMinecraftSkinUrl = (username) => {
-      debugger
       return `https://minotar.net/avatar/${username}`;
     };
 

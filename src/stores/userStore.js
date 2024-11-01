@@ -298,7 +298,7 @@ export const useUserStore = defineStore({
           userId
         }
       };
-    
+
       try {
         const response = await axios(config);
         debugger
@@ -385,7 +385,7 @@ export const useUserStore = defineStore({
           size   // Tamaño de la página (número de logros por solicitud)
         }
       };
-    
+
       try {
         const res = await axios(config);
         return res.data.playerAchievements; // Retorna los logros específicos del usuario
@@ -394,7 +394,7 @@ export const useUserStore = defineStore({
         return null; // Manejo de error
       }
     },
-    
+
     async getAllAchievements() {  // Eliminamos uuid ya que no es necesario para esta ruta
       try {
         const global = useGlobal();
@@ -406,7 +406,7 @@ export const useUserStore = defineStore({
           method: "POST",
           url: `${global.url_api}/allAchievements`, // Ruta para obtener todos los logros del sistema
         };
-        
+
         const response = await axios(config);
         return response.data.achievements; // Retorna todos los logros del sistema
       } catch (error) {
@@ -414,8 +414,26 @@ export const useUserStore = defineStore({
         return null;
       }
     },
-    
 
+    async getTopAchievementsUsers() {
+      try {
+        const global = useGlobal();
+        const config = {
+          headers: {
+            Accept: "application/json",
+            "Content-Type": "application/json",
+          },
+          method: "GET",
+          url: `${global.url_api}/top-achievements`, // Ruta para obtener los usuarios con más logros
+        };
+
+        const response = await axios(config);
+        return response.data.topUsers; // Retorna los usuarios con más logros
+      } catch (error) {
+        console.error("Error al cargar logros:", error);
+        return null;
+      }
+    },
 
     async getAllRewards(userId) {
       try {
@@ -427,7 +445,7 @@ export const useUserStore = defineStore({
         console.error('Error al cargar recompensas:', error);
       }
     }
-    
+
 
 
 

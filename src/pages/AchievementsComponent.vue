@@ -1,7 +1,7 @@
 <template>
   <q-page>
     <AsideLayout />
-    <div class="achievement-section-container" style="display: none;">
+    <div class="achievement-section-container">
       <!-- Sección del perfil con opción de vinculación -->
       <div class="profile-section q-pa-md q-mb-md">
         <div class="q-gutter-md row items-start profile-header">
@@ -167,7 +167,6 @@
             >
               <div class="q-gutter-md row items-center">
                 <div class="col-auto">
-                  <!-- Cambiar icono por uno más temático -->
                   <q-icon
                     :name="getMinecraftIcon(reward)"
                     size="md"
@@ -176,7 +175,18 @@
                   />
                 </div>
                 <div class="col">
-                  <div class="achievement-title">{{ reward.title }}</div>
+                  <div class="achievement-title">
+                    {{ reward.title }}
+                    <q-icon
+                      name="help_outline"
+                      size="sm"
+                      color="grey"
+                      class="info-icon q-ml-sm"
+                      @click="showDescription(reward)"
+                    >
+                      <q-tooltip>{{ reward.long_description }}</q-tooltip>
+                    </q-icon>
+                  </div>
                   <div class="achievement-description">
                     {{ reward.description }}
                   </div>
@@ -202,6 +212,7 @@
               </div>
             </div>
           </div>
+
           <!-- Recompensas del Pase Premium -->
           <h3 class="q-mt-md">Pase Premium</h3>
           <div class="achievement-row horizontal-list">
@@ -220,7 +231,18 @@
                   />
                 </div>
                 <div class="col">
-                  <div class="achievement-title">{{ reward.title }}</div>
+                  <div class="achievement-title">
+                    {{ reward.title }}
+                    <q-icon
+                      name="help_outline"
+                      size="sm"
+                      color="grey"
+                      class="info-icon q-ml-sm"
+                      @click="showDescription(reward)"
+                    >
+                      <q-tooltip>{{ reward.long_description }}</q-tooltip>
+                    </q-icon>
+                  </div>
                   <div class="achievement-description">
                     {{ reward.description }}
                   </div>
@@ -246,11 +268,40 @@
           </div>
         </div>
       </div>
-    </div>
 
-    <div class="achievement-section-container">
+      <!-- TOP DE USUARIOS -->
+      <div class="top-users-section">
+        <div class="fixed-titles">
+          <h2>Top Aventureros</h2>
+          <p class="subheader">Los jugadores con más logros en AvC Latin</p>
+        </div>
 
-      <h1>EN MODO PRUEBA</h1>
+        <div class="top-users-list">
+          <q-card
+            v-for="user in topUsers"
+            :key="user.id"
+            class="top-user-card q-pa-md q-mt-md"
+            flat
+            bordered
+            style="cursor: pointer"
+            @click="goToProfile(user.id)"
+          >
+            <q-avatar size="80px" class="top-user-avatar">
+              <img
+                :src="getMinecraftSkinUrl(user.username)"
+                alt="User Avatar"
+              />
+            </q-avatar>
+            <div class="top-user-info q-ml-md">
+              <div class="top-user-name">{{ user.username }}</div>
+              <div class="top-user-points">
+                Logros: {{ user.totalAchievements }}
+              </div>
+            </div>
+            <q-icon name="star" color="yellow" size="30px" />
+          </q-card>
+        </div>
+      </div>
     </div>
 
     <!-- Diálogo para la vinculación -->
@@ -310,6 +361,8 @@ export default {
     const isLinked = ref(false);
     const vinculationToken = ref("");
     const $q = useQuasar();
+    // Datos del top de usuarios
+    const topUsers = ref([]);
     const vinculationStatus = ref(true);
     const showLinkDialog = ref(false);
     const achievements = ref([]); // Logros combinados (disponibles + progreso)
@@ -333,7 +386,6 @@ export default {
     const socket = io("https://avc-1dbca99a8369.herokuapp.com");
     socket.on("update_page", (msg) => {
       try {
-        debugger;
         loadPlayerAchievements();
       } catch (error) {
         console.error("Error al actualizar los logros:", error);
@@ -435,62 +487,27 @@ export default {
       return false;
     };
 
-    // Combinar logros disponibles y logros del jugador
-
-    // Función para filtrar logros por el término de búsqueda
-
-    // Watch para detectar cambios en el término de búsqueda
-    watch(searchTerm, () => {
-      filterAchievements();
-    });
-
-    // Cargar logros del jugador y combinarlos
-    // Función para cargar logros específicos del jugador
+    // Cargar logros del jugador y combinar con logros del sistema
     const loadPlayerAchievements = async () => {
       const uuid = userData.value.minecraftUUID;
       if (!uuid) return;
 
       try {
         const res = await userStore.getAchievements(uuid);
-        achievements.value = res.playerAchievements || [];
+        const allAchievements = res || [];
 
-        // Aplicar el filtro inicial después de cargar los logros del jugador
-        filterAchievements();
-      } catch (error) {
-        console.error("Error al cargar logros del jugador:", error);
-      }
-    };
+        // Calcular totalPoints basados en el progreso relativo a los count
+        totalPoints.value = allAchievements.reduce((acc, achievement) => {
+          // Si el logro está completo, añade el total de count, sino calcula el progreso parcial
+          const points = achievement.completed
+            ? achievement.count
+            : (achievement.progress / achievement.count) * achievement.count;
+          return acc + points;
+        }, 0);
 
-    // Función para cargar todos los logros disponibles en el sistema
-    const loadAvailableAchievements = async () => {
-      try {
-        const res = await userStore.getAllAchievements();
-        availableAchievements.value = res || []; // Asignar todos los logros disponibles
-      } catch (error) {
-        console.error("Error al cargar los logros disponibles:", error);
-      }
-    };
-
-    // Función para filtrar logros según el término de búsqueda
-    const filterAchievements = () => {
-      const term = searchTerm.value.toLowerCase();
-
-      // Combinar logros disponibles con los logros del jugador
-      filteredAchievements.value = availableAchievements.value
-        .map((achievement) => {
-          const playerAchievement = achievements.value.find(
-            (pa) => pa.title === achievement.title
-          );
-
-          // Si el jugador tiene progreso en este logro, se agrega el progreso, sino se deja en 0
-          return {
-            ...achievement,
-            progress: playerAchievement ? playerAchievement.progress : 0,
-            completed: playerAchievement ? playerAchievement.completed : false,
-          };
-        })
-        .filter((achievement) => {
-          // Aplicar el término de búsqueda
+        // Filtrar logros según el término de búsqueda
+        filteredAchievements.value = allAchievements.filter((achievement) => {
+          const term = searchTerm.value.toLowerCase();
           const titleMatch = achievement.title.toLowerCase().includes(term);
           const descriptionMatch = achievement.description
             ? achievement.description.toLowerCase().includes(term)
@@ -498,6 +515,20 @@ export default {
 
           return titleMatch || descriptionMatch;
         });
+      } catch (error) {
+        console.error("Error al cargar logros del jugador:", error);
+      }
+    };
+
+    const loadTopUsers = async () => {
+      try {
+        // Supongamos que tienes una API para obtener el top de usuarios
+        const response = await userStore.getTopAchievementsUsers();
+        debugger;
+        topUsers.value = response;
+      } catch (error) {
+        console.error("Error al cargar el top de usuarios:", error);
+      }
     };
 
     onMounted(async () => {
@@ -510,9 +541,9 @@ export default {
         userData.value = user.user;
         userData.value.verified = true;
         // Cargar logros disponibles y logros del jugador
-        await loadAvailableAchievements();
         await loadPlayerAchievements();
         await loadRewards();
+        await loadTopUsers();
       } else {
         userData.value = {
           username: "",
@@ -550,6 +581,7 @@ export default {
       maxPoints,
       verified,
       claimReward,
+      topUsers,
     };
   },
 };
@@ -827,5 +859,58 @@ h3 {
   color: #4caf50; /* Color verde para destacar el mensaje */
   font-size: 14px;
   text-align: center;
+}
+
+/* Añadimos estilos específicos para el top de usuarios */
+.fixed-titles h2 {
+  font-size: 24px;
+  text-align: center;
+  margin-top: 20px;
+  font-weight: 700;
+}
+
+.subheader {
+  text-align: center;
+  color: #7f8c8d;
+  margin-top: -10px;
+  margin-bottom: 20px;
+}
+
+.top-users-section {
+  margin-top: 30px;
+}
+
+.top-users-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+  justify-content: center;
+}
+
+.top-user-card {
+  display: flex;
+  align-items: center;
+  width: 300px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  border-radius: 8px;
+}
+
+.top-user-avatar {
+  flex-shrink: 0;
+}
+
+.top-user-info {
+  flex: 1;
+}
+
+.top-user-name {
+  font-weight: bold;
+  font-size: 18px;
+  color: #2c3e50;
+}
+
+.top-user-points {
+  color: #7f8c8d;
+  font-size: 14px;
 }
 </style>
