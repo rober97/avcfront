@@ -90,7 +90,7 @@
       <!-- Tabs para Logros y Recompensas -->
       <q-tabs v-model="activeTab" class="q-mt-md" align="center" dense>
         <q-tab name="logros" label="Logros" />
-        <q-tab name="recompensas" label="Recompensas" />
+        <q-tab name="recompensas" label="Recompensas" disabled />
       </q-tabs>
 
       <!-- Barra de progreso general -->
