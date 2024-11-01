@@ -20,13 +20,21 @@
             <!-- Botón o badge debajo del avatar -->
             <div class="q-gutter-md row items-center justify-center q-mt-sm">
               <div class="col-auto">
+                <!-- Botón para vincular la cuenta de Minecraft, si no está verificada -->
                 <q-btn
                   label="Vincular Cuenta Minecraft"
                   color="primary"
                   @click="vincularCuentaMinecraft"
                   v-if="!userData.verified"
                 />
+                <!-- Badge de cuenta vinculada, si está verificada -->
                 <q-badge v-else color="green" label="Cuenta vinculada" />
+
+                <br />
+
+                <!-- Badge para mostrar el rango del usuario -->
+                <q-badge v-if="userData.verified" color="blue" :label="'Rango: ' + formattedMinecraftRank" />
+
               </div>
             </div>
           </div>
@@ -341,7 +349,7 @@
 <script>
 import { io } from "socket.io-client";
 import AsideLayout from "layouts/AsideLayout.vue";
-import { ref, onMounted, watch } from "vue";
+import { ref, onMounted, watch, computed } from "vue";
 import { useUserStore } from "../stores/userStore";
 import { useQuasar } from "quasar";
 import defaultAvatar from "../resources/steve.png"; // Ruta a la imagen local
@@ -487,6 +495,10 @@ export default {
       return false;
     };
 
+    const formattedMinecraftRank = computed(() => {
+      return userData.value.minecraftRank.charAt(0).toUpperCase() + userData.value.minecraftRank.slice(1);
+    });
+
     // Cargar logros del jugador y combinar con logros del sistema
     const loadPlayerAchievements = async () => {
       const uuid = userData.value.minecraftUUID;
@@ -569,6 +581,7 @@ export default {
       filteredAventuraAchievements,
       filteredPremiumAchievements,
       rewards,
+      formattedMinecraftRank,
       premiumRewards,
       searchTerm,
       getMinecraftSkinUrl,
