@@ -1,7 +1,9 @@
 <template>
   <q-page class="main-layout">
     <AsideLayout @update:show="updatePosts" />
-    <Particles />
+    <div class="particles-container" @mousemove="handleMouseMove">
+    <div v-for="n in particleCount" :key="n" class="particle"></div>
+  </div>
     <div class="feed-section">
       <div class="posts-list">
         <div v-for="post in posts" :key="post.id" class="post-card">
@@ -190,9 +192,49 @@ export default {
           multiLine: true,
         });
       },
+      particleCount: 50, // Número de partículas
+      particles: [],
     };
   },
+  mounted() {
+    this.initializeParticles();
+  },
   methods: {
+    initializeParticles() {
+      this.particles = document.querySelectorAll(".particle");
+      this.particles.forEach((particle) => {
+        this.setPosition(particle);
+      });
+    },
+    setPosition(particle) {
+      const x = Math.random() * 100;
+      const y = Math.random() * 100;
+      particle.style.top = `${y}vh`;
+      particle.style.left = `${x}vw`;
+      particle.style.animationDuration = `${Math.random() * 5 + 5}s`;
+    },
+    handleMouseMove(event) {
+      const mouseX = event.clientX;
+      const mouseY = event.clientY;
+      debugger
+      this.particles.forEach((particle) => {
+        const particleX = particle.offsetLeft + particle.offsetWidth / 2;
+        const particleY = particle.offsetTop + particle.offsetHeight / 2;
+        const dx = particleX - mouseX;
+        const dy = particleY - mouseY;
+        const distance = Math.sqrt(dx * dx + dy * dy);
+
+        if (distance < 100) { // Distancia a la que las partículas "huyen"
+          const angle = Math.atan2(dy, dx);
+          const moveX = Math.cos(angle) * 30; // Distancia de repulsión
+          const moveY = Math.sin(angle) * 30;
+
+          particle.style.transform = `translate(${moveX}px, ${moveY}px)`;
+        } else {
+          particle.style.transform = "translate(0, 0)";
+        }
+      });
+    },
     async likePost(post) {
       const userId = JSON.parse(localStorage.getItem("user")).id;
       let action = "";
@@ -302,10 +344,12 @@ export default {
 
 .feed-section {
   flex-grow: 1;
-  overflow-y: auto; /* Habilitar scroll */
-  height: 100vh; /* Asegura que tenga altura suficiente */
-  padding-right: 10px; /* Opcional, para evitar el desplazamiento horizontal */
+  overflow-y: auto;
+  height: 100vh;
+  padding-right: 10px;
+  position: relative; /* Asegura que el feed esté sobre las partículas */
 }
+
 
 .posts-list {
   display: flex;
@@ -411,5 +455,38 @@ export default {
 
 .heart-icon.liked-reverse {
   transform: scale(1); /* Volver al tamaño original */
+}
+
+.particles-container {
+  position: fixed;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  z-index: 0; /* Colocar detrás del contenido */
+  top: 0;
+  left: 0;
+}
+
+
+.particle {
+  position: absolute;
+  width: 5px;
+  height: 5px;
+  background-color: #ffffff;
+  border-radius: 50%;
+  opacity: 0.7;
+  animation: float 10s linear infinite;
+  transition: transform 0.2s ease;
+}
+
+@keyframes float {
+  0% {
+    transform: translateY(0);
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(-100vh);
+    opacity: 0;
+  }
 }
 </style>

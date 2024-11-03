@@ -1,5 +1,5 @@
 <template>
-  <q-dialog v-model="show">
+  <!-- <q-dialog v-model="show">
     <q-card style="width: 500px" class="q-pa-md">
       <q-card-section class="dialog-header">
         <div class="text-h6 q-my-sm">Crear nueva publicación</div>
@@ -42,7 +42,7 @@
         <q-btn label="Publicar" color="primary" @click="publish" />
       </q-card-actions>
     </q-card>
-  </q-dialog>
+  </q-dialog> -->
 </template>
 
 <script>
