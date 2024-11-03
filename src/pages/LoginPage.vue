@@ -77,7 +77,7 @@
 
         <div class="text-center q-mt-md">
           ¿No tienes una cuenta?
-          <router-link to="/">Regístrate</router-link>
+          <router-link to="/register">Regístrate</router-link>
         </div>
       </div>
     </div>

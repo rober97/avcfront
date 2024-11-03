@@ -5,8 +5,8 @@ const routes = [
     path: '/',
     component: () => import('layouts/MainLayout.vue'),
     children: [
-      { path: '', component: () => import('src/pages/RegisterPage.vue') },
-      { path: 'login', component: () => import('src/pages/LoginPage.vue') },
+      { path: '', component: () => import('src/pages/LoginPage.vue') },
+      { path: 'register', component: () => import('src/pages/RegisterPage.vue') },
       { path: 'list-npc', component: () => import('pages/ListNpc.vue'), meta: { requiresAuth: true } },
       { path: 'main', component: () => import('src/pages/MainComponent.vue'), meta: { requiresAuth: true } },
       {
@@ -21,8 +21,8 @@ const routes = [
       { path: 'messages/:id', component: () => import('src/pages/MessagesComponent.vue'), meta: { requiresAuth: true } },
       { path: 'messages-list', component: () => import('src/pages/MessagesComponent.vue'), meta: { requiresAuth: true } },
       { path: 'search', component: () => import('src/pages/SearchComponent.vue'), meta: { requiresAuth: true } },
-      { path: 'market', component: () => import('src/pages/MarketComponent.vue') },
-      { path: 'achievements', component: () => import('src/pages/AchievementsComponent.vue') },
+      { path: 'market', component: () => import('src/pages/MarketComponent.vue'), meta: { requiresAuth: true } },
+      { path: 'achievements', component: () => import('src/pages/AchievementsComponent.vue'), meta: { requiresAuth: true } },
       { path: 'store', component: () => import('src/pages/Store.vue') },
     ]
   },

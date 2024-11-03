@@ -36,7 +36,7 @@
 
       <div class="text-center q-mt-md">
         ¿Ya tienes una cuenta?
-        <router-link to="/login">Iniciar sesión</router-link>
+        <router-link to="/">Iniciar sesión</router-link>
       </div>
     </div>
   </q-page>

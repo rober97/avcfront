@@ -1,6 +1,7 @@
 <template>
   <q-page class="main-layout">
     <AsideLayout @update:show="updatePosts" />
+    <Particles />
     <div class="feed-section">
       <div class="posts-list">
         <div v-for="post in posts" :key="post.id" class="post-card">
@@ -83,6 +84,7 @@ import { useIntersectionObserver } from "@vueuse/core";
 import AsideLayout from "layouts/AsideLayout.vue";
 import { useUserStore } from "../stores/userStore";
 import { useGlobal } from "../stores/global";
+import Particles from '../components/Particles.vue';
 import { useQuasar } from "quasar";
 import { usePostStore } from "../stores/postStore";
 import axios from "axios";
@@ -91,6 +93,7 @@ const global = useGlobal();
 export default {
   components: {
     AsideLayout,
+    Particles,
   },
   setup() {
     const postStore = usePostStore();
