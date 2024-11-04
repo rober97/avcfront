@@ -554,7 +554,7 @@ export default {
         userData.value.verified = true;
         // Cargar logros disponibles y logros del jugador
         await loadPlayerAchievements();
-        await loadRewards();
+        //await loadRewards();
         await loadTopUsers();
       } else {
         userData.value = {
