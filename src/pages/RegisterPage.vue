@@ -113,7 +113,7 @@ export default {
         try {
           const res = await axios(config);
           if (res.data.success) {
-            router.push("/login");
+            router.push("/");
           } else {
             $q.notify({
               color: "red-5",
