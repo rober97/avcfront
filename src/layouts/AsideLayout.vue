@@ -33,7 +33,7 @@
       </q-list>
 
       <!-- Incluye el diálogo en tu template -->
-      <CreatePostDialog v-model="isDialogVisible" :show="isDialogVisible" @update:show="handlePostCreated" />
+      <CreatePostDialog v-model="isDialogVisible" :show="isDialogVisible" @update:model-value="handlePostCreated" />
 
       <!-- Diálogo de confirmación para cerrar sesión -->
       <q-dialog v-model="confirmLogoutDialog">

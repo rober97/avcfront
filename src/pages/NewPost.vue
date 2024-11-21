@@ -1,31 +1,40 @@
 <template>
-  <!-- <q-dialog v-model="show">
+  <q-dialog :model-value="show">
     <q-card style="width: 500px" class="q-pa-md">
       <q-card-section class="dialog-header">
         <div class="text-h6 q-my-sm">Crear nueva publicación</div>
       </q-card-section>
 
       <q-card-section>
-        <q-file v-model="files" label="Buscar imagen">
-          <template v-slot:prepend>
-            <q-icon name="attach_file" />
-          </template>
-        </q-file>
-        <div class="text-caption q-mb-sm q-mt-xs text-primary">
-          Opcional: Agregar una imagen
+        <!-- Input de archivo -->
+        <div>
+          <label for="imageInput" class="text-caption text-primary">
+            Selecciona una imagen
+          </label>
+          <input
+            id="imageInput"
+            type="file"
+            accept="image/*"
+            @change="handleFileChange"
+            class="q-mt-sm"
+            style="display: block"
+          />
         </div>
 
+        <!-- Cropper -->
         <div v-if="imagePreview" class="q-mt-md">
-          <vue-cropper
+          <cropper
+            v-if="cropperSrc"
             ref="cropper"
-            :src="imagePreview"
-            :aspect-ratio="1"
-            :guides="true"
-            @cropend="onCropEnd"
-            style="max-width: 300px; height: 300px"
-          ></vue-cropper>
+            :src="cropperSrc"
+            :stencil-props="{ aspectRatio: 1 }"
+            :auto-zoom="true"
+            :background="true"
+            class="cropper"
+          />
         </div>
 
+        <!-- Input de descripción -->
         <q-input
           filled
           v-model="description"
@@ -42,23 +51,23 @@
         <q-btn label="Publicar" color="primary" @click="publish" />
       </q-card-actions>
     </q-card>
-  </q-dialog> -->
+  </q-dialog>
 </template>
 
 <script>
-import { ref, onMounted } from "vue";
+import { ref } from "vue";
+import { Cropper } from "vue-advanced-cropper";
+import "vue-advanced-cropper/dist/style.css";
 import axios from "axios";
 import { useUserStore } from "../stores/userStore";
 import { useGlobal } from "../stores/global";
 import { useQuasar } from "quasar";
-import { watchEffect } from "vue";
-import "cropperjs/dist/cropper.css";
-import VueCropper from "vue-cropperjs";
 
 const global = useGlobal();
+
 export default {
   components: {
-    VueCropper,
+    Cropper,
   },
   props: {
     show: Boolean,
@@ -69,97 +78,100 @@ export default {
   },
   data() {
     return {
-      imagePreview: null,
+      imagePreview: null, // Imagen cargada para previsualización
+      cropperSrc: null, // Fuente de imagen para el cropper
     };
-  },
-  watch: {
-    files(newFiles) {
-      if (newFiles) {
-        const reader = new FileReader();
-        reader.readAsDataURL(newFiles);
-        reader.onload = (e) => {
-          this.imagePreview = e.target.result;
-        };
-      }
-    },
-  },
-  computed: {
-    user() {
-      return this.userStore;
-    },
   },
   setup(props, { emit }) {
     const description = ref("");
-    const cropper = ref("");
-    const files = ref([]);
-    const selectedFile = ref(null);
     const userStore = useUserStore();
     const $q = useQuasar();
-    const additionalFields = ref([
-      { name: "description", value: description.value },
-    ]);
 
-    const uploaderRef = ref(null);
-    watchEffect(() => {});
-    onMounted(() => {
-      console.log("Componente montado");
-    });
     const closeDialog = () => {
-      emit("update:show", false);
+      if (this.imagePreview) {
+        URL.revokeObjectURL(this.imagePreview);
+      }
+      emit("update:model-value", false);
+    };
+
+    const showNotifs = (msg) => {
+      $q.notify({
+        progress: true,
+        message: msg,
+        color: "primary",
+        multiLine: true,
+      });
     };
 
     return {
       userStore,
       description,
-      files,
-      selectedFile,
-      additionalFields,
-      uploaderRef,
       closeDialog,
-      showNotifs(msg) {
-        $q.notify({
-          progress: true,
-          message: msg,
-          color: "primary",
-          multiLine: true,
-        });
-      },
+      showNotifs,
     };
   },
   methods: {
-    file_selected(file) {
-      console.log(file);
-      this.selected_file = file[0];
-      this.check_if_document_upload = true;
-    },
-    onCropEnd() {
-      // Una vez que se termine de recortar, puedes obtener la imagen recortada como:
-      const croppedImageDataURL = this.$refs.cropper
-        .getCroppedCanvas()
-        .toDataURL();
-      this.showNotifs("Imagen cargada correctamente!");
-      // Ahora puedes usar croppedImageDataURL según lo necesites
+    handleFileChange(event) {
+      const file = event.target.files[0];
+      if (file && file.type.startsWith("image/")) {
+        if (this.imagePreview) {
+          URL.revokeObjectURL(this.imagePreview);
+        }
+        this.imagePreview = URL.createObjectURL(file);
+        this.cropperSrc = this.imagePreview; // Actualiza la fuente del cropper
+      } else {
+        this.showNotifs("Por favor, selecciona un archivo de imagen válido.");
+        this.imagePreview = null;
+        this.cropperSrc = null;
+      }
     },
 
-    async publish() {
-      //const { userId, description, imageUrl } = req.body;
-      const file = this.files;
-      let imageUrl = "";
-      const croppedImageDataURL = this.$refs.cropper
-        ? this.$refs.cropper.getCroppedCanvas().toDataURL()
-        : "";
+    async getCroppedImageBlob() {
+      try {
+        const cropperRef = this.$refs.cropper;
+        if (!cropperRef) {
+          throw new Error("El recorte no está disponible.");
+        }
+        debugger
+        // Obtener el resultado del cropper
+        const result = cropperRef.getResult(); // Esto devuelve un objeto con los datos del recorte
 
-      if (croppedImageDataURL != "") {
-        // Convertir dataURL a Blob (esto es necesario para enviarlo como un archivo a través de FormData)
+        if (!result || !result.canvas) {
+          throw new Error("No se pudo obtener el canvas del recorte.");
+        }
+
+        // Convertir el canvas a un DataURL
+        const croppedImageDataURL = result.canvas.toDataURL("image/jpeg");
+
+        // Convertir el DataURL en un Blob
         const fetchResponse = await fetch(croppedImageDataURL);
-        const blob = await fetchResponse.blob();
-        if (file) {
+        return await fetchResponse.blob();
+      } catch (error) {
+        console.error("Error al obtener la imagen recortada:", error);
+        this.showNotifs("Error al recortar la imagen: " + error.message);
+        return null;
+      }
+    },
+    async publish() {
+      try {
+        if (!this.description || this.description.trim() === "") {
+          this.showNotifs("La descripción no puede estar vacía.");
+          return;
+        }
+
+        let imageUrl = "";
+        const croppedImageBlob = await this.getCroppedImageBlob();
+
+        if (croppedImageBlob) {
           const formData = new FormData();
-          formData.append("image", blob);
+          formData.append("image", croppedImageBlob);
+
+          // Subir la imagen al servidor
           const uploadResponse = await axios.post(
             `${global.url_api}/upload`,
             formData
           );
+
           if (uploadResponse.data.success) {
             imageUrl = uploadResponse.data.imageUrl;
           } else {
@@ -168,98 +180,34 @@ export default {
             );
           }
         }
-      }
-      const uploadedImageUrl = imageUrl == "" ? "S/M" : imageUrl;
-      const config = {
-        headers: {
-          Accept: "application/json",
-          "Content-Type": "application/json",
-        },
-        method: "POST",
-        url: `${global.url_api}/new-post`,
-        data: {
+
+        const uploadedImageUrl = imageUrl || "S/M";
+
+        // Crear la publicación
+        const res = await axios.post(`${global.url_api}/new-post`, {
           userId: this.userStore.user.id,
           description: this.description,
           imageUrl: uploadedImageUrl,
-        },
-      };
+        });
 
-      try {
-        const res = await axios(config);
         if (res.data.success) {
-          this.$emit("update:show", false);
-          this.showNotifs("Publicacion creada correctamente!");
+          this.$emit("update:model-value", false);
+          this.showNotifs("Publicación creada correctamente!");
         } else {
           this.showNotifs(res.data.message);
         }
       } catch (error) {
-        this.showNotifs(error);
-        this.$emit("update:show", false);
+        console.error("Error al crear la publicación:", error);
+        this.showNotifs("Error al crear la publicación: " + error.message);
       }
     },
   },
 };
 </script>
+
 <style scoped>
-/* Estilo para el cuadro de diálogo */
-.dialog-header {
-  background-color: #34495e; /* Fondo del encabezado del diálogo */
-  color: #ecf0f1; /* Color del texto del encabezado */
-  border-radius: 4px 4px 0 0; /* Bordes superiores redondeados */
-}
-
-.q-card {
-  background-color: #ecf0f1; /* Fondo claro para el contenido del diálogo */
-  border: 1px solid #bdc3c7; /* Borde gris claro para definir el contorno */
-  border-radius: 4px; /* Bordes suavizados */
-  box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.2); /* Sombra suave para dar profundidad */
-}
-
-.q-card-section {
-  color: #2c3e50; /* Texto en gris azulado oscuro */
-}
-
-.q-file .q-field__control {
-  background-color: #f7f9f9; /* Fondo ligeramente más claro para el campo de archivo */
-  border: 1px solid #bdc3c7; /* Borde gris claro */
-  color: #2c3e50; /* Color del texto */
-  border-radius: 4px; /* Bordes suavizados */
-}
-
-.q-file .q-icon {
-  color: #2c3e50; /* Color del icono en gris azulado oscuro */
-}
-
-.q-input {
-  background-color: #f7f9f9; /* Fondo ligeramente más claro para el campo de texto */
-  border: 1px solid #bdc3c7; /* Borde gris claro */
-  color: #2c3e50; /* Texto en gris azulado oscuro */
-  border-radius: 4px; /* Bordes suavizados */
-}
-
-.q-btn.flat {
-  color: #e74c3c; /* Botón de cancelar en rojo (color negativo) */
-}
-
-.q-btn {
-  background-color: #34495e; /* Fondo del botón de publicar */
-  color: #ecf0f1; /* Texto en blanco suave */
-  border-radius: 4px; /* Bordes suavizados */
-  transition: background-color 0.3s ease, box-shadow 0.3s ease;
-}
-
-.q-btn:hover {
-  background-color: #2c3e50; /* Fondo más oscuro al hacer hover */
-  box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1); /* Sombra ligera al hacer hover */
-}
-
-.text-primary {
-  color: #3498db !important; /* Texto de indicación en azul suave */
-}
-
-.q-card-actions {
-  background-color: #ecf0f1; /* Fondo claro para la sección de acciones */
-  border-top: 1px solid #bdc3c7; /* Borde superior para separar */
-  border-radius: 0 0 4px 4px; /* Bordes inferiores redondeados */
+.cropper {
+  max-width: 300px;
+  height: 300px;
 }
 </style>
