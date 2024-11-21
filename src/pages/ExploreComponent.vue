@@ -346,34 +346,36 @@ export default {
   flex-grow: 1;
   overflow-y: auto;
   height: 100vh;
-  padding-right: 10px;
+  padding: 16px; /* Relleno para evitar bordes pegados */
   position: relative; /* Asegura que el feed esté sobre las partículas */
 }
-
 
 .posts-list {
   display: flex;
   flex-direction: column;
-  padding-left: 35%;
-  padding-right: 20%;
+  gap: 16px; /* Espaciado consistente entre tarjetas */
+  padding: 0;
+  margin: 0 auto;
+  max-width: 800px; /* Máximo ancho en pantallas grandes */
+  width: 100%; /* Asegura que ocupe todo el ancho disponible */
 }
 
 .post-card {
   background: #fff;
   border: 1px solid #e0e0e0;
   border-radius: 8px;
-  margin-bottom: 16px;
   padding: 16px;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-  max-width: 500px;
-  overflow: hidden; /* Evita que el contenido salga del contenedor */
+  width: 100%;
+  max-width: 600px; /* Limita el tamaño en pantallas grandes */
+  margin: 0 auto; /* Centra las tarjetas horizontalmente */
 }
 
 .post-description {
-  overflow: hidden; /* Asegura que el contenido dentro de los elementos de texto no se desborde */
-  white-space: normal; /* Permite que el texto se ajuste en varias líneas */
-  word-wrap: break-word; /* Rompe las palabras largas si es necesario */
-  text-overflow: clip; /* Evita puntos suspensivos y muestra todo el contenido */
+  overflow-wrap: break-word; /* Rompe palabras largas */
+  white-space: normal; /* Ajusta el texto a varias líneas */
+  word-wrap: break-word; /* Compatible con navegadores antiguos */
+  margin-top: 8px;
 }
 
 .user-section {
@@ -399,15 +401,14 @@ export default {
 
 .post-image-container {
   position: relative;
+  margin-top: 8px;
 }
 
 .post-image {
   width: 100%;
+  max-height: 500px; /* Limita la altura para evitar desbordes */
+  object-fit: cover; /* Asegura que la imagen se ajuste bien */
   border-radius: 4px;
-}
-
-.post-description {
-  margin-top: 8px;
 }
 
 .post-actions {
@@ -434,14 +435,14 @@ export default {
   margin-bottom: 8px;
 }
 
-.send-icon {
-  cursor: pointer;
-}
-
 .comments {
   display: flex;
   width: 100%;
   align-items: center;
+}
+
+.send-icon {
+  cursor: pointer;
 }
 
 .heart-icon {
@@ -467,7 +468,6 @@ export default {
   left: 0;
 }
 
-
 .particle {
   position: absolute;
   width: 5px;
@@ -489,4 +489,50 @@ export default {
     opacity: 0;
   }
 }
+
+/* Media Queries para pantallas más pequeñas */
+@media (max-width: 768px) {
+  .feed-section {
+    padding: 8px; /* Reduce el relleno */
+  }
+
+  .posts-list {
+    padding: 0 8px;
+    max-width: 100%; /* Ocupa todo el ancho en pantallas pequeñas */
+  }
+
+  .post-card {
+    padding: 12px; /* Reduce el relleno */
+    max-width: 100%;
+  }
+
+  .post-image {
+    max-height: 200px; /* Ajusta la altura para pantallas pequeñas */
+  }
+
+  .user-avatar img {
+    width: 32px; /* Reduce el tamaño del avatar */
+    height: 32px;
+  }
+
+  .comment-input {
+    margin: 4px 0; /* Reduce los márgenes */
+  }
+
+  .post-actions {
+    justify-content: space-between; /* Espacio entre elementos */
+  }
+}
+
+/* Media Queries para pantallas grandes */
+@media (min-width: 1200px) {
+  .posts-list {
+    max-width: 60%; /* Ajusta el ancho para pantallas grandes */
+  }
+
+  .post-card {
+    padding: 24px; /* Aumenta el relleno */
+  }
+}
+
 </style>
