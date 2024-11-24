@@ -571,7 +571,6 @@ export default {
   padding-top: 20px;
 }
 
-/* Imagen de publicación */
 .post-image {
   width: 100%;
   max-width: 400px;
@@ -628,31 +627,64 @@ export default {
   top: 10px;
   right: 10px;
   z-index: 2;
-  background-color: #ecf0f1!important;
 }
 
-/* Contenido de la publicación */
-.post-content {
-  padding: 10px;
+.custom-svg-btn {
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  background-color: transparent;
+  border-radius: 50%;
+  transition: background-color 0.3s ease;
 }
 
-.text-body1 {
+.custom-svg-btn:hover {
+  background-color: rgba(0, 0, 0, 0.1);
+}
+
+.three-dots-svg {
+  fill: gray;
+  transition: fill 0.3s ease;
+}
+
+.custom-svg-btn:hover .three-dots-svg {
+  fill: darkgray;
+}
+
+.custom-menu {
+  position: absolute;
+  top: 40px;
+  right: 0;
+  background-color: white;
+  border-radius: 8px;
+  box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
+  min-width: 120px;
+  z-index: 10;
+  padding: 8px 0;
+}
+
+.menu-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.menu-item {
+  padding: 10px 16px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+  font-size: 14px;
   color: #2c3e50;
 }
 
-.custom-icons q-icon {
-  color: #2c3e50;
+.menu-item:hover {
+  background-color: #f5f5f5;
 }
 
-.custom-icons {
-  flex-direction: row !important;
-}
-
-.border-bottom {
-  border-bottom: 1px solid #d5d2d2;
-}
-
-/* Sección de estadísticas del perfil */
+/* Estadísticas del perfil */
 .profile-stats {
   display: flex;
   justify-content: space-around;
@@ -681,6 +713,7 @@ export default {
   display: flex;
   align-items: center;
   margin-bottom: 20px;
+  gap: 10px;
 }
 
 .profile-avatar {
@@ -710,14 +743,9 @@ export default {
 }
 
 /* Responsividad */
-@media (max-width: 599px) {
+@media (max-width: 1024px) {
   .profile-section-container {
-    max-width: 100%;
-    padding: 10px;
-  }
-
-  .profile-stats span {
-    margin-right: 10px;
+    max-width: 95%;
   }
 
   .post-container {
@@ -745,6 +773,37 @@ export default {
     flex-direction: column;
     gap: 15px;
     align-items: center;
+  }
+
+  .custom-svg-btn {
+    width: 32px;
+    height: 32px;
+  }
+
+  .three-dots-svg {
+    width: 20px;
+    height: 20px;
+  }
+}
+
+@media (max-width: 480px) {
+  .profile-section-container {
+    max-width: 100%;
+    padding: 10px;
+  }
+
+  .profile-stats span {
+    font-size: 0.9em;
+  }
+
+  .post-container {
+    margin-bottom: 10px;
+    padding: 8px;
+  }
+
+  .menu-item {
+    font-size: 12px;
+    padding: 8px 12px;
   }
 }
 
