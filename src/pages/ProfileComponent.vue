@@ -77,7 +77,7 @@
             <!-- Botón de tres puntos en la esquina superior derecha -->
             <div class="post-options-btn">
               <q-btn
-                color="secondary"
+                color="gray"
                 icon="more_vert"
                 class="post-options-btn"
               >
@@ -571,10 +571,11 @@ export default {
   padding-top: 20px;
 }
 
+/* Imagen de publicación */
 .post-image {
-  width: 80%; /* Reducimos el ancho al 80% del contenedor */
-  max-width: 400px; /* Definimos un tamaño máximo */
-  height: auto; /* Mantenemos la relación de aspecto */
+  width: 100%;
+  max-width: 400px;
+  height: auto;
   border-radius: 10px;
 }
 
@@ -589,7 +590,7 @@ export default {
   z-index: 10;
 }
 
-/* Sección de publicaciones con desplazamiento */
+/* Contenido desplazable */
 .profile-content-scroll {
   max-height: calc(100vh - 300px);
   overflow-y: auto;
@@ -609,7 +610,7 @@ export default {
   justify-content: flex-start;
 }
 
-/* Imagen de la publicación */
+/* Contenedor de la imagen */
 .post-image-container {
   margin-bottom: 10px;
   text-align: center;
@@ -621,17 +622,16 @@ export default {
   border-radius: 10px;
 }
 
-/* Botón de tres puntos para opciones en la esquina superior derecha */
+/* Botón de tres puntos para opciones */
 .post-options-btn {
   position: absolute;
   top: 10px;
   right: 10px;
   z-index: 2;
-  background-color: #ecf0f1; /* Mismo color que el contenedor */
-  border-radius: 50%;
+  background-color: #ecf0f1!important;
 }
 
-/* Contenido de la publicación (likes, comentarios y descripción) */
+/* Contenido de la publicación */
 .post-content {
   padding: 10px;
 }
@@ -640,7 +640,6 @@ export default {
   color: #2c3e50;
 }
 
-/* Iconos personalizados */
 .custom-icons q-icon {
   color: #2c3e50;
 }
@@ -649,12 +648,68 @@ export default {
   flex-direction: row !important;
 }
 
-/* Espaciado entre los íconos y el borde */
 .border-bottom {
   border-bottom: 1px solid #d5d2d2;
 }
 
-/* Adaptaciones responsivas */
+/* Sección de estadísticas del perfil */
+.profile-stats {
+  display: flex;
+  justify-content: space-around;
+  text-align: center;
+  margin-top: 20px;
+  padding: 10px 0;
+  background-color: #ecf0f1;
+  border-radius: 8px;
+  box-shadow: 0px 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.profile-stats span {
+  flex: 1;
+  color: #2c3e50;
+}
+
+.profile-stats strong {
+  font-size: 1.2em;
+  display: block;
+  margin-bottom: 5px;
+  color: #000;
+}
+
+/* Cabecera del perfil */
+.profile-header {
+  display: flex;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.profile-avatar {
+  border-radius: 50%;
+  box-shadow: 0px 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.profile-header .col {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.q-gutter-md.row.items-center.justify-start {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+/* Botones */
+.q-btn {
+  margin-right: 10px;
+}
+
+.text-delete {
+  color: black;
+}
+
+/* Responsividad */
 @media (max-width: 599px) {
   .profile-section-container {
     max-width: 100%;
@@ -668,78 +723,6 @@ export default {
   .post-container {
     margin-bottom: 15px;
   }
-}
-
-.text-delete {
-  color: black;
-}
-
-.profile-stats {
-  display: flex; /* Flexbox para alinear los elementos horizontalmente */
-  justify-content: space-around; /* Espaciado igual entre los elementos */
-  text-align: center; /* Centra el texto dentro de cada span */
-  margin-top: 20px;
-  padding: 10px 0;
-  background-color: #ecf0f1; /* Fondo claro */
-  border-radius: 8px; /* Bordes redondeados */
-  box-shadow: 0px 2px 8px rgba(0, 0, 0, 0.1); /* Sombra para un efecto más limpio */
-}
-
-.profile-stats span {
-  flex: 1; /* Cada span ocupa el mismo espacio */
-  color: #2c3e50; /* Color del texto */
-}
-
-.profile-stats strong {
-  font-size: 1.2em; /* Aumentamos el tamaño de los números */
-  display: block;
-  margin-bottom: 5px;
-  color: #000; /* Texto más oscuro para destacar */
-}
-
-.profile-header {
-  display: flex; /* Flexbox para alinear el avatar y el contenido */
-  align-items: center; /* Alinear verticalmente los elementos al centro */
-  margin-bottom: 20px; /* Espacio debajo del header */
-}
-
-.profile-avatar {
-  border-radius: 50%;
-  box-shadow: 0px 2px 8px rgba(0, 0, 0, 0.1); /* Sombra para destacar el avatar */
-}
-
-.profile-header .col {
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-}
-
-.q-gutter-md.row.items-center.justify-start {
-  display: flex;
-  gap: 10px; /* Espacio entre los botones */
-  margin-bottom: 10px;
-}
-
-.profile-stats {
-  display: flex;
-  justify-content: space-around; /* Espaciado igual entre las estadísticas */
-  text-align: center;
-  margin-top: 10px;
-}
-
-.profile-stats span {
-  flex: 1;
-  font-size: 1em;
-  color: #2c3e50;
-}
-
-.profile-stats strong {
-  font-size: 1.2em;
-  color: #000;
-}
-
-.q-btn {
-  margin-right: 10px; /* Espacio entre los botones */
 }
 
 @media (max-width: 768px) {
@@ -764,4 +747,5 @@ export default {
     align-items: center;
   }
 }
+
 </style>
