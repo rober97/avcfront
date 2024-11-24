@@ -765,7 +765,7 @@ export default {
   }
 
   .profile-stats {
-    flex-direction: column;
+    flex-direction: row;
     gap: 10px;
   }
 
@@ -806,5 +806,7 @@ export default {
     padding: 8px 12px;
   }
 }
+
+
 
 </style>
