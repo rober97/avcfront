@@ -33,8 +33,11 @@
                 <br />
 
                 <!-- Badge para mostrar el rango del usuario -->
-                <q-badge v-if="userData.verified" color="blue" :label="'Rango: ' + formattedMinecraftRank" />
-
+                <q-badge
+                  v-if="userData.verified"
+                  color="blue"
+                  :label="'Rango: ' + formattedMinecraftRank"
+                />
               </div>
             </div>
           </div>
@@ -90,7 +93,7 @@
       <!-- Tabs para Logros y Recompensas -->
       <q-tabs v-model="activeTab" class="q-mt-md" align="center" dense>
         <q-tab name="logros" label="Logros" />
-        <q-tab name="recompensas" label="Recompensas" disabled />
+        <q-tab name="recompensas" label="Recompensas" />
       </q-tabs>
 
       <!-- Barra de progreso general -->
@@ -175,12 +178,7 @@
             >
               <div class="q-gutter-md row items-center">
                 <div class="col-auto">
-                  <q-icon
-                    :name="getMinecraftIcon(reward)"
-                    size="md"
-                    color="blue"
-                    class="achievement-icon"
-                  />
+                  <q-img src="../assets/gold-png.png" class="icon-premium-reward" />
                 </div>
                 <div class="col">
                   <div class="achievement-title">
@@ -190,16 +188,15 @@
                       size="sm"
                       color="grey"
                       class="info-icon q-ml-sm"
-                      @click="showDescription(reward)"
+                      @click="openInfoReward(reward)"
                     >
-                      <q-tooltip>{{ reward.long_description }}</q-tooltip>
                     </q-icon>
                   </div>
                   <div class="achievement-description">
                     {{ reward.description }}
                   </div>
                   <div class="reward-label">
-                    Puntos necesarios: {{ reward.points_required }}
+                    Puntos: {{ reward.points_required }}
                   </div>
                   <!-- Botón animado para canjear recompensa si se tienen los puntos suficientes -->
                   <q-btn
@@ -222,7 +219,7 @@
           </div>
 
           <!-- Recompensas del Pase Premium -->
-          <h3 class="q-mt-md">Pase Premium</h3>
+          <h3 class="q-mt-md">Pase Premium (No disponible)</h3>
           <div class="achievement-row horizontal-list">
             <div
               v-for="reward in premiumRewards"
@@ -230,13 +227,8 @@
               class="achievement-container"
             >
               <div class="q-gutter-md row items-center">
-                <div class="col-auto">
-                  <q-icon
-                    :name="getMinecraftIcon(reward)"
-                    size="md"
-                    color="gold"
-                    class="achievement-icon"
-                  />
+                <div class="col-auto" style="background-color: transparent;">
+                  <q-img src="../assets/diamond-png.png" class="icon-premium-reward" />
                 </div>
                 <div class="col">
                   <div class="achievement-title">
@@ -246,18 +238,17 @@
                       size="sm"
                       color="grey"
                       class="info-icon q-ml-sm"
-                      @click="showDescription(reward)"
+                      @click="openInfoReward(reward)"
                     >
-                      <q-tooltip>{{ reward.long_description }}</q-tooltip>
                     </q-icon>
                   </div>
                   <div class="achievement-description">
                     {{ reward.description }}
                   </div>
                   <div class="reward-label">
-                    Puntos necesarios: {{ reward.points_required }}
+                    Puntos: {{ reward.points_required }}
                   </div>
-                  <q-btn
+                  <!-- <q-btn
                     v-if="totalPoints >= reward.points && !reward.claimed"
                     label="Reclamar Recompensa"
                     color="orange"
@@ -269,7 +260,7 @@
                     class="reward-claimed-message q-mt-md"
                   >
                     🎉 Recompensa canjeada
-                  </div>
+                  </div> -->
                 </div>
               </div>
             </div>
@@ -343,6 +334,36 @@
         </q-card-actions>
       </q-card>
     </q-dialog>
+
+    <q-dialog v-model="dialogReward" :backdrop-filter="backdropFilter">
+      <q-card class="reward-dialog-card">
+        <!-- Título del diálogo -->
+        <q-card-section class="reward-dialog-header">
+          <q-icon name="info" size="30px" color="blue" />
+          <span class="reward-dialog-title">{{ selectedReward?.title }}</span>
+        </q-card-section>
+
+        <!-- Contenido del diálogo -->
+        <q-card-section class="reward-dialog-content">
+          <p class="reward-dialog-description">
+            {{
+              selectedReward?.long_description || "Sin descripción disponible."
+            }}
+          </p>
+        </q-card-section>
+
+        <!-- Acciones del diálogo -->
+        <q-card-actions align="right" class="reward-dialog-actions">
+          <q-btn flat label="Cerrar" color="primary" v-close-popup />
+          <q-btn
+            flat
+            label="Reclamar Recompensa"
+            color="orange"
+            @click="claimReward(selectedReward)"
+          />
+        </q-card-actions>
+      </q-card>
+    </q-dialog>
   </q-page>
 </template>
 
@@ -367,6 +388,9 @@ export default {
       following: false,
     });
     const isLinked = ref(false);
+    const backdropFilter = ref("blur(4px) saturate(150%)");
+    const selectedReward = ref(null); // Almacena el premio seleccionado
+    const dialogReward = ref(false);
     const vinculationToken = ref("");
     const $q = useQuasar();
     // Datos del top de usuarios
@@ -400,8 +424,23 @@ export default {
       }
     });
 
+    // Función para mostrar la descripción de un logro
+    const openInfoReward = (reward) => {
+      selectedReward.value = reward; // Asignar el premio seleccionado
+      backdropFilter.value = "blur(4px) saturate(150%)";
+      dialogReward.value = true;
+    };
+
     const claimReward = async (reward) => {
       try {
+        if(totalPoints.value < reward.points_required) {
+          $q.notify({
+            type: "negative",
+            message: `No tienes suficientes puntos para reclamar la recompensa: ${reward.name}.`,
+          });
+          dialogReward.value = false;
+          return;
+        }
         // Llamada directa a userStore para reclamar la recompensa
         const response = await userStore.claimReward({
           rewardId: reward._id,
@@ -496,7 +535,10 @@ export default {
     };
 
     const formattedMinecraftRank = computed(() => {
-      return userData.value.minecraftRank.charAt(0).toUpperCase() + userData.value.minecraftRank.slice(1);
+      return (
+        userData.value.minecraftRank.charAt(0).toUpperCase() +
+        userData.value.minecraftRank.slice(1)
+      );
     });
 
     // Cargar logros del jugador y combinar con logros del sistema
@@ -554,7 +596,7 @@ export default {
         userData.value.verified = true;
         // Cargar logros disponibles y logros del jugador
         await loadPlayerAchievements();
-        //await loadRewards();
+        await loadRewards();
         await loadTopUsers();
       } else {
         userData.value = {
@@ -569,11 +611,13 @@ export default {
 
     return {
       loadRewards,
+      openInfoReward,
       userData,
       checkPremio,
       isLinked,
       vinculationToken,
       showLinkDialog,
+      dialogReward,
       getMinecraftIcon,
       achievements,
       availableAchievements,
@@ -589,9 +633,11 @@ export default {
       vincularCuentaMinecraft,
       vinculationStatus,
       loading,
+      backdropFilter,
       activeTab,
       totalPoints,
       maxPoints,
+      selectedReward,
       verified,
       claimReward,
       topUsers,
@@ -700,7 +746,6 @@ h3 {
 .reward-label,
 .progress-label {
   overflow: hidden; /* Evita el desbordamiento de los textos de recompensa y progreso */
-  text-overflow: ellipsis; /* Puntos suspensivos si el texto se corta */
   white-space: nowrap; /* Mantiene el texto en una sola línea */
 }
 
@@ -925,5 +970,55 @@ h3 {
 .top-user-points {
   color: #7f8c8d;
   font-size: 14px;
+}
+
+.reward-dialog-card {
+  max-width: 500px;
+  border-radius: 12px;
+  background: linear-gradient(to bottom, #ffffff, #f8f9fa);
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+}
+
+.reward-dialog-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background-color: #e3f2fd;
+  padding: 20px;
+  border-top-left-radius: 12px;
+  border-top-right-radius: 12px;
+}
+
+.reward-dialog-title {
+  font-size: 18px;
+  font-weight: bold;
+  color: #2c3e50;
+}
+
+.reward-dialog-content {
+  padding: 20px;
+  text-align: justify;
+}
+
+.reward-dialog-description {
+  font-size: 16px;
+  color: #34495e;
+  line-height: 1.5;
+}
+
+.reward-dialog-actions {
+  padding: 20px;
+  border-top: 1px solid #e0e0e0;
+  background-color: #f8f9fa;
+}
+
+.reward-dialog-actions q-btn:first-child {
+  margin-right: 10px;
+}
+
+.icon-premium-reward{
+  width: 50px;
+  height: 50px;
+  background-color: transparent; /* Asegúrate de que sea transparente */
 }
 </style>

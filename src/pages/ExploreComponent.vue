@@ -2,8 +2,8 @@
   <q-page class="main-layout">
     <AsideLayout @update:show="updatePosts" />
     <div class="particles-container" @mousemove="handleMouseMove">
-    <div v-for="n in particleCount" :key="n" class="particle"></div>
-  </div>
+      <div v-for="n in particleCount" :key="n" class="particle"></div>
+    </div>
     <div class="feed-section">
       <div class="posts-list">
         <div v-for="post in posts" :key="post.id" class="post-card">
@@ -86,7 +86,7 @@ import { useIntersectionObserver } from "@vueuse/core";
 import AsideLayout from "layouts/AsideLayout.vue";
 import { useUserStore } from "../stores/userStore";
 import { useGlobal } from "../stores/global";
-import Particles from '../components/Particles.vue';
+import Particles from "../components/Particles.vue";
 import { useQuasar } from "quasar";
 import { usePostStore } from "../stores/postStore";
 import axios from "axios";
@@ -121,7 +121,7 @@ export default {
       posts.value = [];
       hasMore.value = true;
       await loadMorePosts();
-    }
+    };
 
     const loadMorePosts = async () => {
       if (!hasMore.value || loading.value) {
@@ -216,7 +216,7 @@ export default {
     handleMouseMove(event) {
       const mouseX = event.clientX;
       const mouseY = event.clientY;
-      debugger
+      debugger;
       this.particles.forEach((particle) => {
         const particleX = particle.offsetLeft + particle.offsetWidth / 2;
         const particleY = particle.offsetTop + particle.offsetHeight / 2;
@@ -224,7 +224,8 @@ export default {
         const dy = particleY - mouseY;
         const distance = Math.sqrt(dx * dx + dy * dy);
 
-        if (distance < 100) { // Distancia a la que las partículas "huyen"
+        if (distance < 100) {
+          // Distancia a la que las partículas "huyen"
           const angle = Math.atan2(dy, dx);
           const moveX = Math.cos(angle) * 30; // Distancia de repulsión
           const moveY = Math.sin(angle) * 30;
@@ -534,5 +535,4 @@ export default {
     padding: 24px; /* Aumenta el relleno */
   }
 }
-
 </style>
