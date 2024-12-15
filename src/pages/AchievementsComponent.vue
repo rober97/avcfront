@@ -426,6 +426,13 @@ export default {
 
     // Función para mostrar la descripción de un logro
     const openInfoReward = (reward) => {
+      if(reward.category === "premium") {
+        $q.notify({
+          type: "negative",
+          message: `No disponible`,
+        });
+        return;
+      }
       selectedReward.value = reward; // Asignar el premio seleccionado
       backdropFilter.value = "blur(4px) saturate(150%)";
       dialogReward.value = true;
