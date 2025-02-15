@@ -114,7 +114,11 @@ export default {
             "Content-Type": "application/json",
           },
           method: "POST",
-          url: `${global.url_api}/login?username${email.value}&password=${password.value}`,
+          url: `${global.url_api}/login`,
+          data: {
+            username: email.value,
+            password: password.value,
+          }
         };
 
         try {
