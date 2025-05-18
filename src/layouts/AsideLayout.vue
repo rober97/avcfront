@@ -77,9 +77,9 @@ const linksList = [
     link: "/explorer",
   },
   {
-    title: "Logros",
+    title: "Guia",
     icon: "movie",
-    link: "/achievements",
+    link: "/guide",
   },
   {
     title: "Perfil",

@@ -23,6 +23,7 @@ const routes = [
       { path: 'search', component: () => import('src/pages/SearchComponent.vue'), meta: { requiresAuth: true } },
       { path: 'market', component: () => import('src/pages/MarketComponent.vue'), meta: { requiresAuth: true } },
       { path: 'achievements', component: () => import('src/pages/AchievementsComponent.vue'), meta: { requiresAuth: true } },
+      { path: 'guide', component: () => import('src/pages/GuideComponent.vue') },
       { path: 'store', component: () => import('src/pages/Store.vue') },
     ]
   },
