@@ -244,10 +244,6 @@ export default {
   color: #ecf0f1; /* Color de texto claro para que sea legible sobre el fondo oscuro */
 }
 
-.q-item__label {
-  color: #ecf0f1; /* Color de texto claro para que sea legible sobre el fondo oscuro */
-}
-
 .logout-button q-btn {
   color: #ecf0f1;
 }

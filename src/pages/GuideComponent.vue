@@ -184,14 +184,14 @@
           <div class="q-mb-md">
             <strong>Extensiones disponibles en nuestro servidor:</strong>
             <q-list bordered class="rounded-borders q-mt-sm">
-              <q-expansion-item icon="bolt" label="⚡ FastMachines">
+              <q-expansion-item header-class="text-black" icon="bolt" label="⚡ FastMachines">
                 <div class="q-ml-md q-mt-sm">
                   Acelera el funcionamiento de las máquinas de Slimefun,
                   haciendo que procesen más rápido los materiales y tareas.
                 </div>
               </q-expansion-item>
 
-              <q-expansion-item icon="toys" label="🧸 FluffyMachines">
+              <q-expansion-item header-class="text-black" icon="toys" label="🧸 FluffyMachines">
                 <div class="q-ml-md q-mt-sm">
                   Agrega nuevas máquinas con funciones visuales únicas y
                   mecánicas diferentes a las del Slimefun base.
@@ -199,6 +199,7 @@
               </q-expansion-item>
 
               <q-expansion-item
+              header-class="text-black"
                 icon="settings_input_component"
                 label="🔌 FNAmplifications"
               >
@@ -210,6 +211,7 @@
 
               <q-expansion-item
                 icon="all_inclusive"
+                header-class="text-black"
                 label="♾️ InfinityExpansion2"
               >
                 <div class="q-ml-md q-mt-sm">
@@ -448,7 +450,7 @@
         >
           <div class="text-h5 q-mb-md">⚠️ Reglas del Servidor</div>
 
-          <q-expansion-item icon="block" class="text-dark" label="❌ No robar">
+          <q-expansion-item icon="block" header-class="text-black" label="❌ No robar">
             <div class="q-ml-md q-mt-sm">
               Robar a otros jugadores, en cualquier forma, está prohibido. Esto
               incluye cofres, cultivos, mobs, etc.
@@ -457,6 +459,7 @@
 
           <q-expansion-item
             icon="bug_report"
+            header-class="text-black"
             label="🚫 No usar hacks o mods no permitidos"
           >
             <div class="q-ml-md q-mt-sm">
@@ -465,14 +468,14 @@
             </div>
           </q-expansion-item>
 
-          <q-expansion-item icon="favorite" label="🤝 Respeto entre jugadores">
+          <q-expansion-item icon="favorite" header-class="text-black" label="🤝 Respeto entre jugadores">
             <div class="q-ml-md q-mt-sm">
               No se tolera el acoso, insultos, racismo, homofobia ni actitudes
               tóxicas. Sé amable con los demás.
             </div>
           </q-expansion-item>
 
-          <q-expansion-item icon="chat" label="📝 No hacer spam ni publicidad">
+          <q-expansion-item icon="chat" header-class="text-black" label="📝 No hacer spam ni publicidad">
             <div class="q-ml-md q-mt-sm">
               Está prohibido hacer spam en el chat o promocionar otros
               servidores sin autorización.
@@ -481,6 +484,7 @@
 
           <q-expansion-item
             icon="public"
+            header-class="text-black"
             label="📜 Respeta las construcciones y zonas públicas"
           >
             <div class="q-ml-md q-mt-sm">
@@ -491,6 +495,7 @@
 
           <q-expansion-item
             icon="security"
+            header-class="text-black"
             label="🔒 Prohibido el abuso de bugs o exploits"
           >
             <div class="q-ml-md q-mt-sm">
@@ -501,6 +506,7 @@
 
           <q-expansion-item
             icon="money"
+            header-class="text-black"
             label="💰 No hacer trampa con la economía"
           >
             <div class="q-ml-md q-mt-sm">
@@ -534,7 +540,7 @@ export default {
 };
 </script>
 
-<style>
+<style scoped>
 .guide-container {
   height: calc(100vh - 64px);
   max-width: 100%;
@@ -620,10 +626,6 @@ export default {
   color: rgb(77, 77, 77);
 }
 
-.q-item__label {
-  color: rgb(77, 77, 77) !important;
-}
-
 /* Eliminar scroll horizontal globalmente */
 body,
 html,
@@ -662,4 +664,5 @@ code {
   border-radius: 1; /* opcional: se ve mejor pegado arriba */
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
 }
+
 </style>
