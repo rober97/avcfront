@@ -4,7 +4,7 @@
     <q-drawer  v-model="leftDrawerOpen" show-if-above bordered>
       <div class="drawer-header">
         <div class="image-container">
-          <img :src="getMinecraftSkinUrl(userData.username)" class="user-avatar" />
+          <img :src="getMinecraftSkinUrl()" class="user-avatar" />
         </div>
         <q-item-label header style="font-size: 25px; text-align: center">AvC Latin</q-item-label>
       </div>
@@ -133,7 +133,9 @@ export default {
       isDialogVisible.value = $event
       emit('update:show', true);
     };
-    const getMinecraftSkinUrl = (username) => {
+    const getMinecraftSkinUrl = () => {
+      const username = JSON.parse(localStorage.getItem('user')).username
+      debugger
       return `https://minotar.net/avatar/${username}`;
     };
 
