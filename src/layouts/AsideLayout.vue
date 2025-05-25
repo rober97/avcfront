@@ -167,7 +167,7 @@ export default {
         localStorage.removeItem("user");
 
         // Redirige al usuario a la página de login
-        router.push("/login");
+        router.push("/");
 
         // Notificación de éxito
         $q.notify({

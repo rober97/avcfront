@@ -1,9 +1,9 @@
 <template>
-  <q-page>
+  <q-page class="main-layout">
     <AsideLayout />
     <div class="profile-section-container">
       <!-- Perfil fijo en la parte superior -->
-      <div class="profile-section q-pa-md q-mb-md">
+      <div class="profile-section">
         <div class="q-gutter-md row items-center profile-header">
           <div class="col-auto">
             <q-avatar size="150px" class="profile-avatar">
@@ -76,11 +76,7 @@
           >
             <!-- Botón de tres puntos en la esquina superior derecha -->
             <div class="post-options-btn">
-              <q-btn
-                color="gray"
-                icon="more_vert"
-                class="post-options-btn"
-              >
+              <q-btn color="gray" icon="more_vert" class="post-options-btn" v-show="showButton()">
                 <q-menu auto-close>
                   <q-list style="min-width: 100px">
                     <q-item clickable @click="deletePost(post._id)">
@@ -107,13 +103,13 @@
 
             <!-- Contenido de la publicación -->
             <div class="post-content">
-              <q-item-section side top class="q-pt-none custom-icons">
+              <div class="post-icons-bar q-mt-sm">
                 <q-icon name="favorite_border" />
                 <span class="q-ml-xs">{{ post.likes.length }}</span>
                 <q-icon name="chat_bubble_outline" class="q-ml-md" />
                 <span class="q-ml-xs">{{ post.comments.length }}</span>
-              </q-item-section>
-              <div class="text-body1 q-my-md">
+              </div>
+              <div class="text-body1 q-mt-sm">
                 {{ post.description }}
               </div>
             </div>
@@ -298,7 +294,7 @@ export default {
       // Supongamos que obtienes los datos del usuario y su lista de seguidores
       const res = await userStore.getUserById({ id: id_user_target });
       messageBtn.value = true;
-      debugger
+      debugger;
       if (res) {
         if (res.followers.includes(id_user)) {
           isFollowingBtn.value = true;
@@ -356,7 +352,7 @@ export default {
       const idParam = route.params.id;
       const idUser = JSON.parse(localStorage.getItem("user")).id;
       let flag = true;
-      
+
       if (idParam == idUser) {
         flag = false;
       }
@@ -377,7 +373,7 @@ export default {
       const idParam = route.params.id;
       const idUser = JSON.parse(localStorage.getItem("user")).id;
       let flag = true;
-      
+
       if (idParam != idUser) {
         flag = false;
       }
@@ -499,7 +495,6 @@ export default {
     watch(
       () => route.params.id,
       async (newId, oldId) => {
-        
         if (newId !== oldId) {
           await loadUser();
         }
@@ -509,7 +504,7 @@ export default {
     onMounted(async () => {
       const id = route.params.id;
       userData.value = await userStore.getUserById({ id });
-      
+
       await checkFollow();
     });
 
@@ -562,251 +557,157 @@ export default {
 </script>
 
 <style scoped>
-/* Contenedor general */
-.profile-section-container {
-  max-width: 800px;
-  margin: 0 auto;
-  overflow-y: auto;
+.main-layout {
   height: 100vh;
-  padding-top: 20px;
-}
-
-.post-image {
-  width: 100%;
-  max-width: 400px;
-  height: auto;
-  border-radius: 10px;
-}
-
-/* Perfil fijo en la parte superior */
-.profile-section {
-  background-color: #2c3e50;
-  padding: 20px;
-  border-radius: 10px;
-  box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.2);
-  position: sticky;
-  top: 0;
-  z-index: 10;
-}
-
-/* Contenido desplazable */
-.profile-content-scroll {
-  max-height: calc(100vh - 300px);
   overflow-y: auto;
-  padding-top: 20px;
 }
-
-/* Contenedor de publicaciones */
-.post-container {
-  background-color: #ecf0f1;
-  border-radius: 10px;
-  margin-bottom: 20px;
-  box-shadow: 0px 2px 8px rgba(0, 0, 0, 0.1);
-  position: relative;
-  padding: 10px;
+/* CONTENEDOR GENERAL */
+.profile-section-container {
+  background: linear-gradient(to bottom, #1a1a2e, #16213e);
+  color: #ffffff;
+  font-family: "Segoe UI", sans-serif;
+  min-height: 100vh;
+  overflow-y: auto;
   display: flex;
   flex-direction: column;
-  justify-content: flex-start;
-}
-
-/* Contenedor de la imagen */
-.post-image-container {
-  margin-bottom: 10px;
-  text-align: center;
-}
-
-.post-image {
-  width: 100%;
-  height: auto;
-  border-radius: 10px;
-}
-
-/* Botón de tres puntos para opciones */
-.post-options-btn {
-  position: absolute;
-  top: 10px;
-  right: 10px;
-  z-index: 2;
-}
-
-.custom-svg-btn {
-  cursor: pointer;
-  display: flex;
   align-items: center;
-  justify-content: center;
-  width: 36px;
-  height: 36px;
-  background-color: transparent;
-  border-radius: 50%;
-  transition: background-color 0.3s ease;
 }
 
-.custom-svg-btn:hover {
-  background-color: rgba(0, 0, 0, 0.1);
-}
-
-.three-dots-svg {
-  fill: gray;
-  transition: fill 0.3s ease;
-}
-
-.custom-svg-btn:hover .three-dots-svg {
-  fill: darkgray;
-}
-
-.custom-menu {
-  position: absolute;
-  top: 40px;
-  right: 0;
-  background-color: white;
-  border-radius: 8px;
-  box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
-  min-width: 120px;
-  z-index: 10;
-  padding: 8px 0;
-}
-
-.menu-list {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-}
-
-.menu-item {
-  padding: 10px 16px;
-  cursor: pointer;
-  transition: background-color 0.3s ease;
-  font-size: 14px;
-  color: #2c3e50;
-}
-
-.menu-item:hover {
-  background-color: #f5f5f5;
-}
-
-/* Estadísticas del perfil */
-.profile-stats {
-  display: flex;
-  justify-content: space-around;
-  text-align: center;
+/* CABECERA DE PERFIL */
+.profile-section {
+  background-color: #0f3460;
+  border-radius: 16px;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.6);
+  padding: 20px;
   margin-top: 20px;
-  padding: 10px 0;
-  background-color: #ecf0f1;
-  border-radius: 8px;
-  box-shadow: 0px 2px 8px rgba(0, 0, 0, 0.1);
-}
-
-.profile-stats span {
-  flex: 1;
-  color: #2c3e50;
-}
-
-.profile-stats strong {
-  font-size: 1.2em;
-  display: block;
-  margin-bottom: 5px;
-  color: #000;
-}
-
-/* Cabecera del perfil */
-.profile-header {
-  display: flex;
-  align-items: center;
-  margin-bottom: 20px;
-  gap: 10px;
+  width: 100%;
+  max-width: 900px;
 }
 
 .profile-avatar {
-  border-radius: 50%;
-  box-shadow: 0px 2px 8px rgba(0, 0, 0, 0.1);
+  border: 4px solid #00f2ff;
+  box-shadow: 0 0 20px #00f2ff70;
 }
 
-.profile-header .col {
+.profile-header {
+  align-items: center;
+}
+
+.profile-stats span {
+  margin-right: 20px;
+  font-size: 16px;
+}
+
+.profile-stats strong {
+  font-weight: bold;
+  font-size: 18px;
+  color: #00f2ff;
+}
+
+.profile-info strong {
+  font-size: 20px;
+  display: block;
+  margin-bottom: 4px;
+}
+
+.profile-info {
+  padding-left: 170px;
+}
+
+/* SECCIÓN DE PUBLICACIONES */
+.profile-content-scroll {
+  width: 100%;
+  max-width: 900px;
+  margin-top: 20px;
   display: flex;
   flex-direction: column;
-  justify-content: center;
+  align-items: center;
 }
 
-.q-gutter-md.row.items-center.justify-start {
+/* CADA PUBLICACIÓN */
+.post-container {
+  background-color: #1a1a2e;
+  border-radius: 12px;
+  margin: 20px 0;
+  padding: 16px;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+  position: relative;
   display: flex;
-  gap: 10px;
-  margin-bottom: 10px;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  max-width: 500px;
 }
 
-/* Botones */
-.q-btn {
-  margin-right: 10px;
+/* BOTÓN DE OPCIONES */
+.post-options-btn {
+  position: absolute;
+  top: 16px;
+  right: 16px;
 }
 
+/* IMAGEN DE LA PUBLICACIÓN */
+.post-image-container {
+  max-height: 460px;
+  overflow: hidden;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+}
+
+.post-image {
+  border-radius: 10px;
+  max-width: 100%;
+  max-height: 450px;
+  object-fit: cover;
+  width: 100%;
+  height: auto;
+  transition: transform 0.3s ease;
+}
+
+
+
+/* ICONOS DE REACCIÓN */
+.post-icons-bar {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  font-size: 16px;
+  color: #ccc;
+  padding: 8px 0;
+  gap: 8px;
+  width: 100%;
+}
+
+.post-icons-bar q-icon {
+  color: #fff;
+  cursor: pointer;
+  transition: color 0.2s ease;
+}
+
+.post-icons-bar q-icon:hover {
+  color: #00f2ff;
+}
+
+/* DESCRIPCIÓN DEL POST */
+.post-content {
+  width: 100%;
+  text-align: left;
+  padding-top: 8px;
+}
+
+.text-body1 {
+  color: #e0e0e0;
+  font-size: 15px;
+  padding: 4px 10px 10px;
+  line-height: 1.5;
+}
+
+/* TEXTO DE ELIMINAR */
 .text-delete {
-  color: black;
+  color: #ff4c4c;
+  font-weight: bold;
 }
-
-/* Responsividad */
-@media (max-width: 1024px) {
-  .profile-section-container {
-    max-width: 95%;
-  }
-
-  .post-container {
-    margin-bottom: 15px;
-  }
-}
-
-@media (max-width: 768px) {
-  .profile-header {
-    flex-direction: column;
-    align-items: center;
-    text-align: center;
-  }
-
-  .profile-avatar {
-    margin-bottom: 20px;
-  }
-
-  .profile-stats {
-    flex-direction: row;
-    gap: 10px;
-  }
-
-  .q-gutter-md.row.items-center.justify-start {
-    flex-direction: column;
-    gap: 15px;
-    align-items: center;
-  }
-
-  .custom-svg-btn {
-    width: 32px;
-    height: 32px;
-  }
-
-  .three-dots-svg {
-    width: 20px;
-    height: 20px;
-  }
-}
-
-@media (max-width: 480px) {
-  .profile-section-container {
-    max-width: 100%;
-    padding: 10px;
-  }
-
-  .profile-stats span {
-    font-size: 0.9em;
-  }
-
-  .post-container {
-    margin-bottom: 10px;
-    padding: 8px;
-  }
-
-  .menu-item {
-    font-size: 12px;
-    padding: 8px 12px;
-  }
-}
-
-
-
 </style>
+
