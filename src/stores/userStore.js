@@ -9,7 +9,6 @@ export const useUserStore = defineStore({
     user: JSON.parse(localStorage.getItem('user')) || {},
     userData: null,
     isAuthenticated: false,
-    rewardsClaimed: [],
   }),
   getters: {
     isLoggedIn(state) {
@@ -283,50 +282,6 @@ export const useUserStore = defineStore({
       }
     },
 
-    async claimReward({ rewardId, userId }) {
-      const global = useGlobal();
-      debugger
-      const config = {
-        headers: {
-          Accept: "application/json",
-          "Content-Type": "application/json",
-        },
-        method: "POST",
-        url: `${global.url_api}/rewards/claim`, // URL del endpoint
-        data: {
-          rewardId,
-          userId
-        }
-      };
-
-      try {
-        const response = await axios(config);
-        debugger
-        if (response.data?.success) {
-          this.rewardsClaimed.push(rewardId);
-          return {
-            success: true,
-            message: `Recompensa ${rewardId} reclamada con éxito`,
-          };
-        } else {
-          // En caso de respuesta no exitosa
-          return {
-            success: false,
-            message: response.data?.message || 'No se pudo reclamar la recompensa',
-          };
-        }
-      } catch (error) {
-        console.error('Error en claimReward:', error);
-        // Manejo de errores con mensaje apropiado
-        return {
-          success: false,
-          message: 'Error al procesar la recompensa. Inténtalo más tarde.',
-        };
-      }
-    }
-    ,
-
-
     async vincularCuenta(token) {
       const global = useGlobal();
       const config = {
@@ -434,20 +389,6 @@ export const useUserStore = defineStore({
         return null;
       }
     },
-
-    async getAllRewards(userId) {
-      try {
-        debugger
-        const global = useGlobal();
-        const response = await axios.post(`${global.url_api}/rewards`, { userId }); // Enviar el userId en el cuerpo
-        return response.data;
-      } catch (error) {
-        console.error('Error al cargar recompensas:', error);
-      }
-    }
-
-
-
 
   }
 });

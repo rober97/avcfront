@@ -1,6 +1,5 @@
 <template>
   <q-page class="flex flex-center">
-    <AsideLayout />
     <div class="q-pa-md">
       <div class="q-gutter-md" style="max-width: 300px">
         <h1>SOY MAIN</h1>
@@ -13,12 +12,8 @@
 import { useQuasar } from "quasar";
 import { ref } from "vue";
 import { useRouter } from "vue-router";
-import AsideLayout from "layouts/AsideLayout.vue";
-
 export default {
-  components: {
-    AsideLayout,
-  },
+  components: {},
   setup() {
     const $q = useQuasar();
     const router = useRouter();

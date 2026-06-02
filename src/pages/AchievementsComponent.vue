@@ -1,6 +1,5 @@
 <template>
   <q-page>
-    <AsideLayout />
     <div class="achievement-section-container">
       <!-- Sección del perfil con opción de vinculación -->
       <div class="profile-section q-pa-md q-mb-md">
@@ -90,12 +89,6 @@
         </div>
       </div>
 
-      <!-- Tabs para Logros y Recompensas -->
-      <q-tabs v-model="activeTab" class="q-mt-md" align="center" dense>
-        <q-tab name="logros" label="Logros" />
-        <q-tab name="recompensas" label="Recompensas" />
-      </q-tabs>
-
       <!-- Barra de progreso general -->
       <div class="q-mt-md points-bar">
         <q-linear-progress
@@ -108,9 +101,9 @@
         </div>
       </div>
 
-      <!-- Sección de logros o recompensas según la pestaña activa -->
+      <!-- Sección de logros -->
       <div
-        v-if="activeTab === 'logros' && userData.verified"
+        v-if="userData.verified"
         class="achievement-content-scroll"
       >
         <!-- Título fijo para logros -->
@@ -150,117 +143,6 @@
                     {{ getAchievementProgress(achievement).toFixed(2) }}%
                     completado
                   </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Sección de recompensas -->
-      <div
-        v-if="activeTab === 'recompensas' && userData.verified"
-        class="achievement-content-scroll"
-      >
-        <!-- Título fijo para recompensas -->
-        <div class="fixed-titles">
-          <h2>Recompensas Disponibles</h2>
-        </div>
-
-        <!-- Contenedor de recompensas con scroll horizontal -->
-        <div class="achievements-scroll-container">
-          <h3 class="q-mt-md">Pase de Aventura</h3>
-          <div class="achievement-row horizontal-list">
-            <div
-              v-for="reward in rewards"
-              :key="reward.title"
-              class="achievement-container"
-            >
-              <div class="q-gutter-md row items-center">
-                <div class="col-auto">
-                  <q-img src="../assets/gold-png.png" class="icon-premium-reward" />
-                </div>
-                <div class="col">
-                  <div class="achievement-title">
-                    {{ reward.title }}
-                    <q-icon
-                      name="help_outline"
-                      size="sm"
-                      color="grey"
-                      class="info-icon q-ml-sm"
-                      @click="openInfoReward(reward)"
-                    >
-                    </q-icon>
-                  </div>
-                  <div class="achievement-description">
-                    {{ reward.description }}
-                  </div>
-                  <div class="reward-label">
-                    Puntos: {{ reward.points_required }}
-                  </div>
-                  <!-- Botón animado para canjear recompensa si se tienen los puntos suficientes -->
-                  <q-btn
-                    v-if="checkPremio(reward)"
-                    label="Reclamar"
-                    color="orange"
-                    class="claim-button pulsating"
-                    @click="claimReward(reward)"
-                  />
-                  <!-- Mensaje de recompensa canjeada -->
-                  <div
-                    v-else-if="reward.claimed"
-                    class="reward-claimed-message q-mt-md"
-                  >
-                    🎉 Recompensa canjeada
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <!-- Recompensas del Pase Premium -->
-          <h3 class="q-mt-md">Pase Premium (No disponible)</h3>
-          <div class="achievement-row horizontal-list">
-            <div
-              v-for="reward in premiumRewards"
-              :key="reward.title"
-              class="achievement-container"
-            >
-              <div class="q-gutter-md row items-center">
-                <div class="col-auto" style="background-color: transparent;">
-                  <q-img src="../assets/diamond-png.png" class="icon-premium-reward" />
-                </div>
-                <div class="col">
-                  <div class="achievement-title">
-                    {{ reward.title }}
-                    <q-icon
-                      name="help_outline"
-                      size="sm"
-                      color="grey"
-                      class="info-icon q-ml-sm"
-                      @click="openInfoReward(reward)"
-                    >
-                    </q-icon>
-                  </div>
-                  <div class="achievement-description">
-                    {{ reward.description }}
-                  </div>
-                  <div class="reward-label">
-                    Puntos: {{ reward.points_required }}
-                  </div>
-                  <!-- <q-btn
-                    v-if="totalPoints >= reward.points && !reward.claimed"
-                    label="Reclamar Recompensa"
-                    color="orange"
-                    class="claim-button pulsating"
-                    @click="claimReward(reward)"
-                  />
-                  <div
-                    v-else-if="reward.claimed"
-                    class="reward-claimed-message q-mt-md"
-                  >
-                    🎉 Recompensa canjeada
-                  </div> -->
                 </div>
               </div>
             </div>
@@ -335,50 +217,18 @@
       </q-card>
     </q-dialog>
 
-    <q-dialog v-model="dialogReward" :backdrop-filter="backdropFilter">
-      <q-card class="reward-dialog-card">
-        <!-- Título del diálogo -->
-        <q-card-section class="reward-dialog-header">
-          <q-icon name="info" size="30px" color="blue" />
-          <span class="reward-dialog-title">{{ selectedReward?.title }}</span>
-        </q-card-section>
-
-        <!-- Contenido del diálogo -->
-        <q-card-section class="reward-dialog-content">
-          <p class="reward-dialog-description">
-            {{
-              selectedReward?.long_description || "Sin descripción disponible."
-            }}
-          </p>
-        </q-card-section>
-
-        <!-- Acciones del diálogo -->
-        <q-card-actions align="right" class="reward-dialog-actions">
-          <q-btn flat label="Cerrar" color="primary" v-close-popup />
-          <q-btn
-            flat
-            label="Reclamar Recompensa"
-            color="orange"
-            @click="claimReward(selectedReward)"
-          />
-        </q-card-actions>
-      </q-card>
-    </q-dialog>
   </q-page>
 </template>
 
 <script>
 import { io } from "socket.io-client";
-import AsideLayout from "layouts/AsideLayout.vue";
 import { ref, onMounted, watch, computed } from "vue";
 import { useUserStore } from "../stores/userStore";
 import { useQuasar } from "quasar";
 import defaultAvatar from "../resources/steve.png"; // Ruta a la imagen local
 
 export default {
-  components: {
-    AsideLayout,
-  },
+  components: {},
   setup() {
     const userStore = useUserStore();
     const userData = ref({
@@ -388,9 +238,6 @@ export default {
       following: false,
     });
     const isLinked = ref(false);
-    const backdropFilter = ref("blur(4px) saturate(150%)");
-    const selectedReward = ref(null); // Almacena el premio seleccionado
-    const dialogReward = ref(false);
     const vinculationToken = ref("");
     const $q = useQuasar();
     // Datos del top de usuarios
@@ -402,16 +249,10 @@ export default {
     const filteredAchievements = ref([]); // Logros filtrados para mostrar
     const filteredAventuraAchievements = ref([]); // Logros para pase aventura
     const filteredPremiumAchievements = ref([]); // Logros para pase premium
-    // Datos falsos para las recompensas generales
-    const rewards = ref([]);
-
-    // Datos falsos para las recompensas del pase premium
-    const premiumRewards = ref([]);
     const verified = ref(false);
 
     const searchTerm = ref(""); // Término de búsqueda
     const loading = ref(false);
-    const activeTab = ref("logros"); // Controla el tab activo (logros o recompensas)
     const totalPoints = ref(0); // Puntos acumulados para las recompensas
     const maxPoints = ref(1000000); // Máximo de puntos posibles para la barra general
 
@@ -424,64 +265,6 @@ export default {
       }
     });
 
-    // Función para mostrar la descripción de un logro
-    const openInfoReward = (reward) => {
-      if(reward.category === "premium") {
-        $q.notify({
-          type: "negative",
-          message: `No disponible`,
-        });
-        return;
-      }
-      selectedReward.value = reward; // Asignar el premio seleccionado
-      backdropFilter.value = "blur(4px) saturate(150%)";
-      dialogReward.value = true;
-    };
-
-    const claimReward = async (reward) => {
-      try {
-        if(totalPoints.value < reward.points_required) {
-          $q.notify({
-            type: "negative",
-            message: `No tienes suficientes puntos para reclamar la recompensa: ${reward.name}.`,
-          });
-          dialogReward.value = false;
-          return;
-        }
-        // Llamada directa a userStore para reclamar la recompensa
-        const response = await userStore.claimReward({
-          rewardId: reward._id,
-          userId: userData.value._id,
-        });
-
-        // Verificar si la respuesta del servidor fue exitosa
-        if (response.success) {
-          // Actualizar el estado de la recompensa a "reclamada"
-          reward.claimed = true;
-
-          // Mostrar una notificación positiva al jugador
-          $q.notify({
-            type: "positive",
-            message: `Has reclamado la recompensa: ${reward.name}. ¡Felicidades!`,
-          });
-        } else {
-          // Mostrar un mensaje de error si la respuesta fue negativa
-          $q.notify({
-            type: "negative",
-            message: `${response.message} : ${reward.name}.`,
-          });
-        }
-      } catch (error) {
-        // Manejo de errores en la solicitud de recompensa
-        console.error("Error al reclamar la recompensa:", error);
-        $q.notify({
-          type: "negative",
-          message:
-            "Hubo un problema al reclamar la recompensa. Por favor, inténtalo más tarde.",
-        });
-      }
-    };
-
     // Función para vincular la cuenta de Minecraft
     const vincularCuentaMinecraft = async () => {
       showLinkDialog.value = true;
@@ -490,19 +273,6 @@ export default {
       vinculationToken.value = response.token;
       if (!response.success) {
         vinculationStatus.value = false;
-      }
-    };
-
-    const getMinecraftIcon = (reward) => {
-      switch (reward.type) {
-        case "diamond":
-          return "fas fa-gem"; // Ícono de diamante
-        case "sword":
-          return "fas fa-sword"; // Ícono de espada
-        case "chest":
-          return "fas fa-box"; // Ícono de cofre
-        default:
-          return "fas fa-gem"; // Por defecto, si no está asignado
       }
     };
 
@@ -517,28 +287,6 @@ export default {
     // Función para obtener el progreso de un logro
     const getAchievementProgress = (achievement) => {
       return (achievement.progress / achievement.count) * 100;
-    };
-
-    const loadRewards = async () => {
-      try {
-        const user = JSON.parse(localStorage.getItem("user"));
-        const userId = user.id;
-        const res = await userStore.getAllRewards(userId);
-        rewards.value = res.aventura_rewards;
-        premiumRewards.value = res.premium_rewards;
-      } catch (error) {
-        console.error("Error al cargar las recompensas disponibles:", error);
-      }
-    };
-
-    const checkPremio = (premio) => {
-      if (premio.claimed) {
-        return false;
-      }
-      if (totalPoints.value >= premio.points_required) {
-        return true;
-      }
-      return false;
     };
 
     const formattedMinecraftRank = computed(() => {
@@ -585,7 +333,6 @@ export default {
       try {
         // Supongamos que tienes una API para obtener el top de usuarios
         const response = await userStore.getTopAchievementsUsers();
-        debugger;
         topUsers.value = response;
       } catch (error) {
         console.error("Error al cargar el top de usuarios:", error);
@@ -603,7 +350,6 @@ export default {
         userData.value.verified = true;
         // Cargar logros disponibles y logros del jugador
         await loadPlayerAchievements();
-        await loadRewards();
         await loadTopUsers();
       } else {
         userData.value = {
@@ -617,36 +363,25 @@ export default {
     });
 
     return {
-      loadRewards,
-      openInfoReward,
       userData,
-      checkPremio,
       isLinked,
       vinculationToken,
       showLinkDialog,
-      dialogReward,
-      getMinecraftIcon,
       achievements,
       availableAchievements,
       filteredAchievements,
       filteredAventuraAchievements,
       filteredPremiumAchievements,
-      rewards,
       formattedMinecraftRank,
-      premiumRewards,
       searchTerm,
       getMinecraftSkinUrl,
       getAchievementProgress,
       vincularCuentaMinecraft,
       vinculationStatus,
       loading,
-      backdropFilter,
-      activeTab,
       totalPoints,
       maxPoints,
-      selectedReward,
       verified,
-      claimReward,
       topUsers,
     };
   },
@@ -1027,5 +762,126 @@ h3 {
   width: 50px;
   height: 50px;
   background-color: transparent; /* Asegúrate de que sea transparente */
+}
+</style>
+<style scoped>
+h2 {
+  color: var(--text-primary);
+  font-weight: 800;
+}
+
+h3 {
+  color: var(--gold);
+  font-weight: 700;
+}
+
+.achievement-section-container {
+  background: linear-gradient(180deg, rgba(19, 18, 42, 0.95), rgba(13, 12, 24, 0.98));
+  border: 1px solid rgba(255, 255, 255, 0.04);
+  border-radius: 18px;
+  box-shadow: 0 20px 42px rgba(0, 0, 0, 0.24);
+}
+
+.points-label,
+.progress-label,
+.subheader,
+.top-user-points {
+  color: var(--text-secondary);
+}
+
+.achievement-container {
+  min-width: 260px;
+  max-width: 320px;
+  padding: 18px;
+  border-radius: 16px;
+  background: linear-gradient(180deg, rgba(22, 21, 46, 0.96), rgba(15, 14, 26, 0.98));
+  border: 1px solid var(--border-color-light);
+  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.18);
+  transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
+}
+
+.achievement-container:hover {
+  transform: translateY(-4px) scale(1.02);
+  background: linear-gradient(180deg, rgba(28, 27, 58, 0.98), rgba(15, 14, 26, 1));
+  border-color: rgba(212, 168, 67, 0.35);
+  box-shadow: 0 18px 34px rgba(0, 0, 0, 0.26);
+}
+
+.achievement-title,
+.top-user-name,
+.reward-dialog-title {
+  color: var(--text-primary);
+}
+
+.achievement-description,
+.profile-message,
+.reward-dialog-description {
+  color: var(--text-secondary);
+  line-height: 1.6;
+}
+
+.reward-label {
+  color: var(--gold-light);
+}
+
+.reward-claimed-message {
+  color: #c084fc;
+}
+
+.fixed-titles {
+  background: linear-gradient(180deg, rgba(19, 18, 42, 0.98), rgba(19, 18, 42, 0.78));
+  backdrop-filter: blur(10px);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+}
+
+.profile-info {
+  color: var(--text-primary);
+  background: linear-gradient(180deg, rgba(22, 21, 46, 0.94), rgba(13, 12, 24, 0.96));
+  border: 1px solid var(--border-color);
+  border-radius: 16px;
+  box-shadow: 0 14px 30px rgba(0, 0, 0, 0.18);
+}
+
+.profile-message code {
+  background: rgba(255, 255, 255, 0.06);
+  color: var(--gold-light);
+  border-radius: 6px;
+}
+
+.profile-avatar {
+  border: 2px solid rgba(212, 168, 67, 0.28);
+  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.24);
+}
+
+.confirmation-message {
+  color: #86efac;
+}
+
+.top-user-card {
+  border-radius: 16px;
+  background: linear-gradient(180deg, rgba(22, 21, 46, 0.96), rgba(13, 12, 24, 0.96));
+  border: 1px solid var(--border-color) !important;
+  box-shadow: 0 16px 30px rgba(0, 0, 0, 0.22);
+}
+
+.reward-dialog-card {
+  border-radius: 16px;
+  background: linear-gradient(180deg, var(--bg-card), #111021);
+  border: 1px solid var(--border-color);
+  box-shadow: 0 18px 36px rgba(0, 0, 0, 0.28);
+}
+
+.reward-dialog-header {
+  background: rgba(212, 168, 67, 0.08);
+  border-bottom: 1px solid var(--border-color);
+}
+
+.reward-dialog-actions {
+  border-top: 1px solid var(--border-color-light);
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.icon-premium-reward {
+  background-color: transparent;
 }
 </style>

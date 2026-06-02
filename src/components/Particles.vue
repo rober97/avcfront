@@ -35,7 +35,6 @@ export default defineComponent({
     handleMouseMove(event) {
       const mouseX = event.clientX;
       const mouseY = event.clientY;
-      debugger
       this.particles.forEach((particle) => {
         const particleX = particle.offsetLeft + particle.offsetWidth / 2;
         const particleY = particle.offsetTop + particle.offsetHeight / 2;

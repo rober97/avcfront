@@ -1,83 +1,92 @@
 <template>
-  <q-page class="login-page q-pa-md">
-    <!-- Parte superior -->
-    <div class="top-section row justify-center q-mb-md">
-      <div class="col-auto text-center q-px-lg">
-        <q-card
-          class="my-card"
-          style="width: 200px; height: 150px; border-radius: 50px"
-          horinzontal
-        >
-          <q-card-section class="card-ip text-white">
-            <div class="text-h6">IP</div>
-            <div class="text-subtitle2">play.avclatin.com</div>
-          </q-card-section>
+  <q-page class="login-page">
+    <div class="login-container">
+      <div class="login-card">
+        <!-- Logo -->
+        <div class="login-logo q-mb-lg">
+          <img src="/avc-logo.svg" alt="AVC" style="height: 48px;" />
+          <p class="text-grey-6 q-mt-sm" style="font-size: 13px;">AventuraCraftLatin</p>
+        </div>
 
-          <q-card-actions vertical align="center">
-            <q-btn flat @click="copyIP"
-              ><i class="fas fa-copy" title="Copiar"></i
-            ></q-btn>
-          </q-card-actions>
-        </q-card>
-      </div>
-      <!-- Columna: Discord -->
-      <div class="col-auto text-center q-px-lg">
-        <q-card
-          class="my-card"
-          style="width: 200px; height: 150px; border-radius: 50px"
-        >
-          <q-card-section class="card-ip text-white">
-            <div class="text-h6">Discord</div>
-            <div class="text-subtitle2">AvCLatin</div>
-          </q-card-section>
+        <h2 class="login-title font-orbitron q-mb-md">INICIAR SESIÓN</h2>
 
-          <q-card-actions vertical align="center">
-            <q-btn flat @click="openDiscord"
-              ><i class="fas fa-link" title="Click"></i
-            ></q-btn>
-          </q-card-actions>
-        </q-card>
-      </div>
-    </div>
-
-    <!-- Parte inferior con el formulario -->
-    <div class="bottom-section row justify-center">
-      <div class="col-12 q-gutter-md">
-        <div class="text-h4 text-center q-mb-md">Iniciar</div>
-
-        <q-form @submit="onSubmit" @reset="onReset" class="q-gutter-md">
-          <q-input
-            filled
-            class="inputCustom"
-            v-model="email"
-            label="Nombre de usuario"
-            lazy-rules
-            :rules="[
-              (val) =>
-                (val && val.length > 0) || 'Ingresa un nombre de usuario',
-            ]"
-          />
-
-          <q-input
-            filled
-            type="password"
-            class="inputCustom"
-            v-model="password"
-            label="Contraseña"
-            lazy-rules
-            :rules="[
-              (val) => (val !== null && val !== '') || 'Ingresa una contraseña',
-            ]"
-          />
-
-          <div class="text-center q-mt-md">
-            <q-btn label="Iniciar sesión" type="submit" color="primary" block />
+        <q-form @submit="onSubmit" @reset="onReset" class="login-form">
+          <div class="q-mb-md">
+            <label class="input-label">USUARIO</label>
+            <q-input
+              v-model="email"
+              filled
+              dense
+              dark
+              placeholder="Tu nombre de usuario"
+              class="avc-input"
+              lazy-rules
+              :rules="[(val) => (val && val.length > 0) || 'Ingresa un nombre de usuario']"
+            >
+              <template v-slot:prepend>
+                <q-icon name="person" class="text-grey-6" />
+              </template>
+            </q-input>
           </div>
+
+          <div class="q-mb-lg">
+            <label class="input-label">CONTRASEÑA</label>
+            <q-input
+              v-model="password"
+              filled
+              dense
+              dark
+              :type="showPassword ? 'text' : 'password'"
+              placeholder="Tu contraseña"
+              class="avc-input"
+              lazy-rules
+              :rules="[(val) => (val !== null && val !== '') || 'Ingresa una contraseña']"
+            >
+              <template v-slot:prepend>
+                <q-icon name="lock" class="text-grey-6" />
+              </template>
+              <template v-slot:append>
+                <q-icon
+                  :name="showPassword ? 'visibility_off' : 'visibility'"
+                  class="cursor-pointer text-grey-6"
+                  @click="showPassword = !showPassword"
+                />
+              </template>
+            </q-input>
+          </div>
+
+          <q-btn
+            type="submit"
+            class="full-width avc-login-btn"
+            no-caps
+          >
+            <span class="font-orbitron" style="letter-spacing: 2px;">CONECTAR</span>
+          </q-btn>
         </q-form>
 
-        <div class="text-center q-mt-md">
-          ¿No tienes una cuenta?
-          <router-link to="/register">Regístrate</router-link>
+        <!-- Server info cards -->
+        <div class="server-cards q-mt-lg">
+          <div class="server-card" @click="copyIP">
+            <q-icon name="dns" class="text-gold" size="20px" />
+            <div>
+              <div class="text-caption text-grey-5">IP del Servidor</div>
+              <div class="text-gold text-weight-bold" style="font-size: 12px;">play.avclatin.com</div>
+            </div>
+            <q-icon name="content_copy" class="text-grey-7" size="16px" />
+          </div>
+          <div class="server-card" @click="openDiscord">
+            <q-icon name="forum" class="text-indigo-4" size="20px" />
+            <div>
+              <div class="text-caption text-grey-5">Discord</div>
+              <div class="text-indigo-4 text-weight-bold" style="font-size: 12px;">AvCLatin</div>
+            </div>
+            <q-icon name="open_in_new" class="text-grey-7" size="16px" />
+          </div>
+        </div>
+
+        <div class="q-mt-lg text-center">
+          <span class="text-grey-6" style="font-size: 13px;">¿No tienes cuenta? </span>
+          <router-link to="/register" class="text-gold register-link">Regístrate</router-link>
         </div>
       </div>
     </div>
@@ -92,22 +101,22 @@ import { useGlobal } from "../stores/global";
 import { useQuasar } from "quasar";
 import { useUserStore } from "../stores/userStore";
 
-const global = useGlobal();
-
 export default {
   setup() {
+    const global = useGlobal();
     const router = useRouter();
     const $q = useQuasar();
     const email = ref(null);
     const password = ref(null);
+    const showPassword = ref(false);
     const userStore = useUserStore();
 
     return {
       email,
       password,
+      showPassword,
 
       async onSubmit() {
-        debugger
         const config = {
           headers: {
             Accept: "application/json",
@@ -124,11 +133,10 @@ export default {
         try {
           const res = await axios(config);
           if (res.data.success) {
-            // Guarda 'obj' donde lo necesites o haz algo con él.
             localStorage.setItem("isAuthenticated", "true");
             localStorage.setItem("user", JSON.stringify(res.data.user));
             userStore.setUser(res.data.user);
-            router.push("/explorer");
+            router.push("/dashboard");
             $q.notify({
               color: "green-5",
               textColor: "white",
@@ -144,7 +152,6 @@ export default {
             });
           }
         } catch (error) {
-          // Aquí manejas errores de red o si el servidor retorna un error 500, por ejemplo.
           $q.notify({
             color: "red-5",
             textColor: "white",
@@ -156,53 +163,30 @@ export default {
 
       copyIP() {
         let ipServer = "play.avclatin.com";
-
-        // Usar la API del Portapapeles para copiar el texto
         if (navigator.clipboard && window.isSecureContext) {
-          // Navegador soporta la API del portapapeles y está en un contexto seguro (HTTPS)
-          navigator.clipboard
-            .writeText(ipServer)
-            .then(() => {
-              // Notificación de éxito
-              $q.notify({
-                progress: true,
-                message: "IP Copiada con éxito!",
-                color: "primary",
-                multiLine: true,
-              });
-            })
-            .catch((err) => {
-              // Manejar errores (por ejemplo, si el usuario no da permiso para acceder al portapapeles)
-              console.error("No se pudo copiar la IP: ", err);
+          navigator.clipboard.writeText(ipServer).then(() => {
+            $q.notify({
+              progress: true,
+              message: "IP Copiada con éxito!",
+              color: "primary",
             });
+          });
         } else {
-          // Método alternativo para navegadores que no soportan navigator.clipboard.writeText
-          // Crear un elemento de texto temporal
           let textArea = document.createElement("textarea");
           textArea.value = ipServer;
           document.body.appendChild(textArea);
           textArea.focus();
           textArea.select();
-
           try {
-            // Intentar copiar el contenido del textarea al portapapeles
-            let successful = document.execCommand("copy");
-            if (successful) {
-              // Notificación de éxito
-              $q.notify({
-                progress: true,
-                message: "IP Copiada con éxito!",
-                color: "primary",
-                multiLine: true,
-              });
-            } else {
-              console.error("No se pudo copiar la IP usando execCommand.");
-            }
+            document.execCommand("copy");
+            $q.notify({
+              progress: true,
+              message: "IP Copiada con éxito!",
+              color: "primary",
+            });
           } catch (err) {
             console.error("Error al copiar la IP: ", err);
           }
-
-          // Limpiar al finalizar
           document.body.removeChild(textArea);
         }
       },
@@ -220,32 +204,119 @@ export default {
 };
 </script>
 
-<style scoped>
+<style lang="scss" scoped>
 .login-page {
-  background-image: url("../assets/newfondo.jpg") !important;
-  background-size: cover; /* Esto asegura que la imagen cubra todo el espacio disponible */
-  background-repeat: no-repeat; /* Esto evita que la imagen se repita */
+  min-height: 100vh;
   display: flex;
-  flex-direction: column;
   align-items: center;
   justify-content: center;
-  height: 100vh;
+  background: var(--bg-primary);
+  background-image:
+    radial-gradient(ellipse at 20% 50%, rgba(124, 58, 237, 0.08) 0%, transparent 50%),
+    radial-gradient(ellipse at 80% 20%, rgba(212, 168, 67, 0.06) 0%, transparent 50%);
 }
 
-.top-section {
+.login-container {
   width: 100%;
-  max-width: 800px; /* Ajusta según necesites */
+  max-width: 440px;
+  padding: 24px;
 }
 
-.bottom-section {
-  min-width: 50%;
-  margin-top: 50px;
-  background-color: white;
-  border-radius: 40px;
-  padding: 20px;
+.login-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: 16px;
+  padding: 40px 32px;
 }
 
-.card-ip {
-  background-color: #03a70e;
+.login-logo {
+  text-align: center;
+}
+
+.login-title {
+  text-align: center;
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--text-primary);
+  letter-spacing: 3px;
+  margin: 0;
+}
+
+.input-label {
+  display: block;
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--text-muted);
+  letter-spacing: 1px;
+  margin-bottom: 6px;
+}
+
+.avc-input {
+  :deep(.q-field__control) {
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 10px;
+
+    &:hover {
+      border-color: rgba(212, 168, 67, 0.3);
+    }
+  }
+
+  :deep(.q-field__control.q-field__control--focus) {
+    border-color: #d4a843;
+  }
+}
+
+.avc-login-btn {
+  background: linear-gradient(135deg, #b8922e, #d4a843) !important;
+  color: #0a0914 !important;
+  border-radius: 10px;
+  padding: 12px;
+  font-weight: 700;
+  transition: all 0.3s ease;
+
+  &:hover {
+    background: linear-gradient(135deg, #d4a843, #f5d98a) !important;
+    box-shadow: 0 4px 20px rgba(212, 168, 67, 0.3);
+  }
+}
+
+// Server cards
+.server-cards {
+  display: flex;
+  gap: 8px;
+}
+
+.server-card {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 12px;
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all 0.2s;
+
+  &:hover {
+    background: rgba(255, 255, 255, 0.04);
+    border-color: rgba(255, 255, 255, 0.1);
+  }
+}
+
+.text-gold {
+  color: #d4a843 !important;
+}
+
+.register-link {
+  text-decoration: none;
+  font-weight: 600;
+  font-size: 13px;
+  transition: color 0.2s;
+
+  &:hover {
+    color: #f5d98a !important;
+  }
 }
 </style>

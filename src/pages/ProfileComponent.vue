@@ -1,6 +1,5 @@
 <template>
   <q-page class="main-layout">
-    <AsideLayout />
     <div class="profile-section-container">
       <!-- Perfil fijo en la parte superior -->
       <div class="profile-section">
@@ -232,7 +231,6 @@
 </template>
 
 <script>
-import AsideLayout from "layouts/AsideLayout.vue";
 import { useGlobal } from "../stores/global";
 import { useIntersectionObserver } from "@vueuse/core";
 import { useUserStore } from "../stores/userStore";
@@ -242,12 +240,11 @@ import "font-awesome/css/font-awesome.css";
 import { debounce, useQuasar } from "quasar";
 import axios from "axios";
 import { useRouter, useRoute } from "vue-router";
-const global = useGlobal();
+
 export default {
-  components: {
-    AsideLayout,
-  },
+  components: {},
   setup() {
+    const global = useGlobal();
     const userStore = useUserStore();
     const postStore = usePostStore();
     const posts = ref([]);

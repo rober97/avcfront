@@ -1,6 +1,5 @@
 <template>
   <q-page class="q-pa-md">
-    <AsideLayout />
     <div class="q-pa-md" style="max-width: 500px; margin: auto">
       <q-card>
         <q-card-section>
@@ -33,12 +32,9 @@
 
 <script>
 import { ref } from "vue";
-import AsideLayout from "layouts/AsideLayout.vue";
 
 export default {
-  components: {
-    AsideLayout,
-  },
+  components: {},
   setup() {
     const newComment = ref("");
     const comments = ref([]);

@@ -531,13 +531,7 @@
 </template>
 
 <script>
-import AsideLayout from "layouts/AsideLayout.vue";
-
-export default {
-  components: {
-    AsideLayout,
-  },
-};
+export default {};
 </script>
 
 <style scoped>

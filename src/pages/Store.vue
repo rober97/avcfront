@@ -1,6 +1,5 @@
 <template>
   <q-page>
-    <AsideLayout />
     <div class="achievement-section-container">
       <div class="iframe-container">
         <iframe
@@ -15,14 +14,11 @@
 </template>
 
 <script>
-import AsideLayout from "layouts/AsideLayout.vue";
 import { ref, onMounted } from "vue";
 import { useUserStore } from "../stores/userStore";
 
 export default {
-  components: {
-    AsideLayout,
-  },
+  components: {},
   setup() {
     const userStore = useUserStore();
     const userData = ref({

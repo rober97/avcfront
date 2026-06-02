@@ -1,6 +1,5 @@
 <template>
   <q-page>
-    <AsideLayout />
     <div class="chat-section q-ma-md">
       <div class="row">
         <!-- Lista de Chats -->
@@ -90,16 +89,13 @@
   </q-page>
 </template>
 <script>
-import AsideLayout from "layouts/AsideLayout.vue";
 import { useUserStore } from "../stores/userStore";
 import { ref, onMounted, nextTick } from "vue";
 import { io } from "socket.io-client";
 import { useRouter, useRoute } from "vue-router";
 
 export default {
-  components: {
-    AsideLayout,
-  },
+  components: {},
   setup() {
     const router = useRouter();
     const route = useRoute();
@@ -324,61 +320,72 @@ export default {
 </script>
 <style scoped>
 .chat-section {
-  max-width: 1000px;
+  max-width: 1100px;
   margin: 0 auto;
+  padding: 24px 0;
 }
 
 .chat-header {
   display: flex;
   align-items: center;
   padding: 1rem 0;
-  border-bottom: 1px solid #eee;
+  border-bottom: 1px solid var(--border-color-light);
+  color: var(--text-primary);
 }
 
 .messages {
   max-height: 500px;
   overflow-y: auto;
-  padding: 1rem 0;
-}
-
-.you {
-  text-align: right;
-  color: green;
-}
-
-.them {
-  color: blue;
+  padding: 1rem;
+  display: flex;
+  flex-direction: column;
+  background: linear-gradient(180deg, rgba(22, 21, 46, 0.52), rgba(13, 12, 24, 0.7));
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 16px;
 }
 
 .send-message {
   margin-top: 1rem;
+  display: flex;
+  gap: 12px;
+  align-items: center;
 }
 
 .chat-list {
-  margin-right: 50px;
-}
-
-.messages {
-  display: flex;
-  flex-direction: column;
+  margin-right: 32px;
 }
 
 .you {
   align-self: flex-end;
-  background-color: #e6f7ff;
-  border-radius: 8px 0px 8px 8px;
-  padding: 5px 10px;
-  margin: 5px 5px 5px 20%;
+  background: linear-gradient(135deg, rgba(212, 168, 67, 0.16), rgba(184, 146, 46, 0.28));
+  color: var(--text-primary);
+  border: 1px solid rgba(212, 168, 67, 0.16);
+  border-radius: 14px 4px 14px 14px;
+  padding: 10px 14px;
+  margin: 6px 0 6px 20%;
   text-align: right;
 }
 
 .them {
   align-self: flex-start;
-  background-color: #f1f1f1;
-  border-radius: 0px 8px 8px 8px;
-  padding: 5px 10px;
-  margin: 5px 20% 5px 5px;
+  background: rgba(255, 255, 255, 0.05);
+  color: var(--text-primary);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 4px 14px 14px 14px;
+  padding: 10px 14px;
+  margin: 6px 20% 6px 0;
   text-align: left;
+}
+
+:deep(.q-custom-input .q-field__control) {
+  background: rgba(255, 255, 255, 0.04) !important;
+  border: 1px solid var(--border-color-light);
+  border-radius: 12px;
+}
+
+:deep(.q-custom-input .q-field__native),
+:deep(.q-custom-input .q-field__input) {
+  color: var(--text-primary) !important;
 }
 
 

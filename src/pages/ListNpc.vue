@@ -27,7 +27,6 @@ import {useGlobal} from '../stores/global';
 
 const global = useGlobal();
 
-
 const getListNpc = () => {
   let config = {
         method: "get",

@@ -16,11 +16,10 @@ export default route(function () {
   Router.beforeEach((to, from, next) => {
     const token = localStorage.getItem('isAuthenticated');
     const isAuthenticated = !!token;
-    debugger
     if (to.meta.requiresAuth && !isAuthenticated) {
       next({ name: 'login' });
     } else if (to.meta.guestOnly && isAuthenticated) {
-      next({ name: 'explorer' });
+      next({ name: 'dashboard' });
     } else {
       next();
     }

@@ -1,6 +1,5 @@
 <template>
   <q-page class="feed-section q-ma-md">
-    <AsideLayout />
     <div class="search-section">
       <q-input
         v-model="searchQuery"
@@ -40,28 +39,22 @@
 <script>
 import { ref } from "vue";
 import { useUserStore } from "../stores/userStore";
-import AsideLayout from "layouts/AsideLayout.vue";
-import { useRouter, useRoute } from "vue-router";
+import { useRouter } from "vue-router";
+import fallbackAvatar from "../resources/steve.png";
 
 export default {
-  components: {
-    AsideLayout,
-  },
   setup() {
     const router = useRouter();
-    const route = useRoute();
     const searchQuery = ref("");
     const users = ref([]);
     const userStore = useUserStore();
 
     const searchUsers = async () => {
       if (searchQuery.value.trim() === "") {
-        // Si el campo de búsqueda está vacío, cargamos el listado completo de usuarios
         loadUsers();
         return;
       }
 
-      // Si la búsqueda tiene al menos 3 caracteres, hacemos la búsqueda
       if (searchQuery.value.length >= 3) {
         try {
           users.value = await userStore.searchUsers(searchQuery.value);
@@ -72,12 +65,10 @@ export default {
     };
 
     const selectUser = (user) => {
-      // Lógica cuando un usuario es seleccionado
       toProfile(user);
     };
 
     const loadUsers = async () => {
-      // Lógica para cargar usuarios, por ejemplo:
       users.value = await userStore.getListUsers();
     };
 
@@ -85,17 +76,14 @@ export default {
       router.push("/profile/" + user._id);
     };
 
-    // Función para obtener la URL del skin de Minecraft
     const getMinecraftSkinUrl = (username) => {
       return `https://minotar.net/avatar/${username}`;
     };
 
-    // Función para manejar el error al cargar la imagen
     const onImageError = (event) => {
-      event.target.src = require("../resources/steve.png");
+      event.target.src = fallbackAvatar;
     };
 
-    // Llama a loadUsers en la carga del componente
     loadUsers();
 
     return {
@@ -110,50 +98,41 @@ export default {
   },
 };
 </script>
+
 <style>
+.feed-section {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
 .search-input {
   max-width: 600px;
-  margin: 0 auto 20px;
+  margin: 0 auto 24px;
 }
 
 .user-cards {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
   gap: 20px;
-  padding: 20px;
-  max-height: 85vh; /* Define una altura máxima para el contenedor */
-  overflow-y: auto; /* Habilita el desplazamiento vertical */
+  padding: 0 0 24px;
+  max-height: 85vh;
+  overflow-y: auto;
 }
-
 
 .user-card {
   cursor: pointer;
-  border-top-left-radius: 20px;
-  border-top-right-radius: 20px;
-  transition: box-shadow 0.3s;
-  box-shadow: rgba(0, 0, 0, 0.1) 0px 20px 25px -5px,
-    rgba(0, 0, 0, 0.04) 0px 10px 10px -5px;
-  background-image: linear-gradient(to bottom, #4a8b96, #bcd4d6);
+  overflow: hidden;
+  border-radius: 20px;
+  border: 1px solid var(--border-color);
+  transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
+  box-shadow: 0 18px 36px rgba(0, 0, 0, 0.2);
+  background: linear-gradient(180deg, rgba(22, 21, 46, 0.98), rgba(13, 12, 24, 0.98));
 }
 
 .user-card:hover {
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-}
-
-.avatar-large {
-  width: 100%;
-  padding-top: 100%; /* 1:1 Aspect Ratio */
-  position: relative;
-  overflow: hidden;
-}
-
-.avatar-large img {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
+  transform: translateY(-4px);
+  border-color: rgba(212, 168, 67, 0.32);
+  box-shadow: 0 24px 44px rgba(0, 0, 0, 0.28);
 }
 
 .q-avatar__content {
@@ -163,67 +142,70 @@ export default {
 .name-section {
   text-align: center;
   font-size: 16px;
+  color: var(--text-primary);
+  font-weight: 700;
+  letter-spacing: 0.4px;
 }
 
 .name-cont {
-  height: 50px;
-  align-content: center;
-  background-color: white;
-  border-top-left-radius: 20px;
-  border-top-right-radius: 20px;
+  min-height: 56px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 255, 255, 0.03);
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
 }
 
 .image-section {
   display: flex;
   justify-content: center;
   align-items: center;
-  height: 200px;
-  border-top-left-radius: 20px;
-  border-top-right-radius: 20px;
-  background-image: linear-gradient(to bottom, #4a8b96, #bcd4d6);
+  height: 220px;
+  background: radial-gradient(circle at top, rgba(212, 168, 67, 0.18), rgba(22, 21, 46, 0.92) 45%, rgba(13, 12, 24, 0.98));
 }
 
-/* Estilo personalizado para el q-input con clase search-input */
+.image-section img {
+  width: 72%;
+  height: 72%;
+  object-fit: contain;
+  image-rendering: pixelated;
+  filter: drop-shadow(0 12px 20px rgba(0, 0, 0, 0.32));
+}
+
 .search-input .q-field__control {
-  background-color: #ecf0f1; /* Fondo claro para el input */
-  color: #2c3e50; /* Texto en gris azulado oscuro */
-  border: 1px solid #bdc3c7; /* Borde en gris claro */
-  border-radius: 4px; /* Bordes suavizados pero discretos */
-  font-weight: 500; /* Peso del texto medio */
+  background: rgba(255, 255, 255, 0.04) !important;
+  color: var(--text-primary);
+  border: 1px solid var(--border-color-light);
+  border-radius: 12px;
+  font-weight: 500;
   transition: border-color 0.3s ease, box-shadow 0.3s ease;
 }
 
-/* Placeholder */
-.search-input .q-field__control input::placeholder {
-  color: #7f8c8d; /* Placeholder en un gris medio */
-  opacity: 0.7; /* Ajuste de opacidad del placeholder */
+.search-input .q-field__control input::placeholder,
+.search-input .q-field__native::placeholder {
+  color: var(--text-muted) !important;
+  opacity: 1;
 }
 
-/* Efecto hover y enfoque */
 .search-input .q-field__control:hover,
 .search-input .q-field__control:focus-within {
-  border-color: #34495e; /* Borde más definido al hacer hover o enfocar */
-  box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1); /* Sombra sutil para un efecto ligero */
+  border-color: rgba(212, 168, 67, 0.24);
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.18);
 }
 
-/* Estilo del label (si se usa) */
 .search-input .q-field__label {
-  color: #2c3e50; /* Label en gris azulado oscuro */
-  font-weight: 600; /* Texto del label en semi-negrita */
-  text-transform: uppercase; /* Label en mayúsculas para un look más profesional */
+  color: var(--text-secondary) !important;
+  font-weight: 600;
+  text-transform: uppercase;
 }
 
-/* Estilo del icono */
-.search-input .q-icon {
-  color: #2c3e50; /* Color del icono en gris azulado oscuro */
+.search-input .q-icon,
+.search-input .q-field__native,
+.search-input input {
+  color: var(--text-primary) !important;
 }
 
-/* Estilo del label flotante (si se usa) */
 .search-input .q-field--float .q-field__label {
-  color: #7f8c8d; /* Color del label flotante en gris medio */
-}
-
-.search-input .q-field--float.q-field--focused .q-field__label {
-  color: #2c3e50; /* Mantener el label flotante en gris oscuro cuando está enfocado */
+  color: var(--gold) !important;
 }
 </style>

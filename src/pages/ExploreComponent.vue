@@ -1,13 +1,11 @@
 <template>
   <q-page class="main-layout">
-    <AsideLayout @update:show="updatePosts" />
     <div class="particles-container" @mousemove="handleMouseMove">
       <div v-for="n in particleCount" :key="n" class="particle"></div>
     </div>
     <div class="feed-section">
       <div class="posts-list">
         <div v-for="post in posts" :key="post.id" class="post-card">
-          <!-- User Info -->
           <div class="user-section" @click="toProfile(post.user._id)">
             <q-avatar class="user-avatar">
               <img :src="getMinecraftSkinUrl(post.user.username)" />
@@ -18,7 +16,6 @@
             </div>
           </div>
 
-          <!-- Post Image -->
           <div
             class="post-image-container"
             v-if="post.imageUrl && post.imageUrl != 'S/M'"
@@ -26,12 +23,10 @@
             <q-img :src="post.imageUrl" class="post-image" />
           </div>
 
-          <!-- Post Description -->
           <div class="post-description">
             {{ post.description }}
           </div>
 
-          <!-- Post Actions -->
           <div class="post-actions">
             <q-icon
               :name="isLikedByUser(post) ? 'favorite' : 'favorite_border'"
@@ -42,7 +37,6 @@
             <div class="likes">{{ post.likes.length }}</div>
           </div>
 
-          <!-- Comments Section -->
           <div class="comments-section">
             <div
               class="comment"
@@ -72,7 +66,6 @@
         </div>
       </div>
 
-      <!-- Loader Trigger -->
       <div ref="loadMoreTrigger" class="row justify-center q-my-md">
         <q-spinner-dots color="primary" />
       </div>
@@ -83,21 +76,15 @@
 <script>
 import { ref } from "vue";
 import { useIntersectionObserver } from "@vueuse/core";
-import AsideLayout from "layouts/AsideLayout.vue";
 import { useUserStore } from "../stores/userStore";
 import { useGlobal } from "../stores/global";
-import Particles from "../components/Particles.vue";
 import { useQuasar } from "quasar";
 import { usePostStore } from "../stores/postStore";
 import axios from "axios";
-const global = useGlobal();
 
 export default {
-  components: {
-    AsideLayout,
-    Particles,
-  },
   setup() {
+    const global = useGlobal();
     const postStore = usePostStore();
     const userStore = useUserStore();
     const posts = ref([]);
@@ -161,7 +148,7 @@ export default {
           currentPage.value++;
         }
       } catch (error) {
-        console.error("Error al cargar más publicaciones:", error);
+        console.error("Error al cargar mas publicaciones:", error);
       } finally {
         loading.value = false;
       }
@@ -192,7 +179,7 @@ export default {
           multiLine: true,
         });
       },
-      particleCount: 50, // Número de partículas
+      particleCount: 50,
       particles: [],
     };
   },
@@ -216,7 +203,6 @@ export default {
     handleMouseMove(event) {
       const mouseX = event.clientX;
       const mouseY = event.clientY;
-      debugger;
       this.particles.forEach((particle) => {
         const particleX = particle.offsetLeft + particle.offsetWidth / 2;
         const particleY = particle.offsetTop + particle.offsetHeight / 2;
@@ -225,9 +211,8 @@ export default {
         const distance = Math.sqrt(dx * dx + dy * dy);
 
         if (distance < 100) {
-          // Distancia a la que las partículas "huyen"
           const angle = Math.atan2(dy, dx);
-          const moveX = Math.cos(angle) * 30; // Distancia de repulsión
+          const moveX = Math.cos(angle) * 30;
           const moveY = Math.sin(angle) * 30;
 
           particle.style.transform = `translate(${moveX}px, ${moveY}px)`;
@@ -271,7 +256,7 @@ export default {
       const userObject = JSON.parse(localStorage.getItem("user"));
       const commentText = post.newComment.trim();
       if (!commentText) {
-        console.error("El comentario no puede estar vacío");
+        console.error("El comentario no puede estar vacio");
         return;
       }
 
@@ -317,14 +302,13 @@ export default {
       } else if (hours < 24) {
         return `Hace ${hours} horas`;
       } else if (days < 7) {
-        return `Hace ${days} días`;
+        return `Hace ${days} dias`;
       } else if (weeks < 4) {
         return `Hace ${weeks} semanas`;
       } else if (months < 12) {
         return `Hace ${months} meses`;
-      } else {
-        return `Hace ${years} años`;
       }
+      return `Hace ${years} anos`;
     },
 
     async toProfile(id) {
@@ -340,82 +324,107 @@ export default {
 .main-layout {
   display: flex;
   flex-direction: row;
-  height: 100vh;
+  min-height: 100vh;
+  position: relative;
 }
 
 .feed-section {
   flex-grow: 1;
   overflow-y: auto;
   height: 100vh;
-  padding: 16px; /* Relleno para evitar bordes pegados */
-  position: relative; /* Asegura que el feed esté sobre las partículas */
+  padding: 24px 16px;
+  position: relative;
+  z-index: 1;
 }
 
 .posts-list {
   display: flex;
   flex-direction: column;
-  gap: 16px; /* Espaciado consistente entre tarjetas */
+  gap: 16px;
   padding: 0;
   margin: 0 auto;
-  max-width: 800px; /* Máximo ancho en pantallas grandes */
-  width: 100%; /* Asegura que ocupe todo el ancho disponible */
+  max-width: 800px;
+  width: 100%;
 }
 
 .post-card {
-  background: #fff;
-  border: 1px solid #e0e0e0;
-  border-radius: 8px;
-  padding: 16px;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
   width: 100%;
-  max-width: 600px; /* Limita el tamaño en pantallas grandes */
-  margin: 0 auto; /* Centra las tarjetas horizontalmente */
+  max-width: 600px;
+  margin: 0 auto;
+  padding: 18px;
+  border-radius: 18px;
+  background: linear-gradient(180deg, rgba(22, 21, 46, 0.96), rgba(13, 12, 24, 0.96));
+  border: 1px solid var(--border-color);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.22);
+  transition: transform 0.25s ease, border-color 0.25s ease, box-shadow 0.25s ease;
+}
+
+.post-card:hover {
+  transform: translateY(-2px);
+  border-color: rgba(212, 168, 67, 0.32);
+  box-shadow: 0 24px 44px rgba(0, 0, 0, 0.28);
 }
 
 .post-description {
-  overflow-wrap: break-word; /* Rompe palabras largas */
-  white-space: normal; /* Ajusta el texto a varias líneas */
-  word-wrap: break-word; /* Compatible con navegadores antiguos */
+  overflow-wrap: break-word;
+  white-space: normal;
+  word-wrap: break-word;
   margin-top: 8px;
+  color: var(--text-secondary);
+  line-height: 1.6;
 }
 
 .user-section {
   display: flex;
   align-items: center;
   margin-bottom: 12px;
+  gap: 12px;
 }
 
 .user-avatar img {
   width: 40px;
   height: 40px;
+  border-radius: 50%;
+  border: 1px solid var(--border-color);
 }
 
 .user-section .user-avatar {
-  margin-right: 8px;
   cursor: pointer;
 }
 
 .user-info .username {
   font-weight: bold;
   cursor: pointer;
+  color: var(--text-primary);
+}
+
+.user-info .post-date {
+  font-size: 12px;
+  color: var(--text-muted);
 }
 
 .post-image-container {
   position: relative;
-  margin-top: 8px;
+  margin-top: 12px;
+  overflow: hidden;
+  border-radius: 14px;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  background: rgba(255, 255, 255, 0.02);
 }
 
 .post-image {
   width: 100%;
-  max-height: 500px; /* Limita la altura para evitar desbordes */
-  object-fit: cover; /* Asegura que la imagen se ajuste bien */
-  border-radius: 4px;
+  max-height: 500px;
+  object-fit: cover;
+  border-radius: 14px;
 }
 
 .post-actions {
   display: flex;
   align-items: center;
-  margin-top: 8px;
+  margin-top: 12px;
+  gap: 8px;
+  color: var(--text-secondary);
 }
 
 .action-icon {
@@ -429,6 +438,13 @@ export default {
 
 .comment {
   margin-bottom: 4px;
+  padding: 8px 0;
+  color: var(--text-secondary);
+  border-top: 1px solid rgba(255, 255, 255, 0.04);
+}
+
+.comment strong {
+  color: var(--text-primary);
 }
 
 .comment-input {
@@ -444,19 +460,31 @@ export default {
 
 .send-icon {
   cursor: pointer;
+  color: var(--gold);
+  transition: transform 0.2s ease, color 0.2s ease;
+}
+
+.send-icon:hover {
+  color: var(--gold-light);
+  transform: translateX(1px);
 }
 
 .heart-icon {
   transition: transform 0.2s ease-in-out;
-  color: red; /* Cambia el color a rojo cuando está activo */
+  color: var(--text-muted);
+}
+
+.heart-icon:hover,
+.heart-icon.liked {
+  color: #ef4444;
 }
 
 .heart-icon.liked {
-  transform: scale(1.3); /* Efecto de agrandar el corazón */
+  transform: scale(1.3);
 }
 
 .heart-icon.liked-reverse {
-  transform: scale(1); /* Volver al tamaño original */
+  transform: scale(1);
 }
 
 .particles-container {
@@ -464,20 +492,44 @@ export default {
   width: 100%;
   height: 100%;
   overflow: hidden;
-  z-index: 0; /* Colocar detrás del contenido */
+  z-index: 0;
   top: 0;
   left: 0;
 }
 
 .particle {
   position: absolute;
-  width: 5px;
-  height: 5px;
-  background-color: #ffffff;
+  width: 4px;
+  height: 4px;
+  background-color: rgba(245, 217, 138, 0.75);
   border-radius: 50%;
   opacity: 0.7;
   animation: float 10s linear infinite;
   transition: transform 0.2s ease;
+  box-shadow: 0 0 10px rgba(212, 168, 67, 0.25);
+}
+
+.likes {
+  color: var(--text-secondary);
+  font-weight: 600;
+}
+
+:deep(.comment-input .q-field__control) {
+  background: rgba(255, 255, 255, 0.04) !important;
+  border: 1px solid var(--border-color-light);
+  border-radius: 12px;
+}
+
+:deep(.comment-input .q-field__native),
+:deep(.comment-input .q-field__input),
+:deep(.comment-input input) {
+  color: var(--text-primary) !important;
+}
+
+:deep(.comment-input .q-field__native::placeholder),
+:deep(.comment-input input::placeholder) {
+  color: var(--text-muted) !important;
+  opacity: 1;
 }
 
 @keyframes float {
@@ -485,54 +537,53 @@ export default {
     transform: translateY(0);
     opacity: 1;
   }
+
   100% {
     transform: translateY(-100vh);
     opacity: 0;
   }
 }
 
-/* Media Queries para pantallas más pequeñas */
 @media (max-width: 768px) {
   .feed-section {
-    padding: 8px; /* Reduce el relleno */
+    padding: 8px;
   }
 
   .posts-list {
     padding: 0 8px;
-    max-width: 100%; /* Ocupa todo el ancho en pantallas pequeñas */
+    max-width: 100%;
   }
 
   .post-card {
-    padding: 12px; /* Reduce el relleno */
+    padding: 12px;
     max-width: 100%;
   }
 
   .post-image {
-    max-height: 200px; /* Ajusta la altura para pantallas pequeñas */
+    max-height: 200px;
   }
 
   .user-avatar img {
-    width: 32px; /* Reduce el tamaño del avatar */
+    width: 32px;
     height: 32px;
   }
 
   .comment-input {
-    margin: 4px 0; /* Reduce los márgenes */
+    margin: 4px 0;
   }
 
   .post-actions {
-    justify-content: space-between; /* Espacio entre elementos */
+    justify-content: space-between;
   }
 }
 
-/* Media Queries para pantallas grandes */
 @media (min-width: 1200px) {
   .posts-list {
-    max-width: 60%; /* Ajusta el ancho para pantallas grandes */
+    max-width: 60%;
   }
 
   .post-card {
-    padding: 24px; /* Aumenta el relleno */
+    padding: 24px;
   }
 }
 </style>

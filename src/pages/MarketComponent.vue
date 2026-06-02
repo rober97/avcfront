@@ -315,9 +315,11 @@ export default {
   max-width: 800px;
   margin: auto;
   padding: 20px;
-  background-color: #f9f9f9;
+  background: linear-gradient(180deg, rgba(22, 21, 46, 0.98), rgba(13, 12, 24, 0.98));
+  border: 1px solid var(--border-color);
   border-radius: 10px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 18px 36px rgba(0, 0, 0, 0.24);
+  color: var(--text-primary);
 }
 
 .header {
@@ -325,6 +327,7 @@ export default {
   font-weight: bold;
   text-align: center;
   margin-bottom: 20px;
+  color: var(--gold);
 }
 
 .form-grid {
@@ -343,5 +346,38 @@ export default {
   font-size: 1.2em;
   font-weight: bold;
   margin-bottom: 10px;
+  color: var(--text-primary);
+}
+
+.custom-card p {
+  color: var(--text-secondary);
+}
+
+.custom-card :deep(.q-field__control) {
+  background: rgba(255, 255, 255, 0.04) !important;
+  border: 1px solid var(--border-color-light);
+  border-radius: 12px;
+}
+
+.custom-card :deep(.q-field__native),
+.custom-card :deep(.q-field__input),
+.custom-card :deep(.q-field__label),
+.custom-card :deep(.q-field__marginal),
+.custom-card :deep(.q-select__dropdown-icon) {
+  color: var(--text-primary) !important;
+}
+
+.custom-card :deep(.q-table__container) {
+  background: transparent;
+  color: var(--text-primary);
+}
+
+.custom-card :deep(.q-table thead tr th) {
+  color: var(--text-primary);
+  border-bottom: 1px solid var(--border-color);
+}
+
+.custom-card :deep(.q-table tbody td) {
+  color: var(--text-secondary);
 }
 </style>

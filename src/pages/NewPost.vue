@@ -63,8 +63,6 @@ import { useUserStore } from "../stores/userStore";
 import { useGlobal } from "../stores/global";
 import { useQuasar } from "quasar";
 
-const global = useGlobal();
-
 export default {
   components: {
     Cropper,
@@ -83,6 +81,7 @@ export default {
     };
   },
   setup(props, { emit }) {
+    const global = useGlobal();
     const description = ref("");
     const userStore = useUserStore();
     const $q = useQuasar();
