@@ -66,6 +66,18 @@
       </div>
     </section>
 
+    <!-- Rankings -->
+    <section class="rankings-section" id="rankings">
+      <div class="section-head">
+        <p class="header-kicker font-orbitron">SALÓN DE LA FAMA</p>
+        <h2 class="section-title font-orbitron">
+          <span class="text-gold-gradient">RANKINGS</span>
+        </h2>
+        <p class="section-sub">Los mejores aventureros de AventuraCraftLatin</p>
+      </div>
+      <RankingsBoard />
+    </section>
+
     <!-- Server Stats Bar -->
     <section class="stats-bar">
       <div class="stats-bar-inner">
@@ -96,6 +108,7 @@
 
 <script setup>
 import { useRouter } from 'vue-router'
+import RankingsBoard from 'components/RankingsBoard.vue'
 
 const router = useRouter()
 
@@ -281,6 +294,41 @@ function scrollTo(id) {
   font-size: 14px;
   color: var(--text-secondary);
   margin: 0;
+}
+
+// Rankings
+.rankings-section {
+  max-width: 920px;
+  margin: 0 auto;
+  padding: 40px 24px 60px;
+  scroll-margin-top: 80px;
+}
+
+.section-head {
+  text-align: center;
+  margin-bottom: 28px;
+}
+
+.header-kicker {
+  font-size: 12px;
+  letter-spacing: 4px;
+  color: var(--gold);
+  margin: 0 0 4px;
+  opacity: 0.8;
+}
+
+.section-title {
+  font-size: clamp(34px, 6vw, 52px);
+  font-weight: 900;
+  letter-spacing: 4px;
+  margin: 0;
+  line-height: 1;
+}
+
+.section-sub {
+  color: var(--text-secondary);
+  font-size: 14px;
+  margin: 8px 0 0;
 }
 
 // Stats Bar
