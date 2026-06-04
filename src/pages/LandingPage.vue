@@ -1,20 +1,7 @@
 <template>
   <q-page class="landing-page">
     <!-- Navbar -->
-    <header class="landing-nav">
-      <div class="nav-inner">
-        <img src="/avc-logo.svg" alt="AVC" class="nav-logo" />
-        <nav class="nav-links gt-sm">
-          <a href="#inicio" class="nav-link active">INICIO</a>
-          <a href="#mapa" class="nav-link">MAPA</a>
-          <a href="#rankings" class="nav-link">RANKINGS</a>
-          <a href="#misiones" class="nav-link">MISIONES</a>
-          <a href="#tienda" class="nav-link">TIENDA</a>
-          <a href="#comunidad" class="nav-link">COMUNIDAD</a>
-        </nav>
-        <button class="avc-btn connect-btn" @click="goToLogin">CONECTAR</button>
-      </div>
-    </header>
+    <LandingNav />
 
     <!-- Hero Section -->
     <section class="hero-section" id="inicio">
@@ -66,18 +53,6 @@
       </div>
     </section>
 
-    <!-- Rankings -->
-    <section class="rankings-section" id="rankings">
-      <div class="section-head">
-        <p class="header-kicker font-orbitron">SALÓN DE LA FAMA</p>
-        <h2 class="section-title font-orbitron">
-          <span class="text-gold-gradient">RANKINGS</span>
-        </h2>
-        <p class="section-sub">Los mejores aventureros de AventuraCraftLatin</p>
-      </div>
-      <RankingsBoard />
-    </section>
-
     <!-- Server Stats Bar -->
     <section class="stats-bar">
       <div class="stats-bar-inner">
@@ -86,15 +61,6 @@
             <q-icon name="dns" class="text-gold q-mr-sm" />
             <span class="font-orbitron text-gold server-ip">PLAY.AVCLATIN.COM</span>
           </div>
-          <div class="server-players">
-            <span class="font-orbitron player-count">19500</span>
-          </div>
-        </div>
-        <div class="server-online">
-          <span class="online-dot"></span>
-          <span class="online-text">EN LÍNEA</span>
-          <span class="font-orbitron online-count">482</span>
-          <span class="online-label">JUGADORES</span>
         </div>
       </div>
     </section>
@@ -108,7 +74,7 @@
 
 <script setup>
 import { useRouter } from 'vue-router'
-import RankingsBoard from 'components/RankingsBoard.vue'
+import LandingNav from 'components/LandingNav.vue'
 
 const router = useRouter()
 

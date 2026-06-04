@@ -26,6 +26,18 @@
   box-sizing: border-box;
 }
 
+// Permite el scroll vertical de toda la app.
+// Anula cualquier #q-app { height:100vh; overflow:hidden } heredado (splash viejo / caché).
+html,
+body,
+#q-app {
+  height: auto !important;
+  min-height: 100vh;
+  overflow-x: hidden;
+  overflow-y: auto !important;
+  display: block !important;
+}
+
 body {
   background-color: #0f0e1a;
   color: var(--text-primary);

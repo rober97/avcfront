@@ -47,13 +47,6 @@
             </div>
           </div>
         </div>
-
-        <div class="hero-status">
-          <span class="status-dot"></span>
-          <span class="status-text">EN LÍNEA</span>
-          <span class="status-count font-orbitron">482</span>
-          <span class="status-label">jugadores</span>
-        </div>
       </div>
 
       <!-- ===== Right form panel ===== -->

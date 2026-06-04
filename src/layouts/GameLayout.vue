@@ -105,11 +105,8 @@ const navItems = [
   { label: 'DASHBOARD', icon: 'dashboard', path: '/dashboard' },
   { label: 'MI PERFIL', icon: 'person', path: '/mi-perfil' },
   { label: 'MISIONES', icon: 'assignment', path: '/misiones' },
-  { label: 'LOGROS', icon: 'emoji_events', path: '/logros' },
   { label: 'MAPA', icon: 'map', path: '/mapa' },
   { label: 'RANKINGS', icon: 'leaderboard', path: '/rankings' },
-  { label: 'TIENDA', icon: 'storefront', path: '/tienda' },
-  { label: 'EVENTOS', icon: 'celebration', path: '/eventos' },
   { label: 'COMUNIDAD', icon: 'groups', path: '/comunidad' },
 ]
 

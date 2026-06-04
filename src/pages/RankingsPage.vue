@@ -1,5 +1,6 @@
 <template>
   <q-page class="rankings-page">
+    <LandingNav />
     <div class="bg-glow"></div>
     <div class="rankings-header">
       <p class="header-kicker font-orbitron">SALÓN DE LA FAMA</p>
@@ -14,6 +15,7 @@
 
 <script setup>
 import RankingsBoard from 'components/RankingsBoard.vue'
+import LandingNav from 'components/LandingNav.vue'
 </script>
 
 <style lang="scss" scoped>
@@ -21,8 +23,7 @@ import RankingsBoard from 'components/RankingsBoard.vue'
   position: relative;
   max-width: 920px;
   margin: 0 auto;
-  padding: 32px 20px 64px;
-  overflow: hidden;
+  padding: 96px 20px 64px;
 }
 
 .bg-glow {

@@ -22,6 +22,12 @@ const routes = [
         component: () => import('pages/RegisterPage.vue'),
         meta: { guestOnly: true }
       },
+      {
+        // Ranking público: accesible sin login
+        path: 'rankings',
+        name: 'rankings',
+        component: () => import('pages/RankingsPage.vue'),
+      },
     ]
   },
 
@@ -58,12 +64,6 @@ const routes = [
         path: 'mapa',
         name: 'mapa',
         component: () => import('pages/MapPage.vue'),
-        meta: { requiresAuth: true }
-      },
-      {
-        path: 'rankings',
-        name: 'rankings',
-        component: () => import('pages/RankingsPage.vue'),
         meta: { requiresAuth: true }
       },
       {
