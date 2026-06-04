@@ -12,7 +12,7 @@ const isLocal =
 
 const API_BASE = isLocal
   ? 'http://localhost:3000/api'
-  : 'https://avc-1dbca99a8369.herokuapp.com/api';
+  : 'https://avcback.onrender.com/api';
 
 export const useGlobal = defineStore('counter', {
   state: () => ({
