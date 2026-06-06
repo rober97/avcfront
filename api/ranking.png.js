@@ -273,8 +273,11 @@ export default async function handler(req) {
     height,
     fonts,
     headers: {
-      // El CDN cachea 60s; el plugin ImageFrame refresca por su cuenta.
-      'Cache-Control': 'public, max-age=0, s-maxage=60, stale-while-revalidate=120',
+      // 'no-transform' es CLAVE: evita que el CDN recomprima el PNG (brotli/gzip),
+      // lo que rompe la descarga desde clientes Java como ImageFrame (ImageIO).
+      // s-maxage corto para que la imagen se actualice (no inmutable).
+      'Cache-Control': 'public, no-transform, max-age=0, s-maxage=60, stale-while-revalidate=120',
+      'Content-Type': 'image/png',
     },
   })
 }
