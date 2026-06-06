@@ -11,15 +11,19 @@ const routes = [
         meta: { guestOnly: true }
       },
       {
+        // TEMPORAL: login deshabilitado, se muestra página de mantenimiento.
+        // Para reactivar, restaurar: () => import('pages/LoginPage.vue')
         path: 'login',
         name: 'login',
-        component: () => import('pages/LoginPage.vue'),
+        component: () => import('pages/MaintenancePage.vue'),
         meta: { guestOnly: true }
       },
       {
+        // TEMPORAL: registro deshabilitado, se muestra página de mantenimiento.
+        // Para reactivar, restaurar: () => import('pages/RegisterPage.vue')
         path: 'register',
         name: 'register',
-        component: () => import('pages/RegisterPage.vue'),
+        component: () => import('pages/MaintenancePage.vue'),
         meta: { guestOnly: true }
       },
       {
