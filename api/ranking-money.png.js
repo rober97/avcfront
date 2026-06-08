@@ -1,8 +1,8 @@
-// /api/ranking.png  -> top general (categoría por ?cat=, por defecto kills)
+// /api/ranking-money.png  -> top de DINERO (categoría fija)
 import { renderRanking } from '../lib/ranking-image.js'
 
 export const config = { runtime: 'edge' }
 
 export default function handler(req) {
-  return renderRanking(req)
+  return renderRanking(req, 'money')
 }
